@@ -1,2 +1,5 @@
+[MASTER]
+init-hook='import sys; sys.path.append("/workspaces/scripting-tanks/server")'
+
 [MESSAGES CONTROL]
 disable=missing-module-docstring,missing-class-docstring,missing-function-docstring
