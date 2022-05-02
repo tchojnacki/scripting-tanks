@@ -1,0 +1,13 @@
+{
+	"name": "Project Dev",
+	"dockerFile": "Dockerfile",
+	"postCreateCommand": "pip install --no-cache-dir -r requirements.txt && npm --prefix client install",
+	"appPort": [
+		"3000:3000",
+		"8000:8000"
+	],
+	"settings": {
+		"terminal.integrated.defaultProfile.linux": "ash",
+	},
+	"extensions": []
+}

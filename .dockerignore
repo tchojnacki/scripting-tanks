@@ -1,0 +1,15 @@
+.devcontainer
+.git
+.gitignore
+.dockerignore
+__pycache__
+node_modules
+build/*
+!build/.gitkeep
+start-dev.sh
+Dockerfile
+heroku.yml
+*.md
+tsconfig.json
+npm-debug.log*
+.pylintrc
