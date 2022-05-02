@@ -1,26 +1,20 @@
 import { useEffect, useRef } from "react"
 
-const client_id = Date.now()
-
 const SERVER_HOST = process.env.NODE_ENV === "production" ? window.location.host : "localhost:3000"
 
 const WEBSOCKET_ROOT = `${
   window.location.protocol === "https:" ? "wss:" : "ws:"
-}//${SERVER_HOST}/ws/${client_id}`
+}//${SERVER_HOST}/ws`
 const API_ROOT = `${window.location.protocol}//${SERVER_HOST}/api`
 
 function App() {
   const wsRef = useRef<WebSocket>()
 
-  function sendMessage(msg: string) {
-    wsRef.current?.send(msg)
-  }
-
   useEffect(() => {
-    const ws = new WebSocket(WEBSOCKET_ROOT)
+    const ws = new WebSocket(`${WEBSOCKET_ROOT}/game`)
 
-    ws.onmessage = function (event) {
-      console.log(event)
+    ws.onmessage = ({ data }) => {
+      console.log(JSON.parse(data))
     }
 
     wsRef.current = ws
