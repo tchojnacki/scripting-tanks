@@ -40,11 +40,14 @@ class ConnectionManager:
         except WebSocketDisconnect:
             self._handle_on_disconnect(socket)
 
-    async def send_to_single(self, socket_id: int, tag: str, data: str):
+    async def send_to_single(self, socket_id: int, tag: str, data: any):
         await self._active_connections[socket_id].send_json({"tag": tag, "data": data})
 
-    async def send_to_all(self, tag: str, data: str):
+    async def send_to_all(self, tag: str, data: any):
         await asyncio.gather(*[
             self.send_to_single(socket_id, tag, data)
             for socket_id in self._active_connections
         ])
+
+    def all_socket_ids(self):
+        return list(self._active_connections.keys())
