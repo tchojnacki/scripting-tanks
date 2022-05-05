@@ -11,7 +11,12 @@
 		"python.languageServer": "Pylance",
 		"python.linting.enabled": true,
 		"python.linting.pylintEnabled": true,
-		"python.analysis.extraPaths": ["./server"]
+		"python.analysis.extraPaths": ["./server"],
+		"python.formatting.provider": "autopep8",
+		"python.formatting.autopep8Args": [
+			"--max-line-length",
+			"100",
+		]
 	},
 	"extensions": [
 		"ms-python.python",
