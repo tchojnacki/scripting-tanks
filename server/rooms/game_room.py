@@ -1,8 +1,17 @@
+import asyncio
+from typing import TYPE_CHECKING
 from connection_data import ConnectionData
 from .connection_room import ConnectionRoom
 
+if TYPE_CHECKING:
+    from connection_manager import ConnectionManager
+
 
 class GameRoom(ConnectionRoom):
+    def __init__(self, manager: "ConnectionManager", lid):
+        super().__init__(manager)
+        self.lid = lid
+
     def get_full_room_state(self):
         return {
             "location": "lobby",
@@ -19,4 +28,4 @@ class GameRoom(ConnectionRoom):
 
     def handle_message(self, sender: ConnectionData, tag: str, data: any):
         if tag == "leave-lobby":
-            self.manager.return_to_menu(sender.cid)
+            asyncio.ensure_future(self.manager.return_to_menu(sender.cid))

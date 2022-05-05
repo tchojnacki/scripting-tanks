@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 import asyncio
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from connection_manager import ConnectionManager
     from connection_data import ConnectionData
@@ -29,6 +28,10 @@ class ConnectionRoom(ABC):
             self.manager.send_to_single(cid, tag, data)
             for cid in self._player_ids
         ])
+
+    @property
+    def player_count(self):
+        return len(self._player_ids)
 
     @abstractmethod
     def handle_message(self, sender: "ConnectionData", tag: str, data: any):

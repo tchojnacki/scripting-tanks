@@ -7,12 +7,11 @@ class MenuRoom(ConnectionRoom):
     def get_full_room_state(self):
         return {
             "location": "menu",
-            "lobbies": [{"name": i} for i, _ in enumerate(self.manager.lobby_list)],
+            "lobbies": [{"lid": lid} for lid, _ in self.manager.lobby_entries],
         }
 
     def handle_message(self, sender: ConnectionData, tag: str, data: any):
         if tag == "create-lobby":
-            i = self.manager.create_lobby()
-            asyncio.ensure_future(sender.room.broadcast_message("new-lobby", {"name": i}))
+            asyncio.ensure_future(self.manager.join_lobby(sender.cid, sender.cid))
         elif tag == "enter-lobby":
-            self.manager.join_lobby(sender.cid, data)
+            asyncio.ensure_future(self.manager.join_lobby(sender.cid, data))

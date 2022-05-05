@@ -6,7 +6,7 @@ __pycache__
 node_modules
 build/*
 !build/.gitkeep
-start-dev.sh
+*.sh
 Dockerfile
 heroku.yml
 *.md

@@ -54,6 +54,11 @@ function App() {
         setRoomState(message.data)
       } else if (message.tag === "new-lobby") {
         setRoomState((prev: any) => ({ ...prev, lobbies: [...prev.lobbies, message.data] }))
+      } else if (message.tag === "lobby-removed") {
+        setRoomState((prev: any) => ({
+          ...prev,
+          lobbies: prev.lobbies.filter(({ lid }: any) => lid !== message.data.lid),
+        }))
       } else if (message.tag === "new-player") {
         setRoomState((prev: any) => ({ ...prev, players: [...prev.players, message.data] }))
       } else if (message.tag === "player-left") {
@@ -82,9 +87,9 @@ function App() {
         <h1>Lobbies</h1>
         <ul>
           {roomState?.lobbies?.map((lobby: any) => (
-            <li key={lobby.name}>
-              {lobby.name}
-              <button onClick={() => sendMessage("enter-lobby", lobby.name)}>Enter</button>
+            <li key={lobby.lid}>
+              {lobby.lid}
+              <button onClick={() => sendMessage("enter-lobby", lobby.lid)}>Enter</button>
             </li>
           ))}
         </ul>

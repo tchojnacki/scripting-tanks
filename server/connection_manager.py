@@ -9,7 +9,7 @@ from rooms.menu_room import MenuRoom
 class ConnectionManager:
     def __init__(self):
         self._menu_room = MenuRoom(self)
-        self._game_rooms: list[GameRoom] = []
+        self._game_rooms: dict[str, GameRoom] = {}
         self._active_connections: dict[str, ConnectionData] = {}
 
     async def _handle_on_connect(self, socket: WebSocket):
@@ -32,11 +32,20 @@ class ConnectionManager:
         con.room = new_room
         await con.room.on_join(con)
 
-    def return_to_menu(self, cid: str):
-        asyncio.ensure_future(self._switch_room(cid, self._menu_room))
+    async def return_to_menu(self, cid: str):
+        room = self._active_connections[cid].room
+        await self._switch_room(cid, self._menu_room)
+        if room.player_count == 0:
+            del self._game_rooms[room.lid]
+            await self._menu_room.broadcast_message("lobby-removed", {"lid": room.lid})
 
-    def join_lobby(self, cid: str, lobby_name: int):
-        asyncio.ensure_future(self._switch_room(cid, self._game_rooms[lobby_name]))
+    async def join_lobby(self, cid: str, lid: int):
+        if cid == lid and lid not in self._game_rooms:
+            self._game_rooms[lid] = GameRoom(self, lid)
+            await self._menu_room.broadcast_message("new-lobby", {"lid": lid})
+
+        if lid in self._game_rooms:
+            await self._switch_room(cid, self._game_rooms[lid])
 
     def _handle_message(self, sender: ConnectionData, tag: str, data: any):
         sender.room.handle_message(sender, tag, data)
@@ -57,9 +66,5 @@ class ConnectionManager:
         await self._active_connections[cid].socket.send_json({"tag": tag, "data": data})
 
     @property
-    def lobby_list(self):
-        return self._game_rooms
-
-    def create_lobby(self):
-        self._game_rooms.append(GameRoom(self))
-        return len(self._game_rooms) - 1
+    def lobby_entries(self):
+        return self._game_rooms.items()
