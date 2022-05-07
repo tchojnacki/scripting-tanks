@@ -7,7 +7,10 @@ class MenuRoom(ConnectionRoom):
     def get_full_room_state(self):
         return {
             "location": "menu",
-            "lobbies": [{"lid": lid} for lid, _ in self.manager.lobby_entries],
+            "lobbies": [
+                {"lid": room.lid, "name": room.name}
+                for _, room in self.manager.lobby_entries
+            ],
         }
 
     def handle_message(self, sender: ConnectionData, tag: str, data: any):

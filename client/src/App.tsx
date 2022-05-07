@@ -44,13 +44,17 @@ function App() {
     lobbies: [],
   })
 
+  const [name, setName] = useState("")
+
   useEffect(() => {
     const ws = new WebSocket(`${WEBSOCKET_ROOT}/game`)
 
     ws.onmessage = event => {
       const message = JSON.parse(event.data)
 
-      if (message.tag === "full-room-state") {
+      if (message.tag === "assign-display-name") {
+        setName(message.data)
+      } else if (message.tag === "full-room-state") {
         setRoomState(message.data)
       } else if (message.tag === "new-lobby") {
         setRoomState((prev: any) => ({ ...prev, lobbies: [...prev.lobbies, message.data] }))
@@ -64,7 +68,7 @@ function App() {
       } else if (message.tag === "player-left") {
         setRoomState((prev: any) => ({
           ...prev,
-          players: prev.players.filter((p: any) => p !== message.data),
+          players: prev.players.filter((p: any) => p.cid !== message.data),
         }))
       }
     }
@@ -83,12 +87,14 @@ function App() {
   if (roomState.location === "menu") {
     return (
       <>
+        <h5>Your name: {name}</h5>
         <button onClick={() => sendMessage("create-lobby")}>Create lobby</button>
-        <h1>Lobbies</h1>
+        <h1>Menu</h1>
+        <h2>Lobbies</h2>
         <ul>
           {roomState?.lobbies?.map((lobby: any) => (
             <li key={lobby.lid}>
-              {lobby.lid}
+              {lobby.name}
               <button onClick={() => sendMessage("enter-lobby", lobby.lid)}>Enter</button>
             </li>
           ))}
@@ -98,11 +104,13 @@ function App() {
   } else if (roomState.location === "lobby") {
     return (
       <>
+        <h5>Your name: {name}</h5>
         <button onClick={() => sendMessage("leave-lobby")}>Leave</button>
-        <h1>Players</h1>
+        <h1>{roomState?.name}</h1>
+        <h2>Players</h2>
         <ul>
           {roomState?.players?.map((player: any) => (
-            <li key={player}>{player}</li>
+            <li key={player.cid}>{player.name}</li>
           ))}
         </ul>
       </>

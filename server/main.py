@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from environment import DEVELOPMENT, PORT
+from utils.environment import DEVELOPMENT, PORT
 from socket_endpoints import sockets
 from api_endpoints import api
 
