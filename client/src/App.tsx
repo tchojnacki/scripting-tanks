@@ -65,6 +65,8 @@ function App() {
         }))
       } else if (message.tag === "new-player") {
         setRoomState((prev: any) => ({ ...prev, players: [...prev.players, message.data] }))
+      } else if (message.tag === "owner-change") {
+        setRoomState((prev: any) => ({ ...prev, owner: message.data }))
       } else if (message.tag === "player-left") {
         setRoomState((prev: any) => ({
           ...prev,
@@ -94,7 +96,7 @@ function App() {
         <ul>
           {roomState?.lobbies?.map((lobby: any) => (
             <li key={lobby.lid}>
-              {lobby.name}
+              {lobby.name} {lobby.players}{" "}
               <button onClick={() => sendMessage("enter-lobby", lobby.lid)}>Enter</button>
             </li>
           ))}
@@ -110,7 +112,9 @@ function App() {
         <h2>Players</h2>
         <ul>
           {roomState?.players?.map((player: any) => (
-            <li key={player.cid}>{player.name}</li>
+            <li key={player.cid}>
+              {player.name} {player.cid === roomState?.owner && "👑"}
+            </li>
           ))}
         </ul>
       </>

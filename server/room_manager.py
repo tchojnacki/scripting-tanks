@@ -3,6 +3,7 @@ from typing import Optional
 from rooms.connection_room import ConnectionRoom
 from rooms.game_room import GameRoom
 from rooms.menu_room import MenuRoom
+from utils.uid import get_uid
 
 
 class RoomManager:
@@ -26,9 +27,9 @@ class RoomManager:
     def handle_message(self, sender_cid: str, tag: str, data: any):
         match tag:
             case "create-lobby":
-                asyncio.ensure_future(self._join_lobby(sender_cid, sender_cid))
+                asyncio.ensure_future(self._create_lobby(sender_cid))
             case "enter-lobby":
-                asyncio.ensure_future(self._join_lobby(sender_cid, data))
+                asyncio.ensure_future(self._join_game_room(sender_cid, data))
             case "leave-lobby":
                 asyncio.ensure_future(self._switch_room(sender_cid, self._menu_room))
             case _:
@@ -45,27 +46,29 @@ class RoomManager:
         if prev_room is not None:
             await prev_room.on_leave(cid)
             if isinstance(prev_room, GameRoom) and prev_room.player_count == 0:
-                await self._remove_lobby(prev_room.lid)
+                await self._remove_game_room(prev_room.lid)
 
         if new_room is not None:
             await new_room.on_join(cid)
 
-    async def _remove_lobby(self, lid: str):
+    async def _remove_game_room(self, lid: str):
         del self._game_rooms[lid]
         await self._menu_room.broadcast_message("lobby-removed", {"lid": lid})
 
-    async def _join_lobby(self, cid: str, lid: str):
-        if cid == lid and lid not in self._game_rooms:
-            name = f"{self._connection_manager.cid_to_display_name(cid)}'s Game"
-            self._game_rooms[lid] = GameRoom(self, lid, name)
-            await self._menu_room.broadcast_message("new-lobby", {"lid": lid, "name": name})
+    async def _create_lobby(self, owner_cid: str):
+        lid = "lid$" + get_uid()
+        name = f"{self._connection_manager.cid_to_display_name(owner_cid)}'s Game"
+        self._game_rooms[lid] = GameRoom(self, owner_cid, lid, name)
+        await self._menu_room.broadcast_message("new-lobby", {"lid": lid, "name": name})
+        await self._join_game_room(owner_cid, lid)
 
+    async def _join_game_room(self, cid: str, lid: str):
         if lid in self._game_rooms:
             await self._switch_room(cid, self._game_rooms[lid])
 
     @property
     def lobby_entries(self) -> list[dict[str, str]]:
         return [
-            {"lid": room.lid, "name": room.name}
+            {"lid": room.lid, "name": room.name, "players": room.player_count}
             for room in self._game_rooms.values()
         ]
