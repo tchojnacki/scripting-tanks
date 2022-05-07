@@ -1,20 +1,9 @@
-import asyncio
-from connection_data import ConnectionData
 from .connection_room import ConnectionRoom
 
 
 class MenuRoom(ConnectionRoom):
-    def get_full_room_state(self):
+    def get_full_room_state(self) -> any:
         return {
             "location": "menu",
-            "lobbies": [
-                {"lid": room.lid, "name": room.name}
-                for _, room in self.manager.lobby_entries
-            ],
+            "lobbies": self._room_manager.lobby_entries,
         }
-
-    def handle_message(self, sender: ConnectionData, tag: str, data: any):
-        if tag == "create-lobby":
-            asyncio.ensure_future(self.manager.join_lobby(sender.cid, sender.cid))
-        elif tag == "enter-lobby":
-            asyncio.ensure_future(self.manager.join_lobby(sender.cid, data))

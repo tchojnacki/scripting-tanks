@@ -1,57 +1,31 @@
 import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 from connection_data import ConnectionData
-from rooms.connection_room import ConnectionRoom
-from rooms.game_room import GameRoom
-from rooms.menu_room import MenuRoom
+from room_manager import RoomManager
 from utils.display_names import gen_random_name
 
 
 class ConnectionManager:
     def __init__(self):
-        self._menu_room = MenuRoom(self)
-        self._game_rooms: dict[str, GameRoom] = {}
         self._active_connections: dict[str, ConnectionData] = {}
+        self._room_manager: RoomManager = RoomManager(self)
 
     async def _handle_on_connect(self, socket: WebSocket):
         await socket.accept()
 
         cid = ConnectionData.cid_from_socket(socket)
-        con = ConnectionData(socket, self._menu_room, gen_random_name())
+        con = ConnectionData(socket, gen_random_name())
         self._active_connections[cid] = con
         await self.send_to_single(cid, "assign-display-name", con.display_name)
-        await con.room.on_join(con)
+        await self._room_manager.on_connect(cid)
 
     def _handle_on_disconnect(self, socket: WebSocket):
         cid = ConnectionData.cid_from_socket(socket)
-        con = self._active_connections[cid]
         del self._active_connections[cid]
-        asyncio.ensure_future(con.room.on_leave(con))
-
-    async def _switch_room(self, cid: str, new_room: ConnectionRoom):
-        con = self._active_connections[cid]
-        await con.room.on_leave(con)
-        con.room = new_room
-        await con.room.on_join(con)
-
-    async def return_to_menu(self, cid: str):
-        await self._switch_room(cid, self._menu_room)
-
-    async def join_lobby(self, cid: str, lid: str):
-        if cid == lid and lid not in self._game_rooms:
-            name = f"{self._active_connections[lid].display_name}'s Game"
-            self._game_rooms[lid] = GameRoom(self, lid, name)
-            await self._menu_room.broadcast_message("new-lobby", {"lid": lid, "name": name})
-
-        if lid in self._game_rooms:
-            await self._switch_room(cid, self._game_rooms[lid])
-
-    async def remove_lobby(self, lid: str):
-        del self._game_rooms[lid]
-        await self._menu_room.broadcast_message("lobby-removed", {"lid": lid})
+        asyncio.ensure_future(self._room_manager.on_disconnect(cid))
 
     def _handle_message(self, sender: ConnectionData, tag: str, data: any):
-        sender.room.handle_message(sender, tag, data)
+        self._room_manager.handle_message(sender.cid, tag, data)
 
     async def handle_connection(self, socket: WebSocket):
         await self._handle_on_connect(socket)
@@ -68,9 +42,5 @@ class ConnectionManager:
     async def send_to_single(self, cid: str, tag: str, data: any):
         await self._active_connections[cid].socket.send_json({"tag": tag, "data": data})
 
-    @property
-    def lobby_entries(self):
-        return self._game_rooms.items()
-
-    def cid_to_name(self, cid: str):
+    def cid_to_display_name(self, cid: str) -> str:
         return self._active_connections[cid].display_name
