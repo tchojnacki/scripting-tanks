@@ -8,23 +8,33 @@ if TYPE_CHECKING:
 
 
 class GameRoom(ConnectionRoom):
-    def __init__(self, manager: "ConnectionManager", lid):
+    def __init__(self, manager: "ConnectionManager", lid: str, name: str):
         super().__init__(manager)
         self.lid = lid
+        self.name = name
 
     def get_full_room_state(self):
         return {
             "location": "lobby",
-            "players": list(self._player_ids),
+            "name": self.name,
+            "players": list(map(
+                lambda cid: {"cid": cid, "name": self.manager.cid_to_name(cid)},
+                self._player_ids
+            )),
         }
 
     async def on_join(self, joiner: "ConnectionData"):
-        await self.broadcast_message("new-player", joiner.cid)
+        await self.broadcast_message(
+            "new-player",
+            {"cid": joiner.cid, "name": self.manager.cid_to_name(joiner.cid)}
+        )
         await super().on_join(joiner)
 
     async def on_leave(self, leaver: "ConnectionData"):
         await super().on_leave(leaver)
         await self.broadcast_message("player-left", leaver.cid)
+        if len(self._player_ids) == 0:
+            await self.manager.remove_lobby(self.lid)
 
     def handle_message(self, sender: ConnectionData, tag: str, data: any):
         if tag == "leave-lobby":

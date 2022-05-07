@@ -4,6 +4,7 @@ from connection_data import ConnectionData
 from rooms.connection_room import ConnectionRoom
 from rooms.game_room import GameRoom
 from rooms.menu_room import MenuRoom
+from utils.display_names import gen_random_name
 
 
 class ConnectionManager:
@@ -16,9 +17,10 @@ class ConnectionManager:
         await socket.accept()
 
         cid = ConnectionData.cid_from_socket(socket)
-        con = ConnectionData(socket, self._menu_room)
+        con = ConnectionData(socket, self._menu_room, gen_random_name())
         self._active_connections[cid] = con
-        asyncio.ensure_future(con.room.on_join(con))
+        await self.send_to_single(cid, "assign-display-name", con.display_name)
+        await con.room.on_join(con)
 
     def _handle_on_disconnect(self, socket: WebSocket):
         cid = ConnectionData.cid_from_socket(socket)
@@ -33,19 +35,20 @@ class ConnectionManager:
         await con.room.on_join(con)
 
     async def return_to_menu(self, cid: str):
-        room = self._active_connections[cid].room
         await self._switch_room(cid, self._menu_room)
-        if room.player_count == 0:
-            del self._game_rooms[room.lid]
-            await self._menu_room.broadcast_message("lobby-removed", {"lid": room.lid})
 
-    async def join_lobby(self, cid: str, lid: int):
+    async def join_lobby(self, cid: str, lid: str):
         if cid == lid and lid not in self._game_rooms:
-            self._game_rooms[lid] = GameRoom(self, lid)
-            await self._menu_room.broadcast_message("new-lobby", {"lid": lid})
+            name = f"{self._active_connections[lid].display_name}'s Game"
+            self._game_rooms[lid] = GameRoom(self, lid, name)
+            await self._menu_room.broadcast_message("new-lobby", {"lid": lid, "name": name})
 
         if lid in self._game_rooms:
             await self._switch_room(cid, self._game_rooms[lid])
+
+    async def remove_lobby(self, lid: str):
+        del self._game_rooms[lid]
+        await self._menu_room.broadcast_message("lobby-removed", {"lid": lid})
 
     def _handle_message(self, sender: ConnectionData, tag: str, data: any):
         sender.room.handle_message(sender, tag, data)
@@ -68,3 +71,6 @@ class ConnectionManager:
     @property
     def lobby_entries(self):
         return self._game_rooms.items()
+
+    def cid_to_name(self, cid: str):
+        return self._active_connections[cid].display_name

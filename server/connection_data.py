@@ -8,6 +8,7 @@ from rooms.connection_room import ConnectionRoom
 class ConnectionData:
     socket: WebSocket
     room: ConnectionRoom
+    display_name: str
 
     @staticmethod
     def cid_from_socket(socket: WebSocket) -> str:
