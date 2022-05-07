@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 from hashlib import md5
 from fastapi import WebSocket
-from rooms.connection_room import ConnectionRoom
 
 
 @dataclass
 class ConnectionData:
     socket: WebSocket
-    room: ConnectionRoom
     display_name: str
 
     @staticmethod
