@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from hashlib import md5
 from fastapi import WebSocket
+from utils.uid import get_uid
 
 
 @dataclass
@@ -10,7 +10,7 @@ class ConnectionData:
 
     @staticmethod
     def cid_from_socket(socket: WebSocket) -> str:
-        return md5(str(id(socket)).encode()).hexdigest()
+        return "cid$" + get_uid(id(socket))
 
     @property
     def cid(self) -> str:
