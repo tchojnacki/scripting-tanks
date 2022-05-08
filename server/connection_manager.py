@@ -24,18 +24,24 @@ class ConnectionManager:
         del self._active_connections[cid]
         asyncio.ensure_future(self._room_manager.on_disconnect(cid))
 
-    def _handle_message(self, sender: ConnectionData, tag: str, data: any):
-        self._room_manager.handle_message(sender.cid, tag, data)
+    def _handle_message(self, sender_cid: str, tag: str, data: any):
+        match tag:
+            case "refetch-display-name":
+                asyncio.ensure_future(self.send_to_single(
+                    sender_cid, "assign-display-name",
+                    self._active_connections[sender_cid].display_name
+                ))
+            case _:
+                self._room_manager.handle_message(sender_cid, tag, data)
 
     async def handle_connection(self, socket: WebSocket):
         await self._handle_on_connect(socket)
         cid = ConnectionData.cid_from_socket(socket)
-        connection = self._active_connections[cid]
         try:
             while True:
                 message = await socket.receive_json()
                 if "tag" in message:
-                    self._handle_message(connection, message["tag"], message["data"])
+                    self._handle_message(cid, message["tag"], message["data"])
         except WebSocketDisconnect:
             self._handle_on_disconnect(socket)
 
