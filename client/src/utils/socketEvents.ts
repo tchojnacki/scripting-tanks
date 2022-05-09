@@ -4,24 +4,27 @@ interface MenuLobbyEntry {
   players: number
 }
 
-interface MenuRoomState {
-  location: "menu"
-  lobbies: MenuLobbyEntry[]
-}
-
 interface LobbyPlayerEntry {
   cid: string
   name: string
 }
 
-interface LobbyRoomState {
-  location: "lobby"
-  name: string
-  owner: string
-  players: LobbyPlayerEntry[]
+type RoomStateMap = {
+  lobby: {
+    location: "lobby"
+    name: string
+    owner: string
+    players: LobbyPlayerEntry[]
+  }
+  menu: {
+    location: "menu"
+    lobbies: MenuLobbyEntry[]
+  }
 }
 
-export type RoomState = MenuRoomState | LobbyRoomState
+export type RoomLocation = keyof RoomStateMap
+export type StateForRoom<R extends RoomLocation> = RoomStateMap[R]
+export type RoomState = StateForRoom<RoomLocation>
 
 type EventDataMap = {
   "refetch-display-name": null
@@ -41,7 +44,7 @@ export type SocketEventTag = keyof EventDataMap
 
 export type SocketEventData<T extends SocketEventTag> = EventDataMap[T]
 
-export type SocketEventHandler<T extends SocketEventTag> = (
+export type SocketEventHandler<T extends SocketEventTag, R extends RoomLocation> = (
   data: SocketEventData<T>,
-  draft: RoomState
+  draft: StateForRoom<R>
 ) => void

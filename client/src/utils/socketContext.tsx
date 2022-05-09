@@ -4,23 +4,39 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useDebugValue,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react"
 import { WEBSOCKET_ROOT } from "../config"
-import { RoomState, SocketEventData, SocketEventHandler, SocketEventTag } from "./socketEvents"
+import {
+  RoomLocation,
+  RoomState,
+  SocketEventData,
+  SocketEventHandler,
+  SocketEventTag,
+  StateForRoom,
+} from "./socketEvents"
+
+interface SocketContextValue<R extends RoomLocation> {
+  roomState: StateForRoom<R>
+  sendMessage: <T extends SocketEventTag>(tag: T, data: SocketEventData<T>) => void
+  useSocketEvent: <T extends SocketEventTag>(tag: T, handler: SocketEventHandler<T, R>) => void
+}
 
 const SocketContext = createContext({
-  roomState: { location: "menu", lobbies: [] } as RoomState,
-  sendMessage: <T extends SocketEventTag>(tag: T, data: SocketEventData<T>) => {},
-  useSocketEvent: <T extends SocketEventTag>(tag: T, handler: SocketEventHandler<T>) => {},
-})
+  roomState: { location: "menu", lobbies: [] },
+  sendMessage: (tag, data) => {},
+  useSocketEvent: (tag, handler) => {},
+} as SocketContextValue<RoomLocation>)
 
 export function SocketContextProvider({ children }: { children: ReactNode }) {
   const wsRef = useRef<WebSocket>()
-  const eventMapRef = useRef<Partial<{ [T in SocketEventTag]: SocketEventHandler<T>[] }>>({})
+  const eventMapRef = useRef<
+    Partial<{ [T in SocketEventTag]: SocketEventHandler<T, RoomLocation>[] }>
+  >({})
 
   const [roomState, setRoomState] = useState<RoomState>({
     location: "menu",
@@ -52,18 +68,27 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
     wsRef.current?.send(JSON.stringify({ tag, data }))
   }, [])
 
-  function useSocketEvent<T extends SocketEventTag>(tag: T, handler: SocketEventHandler<T>) {
-    useEffect(() => {
-      if (!(tag in eventMapRef.current)) {
-        eventMapRef.current[tag] = []
-      }
-      eventMapRef.current[tag]!.push(handler)
+  const useSocketEvent = useMemo(
+    () =>
+      function useSocketEvent<T extends SocketEventTag>(
+        tag: T,
+        handler: SocketEventHandler<T, RoomLocation>
+      ) {
+        useEffect(() => {
+          if (!(tag in eventMapRef.current)) {
+            eventMapRef.current[tag] = []
+          }
+          eventMapRef.current[tag]!.push(handler)
 
-      return () => {
-        eventMapRef.current[tag] = eventMapRef.current[tag]!.filter(h => h !== handler) as any
-      }
-    }, [tag, handler])
-  }
+          return () => {
+            eventMapRef.current[tag] = eventMapRef.current[tag]!.filter(h => h !== handler) as any
+          }
+        }, [tag, handler])
+
+        useDebugValue(tag)
+      },
+    []
+  )
 
   const value = useMemo(
     () => ({ roomState, sendMessage, useSocketEvent }),
@@ -73,6 +98,6 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
   return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
 }
 
-export function useSocketContext() {
-  return useContext(SocketContext)
+export function useSocketContext<R extends RoomLocation>() {
+  return useContext(SocketContext) as SocketContextValue<R>
 }

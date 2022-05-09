@@ -2,28 +2,20 @@ import { useSocketContext } from "../../utils/socketContext"
 import { usePlayerName } from "../../utils/usePlayerName"
 
 export function Lobby() {
-  const { sendMessage, roomState, useSocketEvent } = useSocketContext()
+  const { sendMessage, roomState, useSocketEvent } = useSocketContext<"lobby">()
   const playerName = usePlayerName()
 
   useSocketEvent("new-player", (data, draft) => {
-    if (draft.location === "lobby") {
-      draft.players.push(data)
-    }
+    draft.players.push(data)
   })
 
   useSocketEvent("player-left", (data, draft) => {
-    if (draft.location === "lobby") {
-      draft.players = draft.players.filter(p => p.cid !== data)
-    }
+    draft.players = draft.players.filter(p => p.cid !== data)
   })
 
   useSocketEvent("owner-change", (data, draft) => {
-    if (draft.location === "lobby") {
-      draft.owner = data
-    }
+    draft.owner = data
   })
-
-  if (roomState.location !== "lobby") return null
 
   return (
     <>

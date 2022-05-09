@@ -2,22 +2,16 @@ import { useSocketContext } from "../../utils/socketContext"
 import { usePlayerName } from "../../utils/usePlayerName"
 
 export function Menu() {
-  const { roomState, sendMessage, useSocketEvent } = useSocketContext()
+  const { roomState, sendMessage, useSocketEvent } = useSocketContext<"menu">()
   const playerName = usePlayerName()
 
   useSocketEvent("new-lobby", (data, draft) => {
-    if (draft.location === "menu") {
-      draft.lobbies.push(data)
-    }
+    draft.lobbies.push(data)
   })
 
   useSocketEvent("lobby-removed", (data, draft) => {
-    if (draft.location === "menu") {
-      draft.lobbies = draft.lobbies.filter(({ lid }) => lid !== data.lid)
-    }
+    draft.lobbies = draft.lobbies.filter(({ lid }) => lid !== data.lid)
   })
-
-  if (roomState.location !== "menu") return null
 
   return (
     <>
