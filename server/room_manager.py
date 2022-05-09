@@ -59,7 +59,10 @@ class RoomManager:
         lid = "lid$" + get_uid()
         name = f"{self._connection_manager.cid_to_display_name(owner_cid)}'s Game"
         self._game_rooms[lid] = GameRoom(self, owner_cid, lid, name)
-        await self._menu_room.broadcast_message("new-lobby", {"lid": lid, "name": name})
+        await self._menu_room.broadcast_message(
+            "new-lobby",
+            {"lid": lid, "name": name, "players": 1}
+        )
         await self._join_game_room(owner_cid, lid)
 
     async def _join_game_room(self, cid: str, lid: str):
