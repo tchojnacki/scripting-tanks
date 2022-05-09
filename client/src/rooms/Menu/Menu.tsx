@@ -1,5 +1,5 @@
-import { useSocketContext } from "../../socketContext"
-import { usePlayerName } from "../../usePlayerName"
+import { useSocketContext } from "../../utils/socketContext"
+import { usePlayerName } from "../../utils/usePlayerName"
 
 export function Menu() {
   const { roomState, sendMessage, useSocketEvent } = useSocketContext()
@@ -7,13 +7,13 @@ export function Menu() {
 
   useSocketEvent("new-lobby", (data, draft) => {
     if (draft.location === "menu") {
-      draft.lobbies.push(data as { lid: string; name: string; players: number })
+      draft.lobbies.push(data)
     }
   })
 
   useSocketEvent("lobby-removed", (data, draft) => {
     if (draft.location === "menu") {
-      draft.lobbies = draft.lobbies.filter(({ lid }) => lid !== (data as { lid: string }).lid)
+      draft.lobbies = draft.lobbies.filter(({ lid }) => lid !== data.lid)
     }
   })
 
@@ -22,7 +22,7 @@ export function Menu() {
   return (
     <>
       <h5>Your name: {playerName}</h5>
-      <button onClick={() => sendMessage("create-lobby")}>Create lobby</button>
+      <button onClick={() => sendMessage("create-lobby", null)}>Create lobby</button>
       <h1>Menu</h1>
       <h2>Lobbies</h2>
       <ul>

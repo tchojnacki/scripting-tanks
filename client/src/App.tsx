@@ -1,5 +1,5 @@
 import { Menu, Lobby } from "./rooms"
-import { useSocketContext } from "./socketContext"
+import { useSocketContext } from "./utils/socketContext"
 
 export function App() {
   const { roomState, useSocketEvent } = useSocketContext()

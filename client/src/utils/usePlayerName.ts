@@ -7,12 +7,12 @@ export function usePlayerName() {
   const [name, setName] = useState("")
 
   useSocketEvent("assign-display-name", data => {
-    setName(data as string)
+    setName(data)
   })
 
   useEffect(() => {
-    sendMessage("refetch-display-name")
-  }, [])
+    sendMessage("refetch-display-name", null)
+  }, [sendMessage])
 
   return name
 }
