@@ -1,6 +1,5 @@
 from typing import Any, NewType, Optional, Union, get_args
 from cattr import Converter
-from utils.uid import LID
 from .create_lobby import CCreateLobbyMsg
 from .enter_lobby import CEnterLobbyMsg
 from .leave_lobby import CLeaveLobbyMsg

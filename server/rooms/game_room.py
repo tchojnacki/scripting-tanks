@@ -6,7 +6,7 @@ from utils.uid import CID, LID
 from .connection_room import ConnectionRoom
 
 if TYPE_CHECKING:
-    from room_manager import RoomManager
+    from .room_manager import RoomManager
 
 
 class GameRoom(ConnectionRoom):

@@ -1,12 +1,11 @@
 import asyncio
 from attr import asdict
-from cattrs import unstructure
 from fastapi import WebSocket, WebSocketDisconnect
-from connection_data import ConnectionData
 from messages.client import ClientMsg, parse_message, CRefetchDisplayNameMsg
 from messages.server import SAssignDisplayNameMsg, ServerMsg
-from room_manager import RoomManager
+from rooms.room_manager import RoomManager
 from utils.display_names import gen_random_name
+from utils.connection_data import ConnectionData
 from utils.uid import CID
 
 

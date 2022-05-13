@@ -7,7 +7,7 @@ from messages.server import ServerMsg, SFullRoomStateMsg
 from utils.uid import CID
 
 if TYPE_CHECKING:
-    from room_manager import RoomManager
+    from .room_manager import RoomManager
 
 
 class ConnectionRoom(ABC):
