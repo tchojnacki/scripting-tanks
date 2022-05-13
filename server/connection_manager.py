@@ -1,6 +1,9 @@
 import asyncio
+from attr import asdict
 from fastapi import WebSocket, WebSocketDisconnect
 from connection_data import ConnectionData
+from dto.assign_display_name import AssignDisplayNameDto
+from dto.tagged_dto import TaggedDto
 from room_manager import RoomManager
 from utils.display_names import gen_random_name
 
@@ -16,7 +19,7 @@ class ConnectionManager:
         cid = ConnectionData.cid_from_socket(socket)
         con = ConnectionData(socket, gen_random_name())
         self._active_connections[cid] = con
-        await self.send_to_single(cid, "assign-display-name", con.display_name)
+        await self.send_to_single(cid, AssignDisplayNameDto(con.display_name))
         await self._room_manager.on_connect(cid)
 
     def _handle_on_disconnect(self, socket: WebSocket):
@@ -28,8 +31,8 @@ class ConnectionManager:
         match tag:
             case "refetch-display-name":
                 asyncio.ensure_future(self.send_to_single(
-                    sender_cid, "assign-display-name",
-                    self._active_connections[sender_cid].display_name
+                    sender_cid,
+                    AssignDisplayNameDto(self._active_connections[sender_cid].display_name)
                 ))
             case _:
                 self._room_manager.handle_message(sender_cid, tag, data)
@@ -45,8 +48,11 @@ class ConnectionManager:
         except WebSocketDisconnect:
             self._handle_on_disconnect(socket)
 
-    async def send_to_single(self, cid: str, tag: str, data: any):
-        await self._active_connections[cid].socket.send_json({"tag": tag, "data": data})
+    async def send_to_single(self, cid: str, dto: TaggedDto):
+        await self._active_connections[cid].socket.send_json({
+            "tag": dto.tag(),
+            "data": asdict(dto)
+        })
 
     def cid_to_display_name(self, cid: str) -> str:
         return self._active_connections[cid].display_name

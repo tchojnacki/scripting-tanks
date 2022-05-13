@@ -1,13 +1,20 @@
 import asyncio
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+from dto.tagged_dto import TaggedDto
+from dto.full_menu_state import FullMenuStateLobbyDto
+from dto.lobby_removed import LobbyRemovedDto
+from dto.new_lobby import NewLobbyDto
 from rooms.connection_room import ConnectionRoom
 from rooms.game_room import GameRoom
 from rooms.menu_room import MenuRoom
 from utils.uid import get_uid
 
+if TYPE_CHECKING:
+    from connection_manager import ConnectionManager
+
 
 class RoomManager:
-    def __init__(self, connection_manager):
+    def __init__(self, connection_manager: "ConnectionManager"):
         self._connection_manager = connection_manager
         self._menu_room = MenuRoom(self)
         self._game_rooms: dict[str, GameRoom] = {}
@@ -38,8 +45,8 @@ class RoomManager:
     def cid_to_display_name(self, cid: str) -> str:
         return self._connection_manager.cid_to_display_name(cid)
 
-    async def send_to_single(self, cid: str, tag: str, data: any):
-        await self._connection_manager.send_to_single(cid, tag, data)
+    async def send_to_single(self, cid: str, dto: TaggedDto):
+        await self._connection_manager.send_to_single(cid, dto)
 
     async def _switch_room(self, cid: str, new_room: Optional[ConnectionRoom]):
         prev_room = self._connection_room(cid)
@@ -53,16 +60,13 @@ class RoomManager:
 
     async def _remove_game_room(self, lid: str):
         del self._game_rooms[lid]
-        await self._menu_room.broadcast_message("lobby-removed", {"lid": lid})
+        await self._menu_room.broadcast_message(LobbyRemovedDto(lid))
 
     async def _create_lobby(self, owner_cid: str):
         lid = "lid$" + get_uid()
         name = f"{self._connection_manager.cid_to_display_name(owner_cid)}'s Game"
         self._game_rooms[lid] = GameRoom(self, owner_cid, lid, name)
-        await self._menu_room.broadcast_message(
-            "new-lobby",
-            {"lid": lid, "name": name, "players": 1}
-        )
+        await self._menu_room.broadcast_message(NewLobbyDto(lid, name, 1))
         await self._join_game_room(owner_cid, lid)
 
     async def _join_game_room(self, cid: str, lid: str):
@@ -70,8 +74,8 @@ class RoomManager:
             await self._switch_room(cid, self._game_rooms[lid])
 
     @property
-    def lobby_entries(self) -> list[dict[str, str]]:
+    def lobby_entries(self) -> list[FullMenuStateLobbyDto]:
         return [
-            {"lid": room.lid, "name": room.name, "players": room.player_count}
+            FullMenuStateLobbyDto(room.lid, room.name, room.player_count)
             for room in self._game_rooms.values()
         ]

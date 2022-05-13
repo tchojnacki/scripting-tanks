@@ -10,11 +10,11 @@ export function Lobby() {
   })
 
   useSocketEvent("player-left", (data, draft) => {
-    draft.players = draft.players.filter(p => p.cid !== data)
+    draft.players = draft.players.filter(p => p.cid !== data.cid)
   })
 
   useSocketEvent("owner-change", (data, draft) => {
-    draft.owner = data
+    draft.owner = data.cid
   })
 
   return (

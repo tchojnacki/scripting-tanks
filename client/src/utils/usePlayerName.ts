@@ -7,7 +7,7 @@ export function usePlayerName() {
   const [name, setName] = useState("")
 
   useSocketEvent("assign-display-name", data => {
-    setName(data)
+    setName(data.name)
   })
 
   useEffect(() => {

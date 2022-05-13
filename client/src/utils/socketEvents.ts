@@ -1,3 +1,11 @@
+import {
+  AssignDisplayNameDto,
+  NewLobbyDto,
+  NewPlayerDto,
+  OwnerChangeDto,
+  PlayerLeftDto,
+} from "./dtos"
+
 interface MenuLobbyEntry {
   lid: string
   name: string
@@ -28,12 +36,12 @@ export type RoomState = StateForRoom<RoomLocation>
 
 type EventDataMap = {
   "refetch-display-name": null
-  "assign-display-name": string
-  "new-player": { cid: string; name: string }
-  "player-left": string
-  "owner-change": string
+  "assign-display-name": AssignDisplayNameDto
+  "new-player": NewPlayerDto
+  "player-left": PlayerLeftDto
+  "owner-change": OwnerChangeDto
   "full-room-state": RoomState
-  "new-lobby": { lid: string; name: string; players: number }
+  "new-lobby": NewLobbyDto
   "create-lobby": null
   "enter-lobby": string
   "lobby-removed": { lid: string }
