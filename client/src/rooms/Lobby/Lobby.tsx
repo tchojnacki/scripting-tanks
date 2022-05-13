@@ -20,7 +20,7 @@ export function Lobby() {
   return (
     <>
       <h5>Your name: {playerName}</h5>
-      <button onClick={() => sendMessage("leave-lobby", null)}>Leave</button>
+      <button onClick={() => sendMessage("c-leave-lobby", null)}>Leave</button>
       <h1>{roomState.name}</h1>
       <h2>Players</h2>
       <ul>

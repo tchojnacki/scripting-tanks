@@ -11,7 +11,7 @@ export function usePlayerName() {
   })
 
   useEffect(() => {
-    sendMessage("refetch-display-name", null)
+    sendMessage("c-refetch-display-name", null)
   }, [sendMessage])
 
   return name

@@ -11,8 +11,8 @@ export type ServerMessageDataMap = {
 }
 
 export type ClientMessageDataMap = {
-  "refetch-display-name": null
-  "create-lobby": null
-  "enter-lobby": string
-  "leave-lobby": null
+  "c-refetch-display-name": null
+  "c-create-lobby": null
+  "c-enter-lobby": string
+  "c-leave-lobby": null
 }

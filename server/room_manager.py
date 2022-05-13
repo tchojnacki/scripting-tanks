@@ -1,6 +1,7 @@
 import asyncio
 from typing import Optional, TYPE_CHECKING
 from dto.lobby_data import LobbyDataDto
+from messages.client import ClientMsg, CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg
 from messages.server import SLobbyRemovedMsg, ServerMsg, SNewLobbyMsg
 from rooms import ConnectionRoom, GameRoom, MenuRoom
 from utils.uid import CID, LID, get_lid
@@ -27,16 +28,16 @@ class RoomManager:
     async def on_disconnect(self, cid: CID):
         await self._switch_room(cid, None)
 
-    def handle_message(self, sender_cid: CID, tag: str, data: any):
-        match tag:
-            case "create-lobby":
+    def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
+        match cmsg:
+            case CCreateLobbyMsg():
                 asyncio.ensure_future(self._create_lobby(sender_cid))
-            case "enter-lobby":
-                asyncio.ensure_future(self._join_game_room(sender_cid, data))
-            case "leave-lobby":
+            case CEnterLobbyMsg(lid):
+                asyncio.ensure_future(self._join_game_room(sender_cid, lid))
+            case CLeaveLobbyMsg():
                 asyncio.ensure_future(self._switch_room(sender_cid, self._menu_room))
             case _:
-                self._connection_room(sender_cid).handle_message(sender_cid, tag, data)
+                self._connection_room(sender_cid).handle_message(sender_cid, cmsg)
 
     def cid_to_display_name(self, cid: CID) -> str:
         return self._connection_manager.cid_to_display_name(cid)

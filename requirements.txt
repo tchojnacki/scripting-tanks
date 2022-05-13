@@ -3,3 +3,4 @@ fastapi==0.75.2
 uvicorn==0.17.6
 websockets==10.3
 attrs==21.4.0
+cattrs==22.1.0

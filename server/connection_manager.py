@@ -1,7 +1,9 @@
 import asyncio
 from attr import asdict
+from cattrs import unstructure
 from fastapi import WebSocket, WebSocketDisconnect
 from connection_data import ConnectionData
+from messages.client import ClientMsg, parse_message, CRefetchDisplayNameMsg
 from messages.server import SAssignDisplayNameMsg, ServerMsg
 from room_manager import RoomManager
 from utils.display_names import gen_random_name
@@ -27,15 +29,15 @@ class ConnectionManager:
         del self._active_connections[cid]
         asyncio.ensure_future(self._room_manager.on_disconnect(cid))
 
-    def _handle_message(self, sender_cid: CID, tag: str, data: any):
-        match tag:
-            case "refetch-display-name":
+    def _handle_message(self, sender_cid: CID, cmsg: ClientMsg):
+        match cmsg:
+            case CRefetchDisplayNameMsg():
                 asyncio.ensure_future(self.send_to_single(
                     sender_cid,
                     SAssignDisplayNameMsg(self._active_connections[sender_cid].display_name)
                 ))
             case _:
-                self._room_manager.handle_message(sender_cid, tag, data)
+                self._room_manager.handle_message(sender_cid, cmsg)
 
     async def handle_connection(self, socket: WebSocket):
         await self._handle_on_connect(socket)
@@ -43,8 +45,8 @@ class ConnectionManager:
         try:
             while True:
                 message = await socket.receive_json()
-                if "tag" in message:
-                    self._handle_message(cid, message["tag"], message["data"])
+                if (parsed_msg := parse_message(message)) is not None:
+                    self._handle_message(cid, parsed_msg)
         except WebSocketDisconnect:
             self._handle_on_disconnect(socket)
 

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import asyncio
 from typing import TYPE_CHECKING
 from dto import FullRoomStateDto
+from messages.client import ClientMsg
 from messages.server import ServerMsg, SFullRoomStateMsg
 from utils.uid import CID
 
@@ -37,7 +38,7 @@ class ConnectionRoom(ABC):
     def player_count(self) -> int:
         return len(self._player_ids)
 
-    def handle_message(self, sender_cid: CID, tag: str, data: any):
+    def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         pass
 
     @abstractmethod
