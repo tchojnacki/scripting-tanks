@@ -1,12 +1,8 @@
 import asyncio
 from typing import Optional, TYPE_CHECKING
 from dto.lobby_data import LobbyDataDto
-from messages.lobby_removed import SLobbyRemovedMsg
-from messages.message_types import ServerMsg
-from messages.new_lobby import SNewLobbyMsg
-from rooms.connection_room import ConnectionRoom
-from rooms.game_room import GameRoom
-from rooms.menu_room import MenuRoom
+from messages.server import SLobbyRemovedMsg, ServerMsg, SNewLobbyMsg
+from rooms import ConnectionRoom, GameRoom, MenuRoom
 from utils.uid import get_uid
 
 if TYPE_CHECKING:

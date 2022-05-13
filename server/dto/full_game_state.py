@@ -1,6 +1,6 @@
 from typing import Literal
 from attr import field, frozen
-from dto.player_data import PlayerDataDto
+from .player_data import PlayerDataDto
 
 
 @frozen

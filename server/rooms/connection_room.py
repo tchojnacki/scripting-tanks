@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 import asyncio
 from typing import TYPE_CHECKING
-from dto.full_room_state import FullRoomStateDto
-from messages.full_room_state import SFullRoomStateMsg
-from messages.message_types import ServerMsg
+from dto import FullRoomStateDto
+from messages.server import ServerMsg, SFullRoomStateMsg
 
 if TYPE_CHECKING:
     from room_manager import RoomManager

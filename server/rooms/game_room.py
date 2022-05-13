@@ -1,10 +1,7 @@
 import random
 from typing import TYPE_CHECKING
-from dto.full_game_state import FullGameStateDto
-from dto.player_data import PlayerDataDto
-from messages.new_player import SNewPlayerMsg
-from messages.owner_change import SOwnerChangeMsg
-from messages.player_left import SPlayerLeftMsg
+from dto import FullGameStateDto, PlayerDataDto
+from messages.server import SNewPlayerMsg, SOwnerChangeMsg, SPlayerLeftMsg
 from .connection_room import ConnectionRoom
 
 if TYPE_CHECKING:

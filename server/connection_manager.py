@@ -2,8 +2,7 @@ import asyncio
 from attr import asdict
 from fastapi import WebSocket, WebSocketDisconnect
 from connection_data import ConnectionData
-from messages.assign_display_name import SAssignDisplayNameMsg
-from messages.message_types import ServerMsg
+from messages.server import SAssignDisplayNameMsg, ServerMsg
 from room_manager import RoomManager
 from utils.display_names import gen_random_name
 

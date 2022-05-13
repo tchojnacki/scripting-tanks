@@ -1,4 +1,4 @@
-from dto.full_menu_state import FullMenuStateDto
+from dto import FullMenuStateDto
 from .connection_room import ConnectionRoom
 
 
