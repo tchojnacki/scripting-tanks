@@ -1,9 +1,10 @@
 import { useSocketContext } from "../../utils/socketContext"
-import { usePlayerName } from "../../utils/usePlayerName"
+import { useIdentity } from "../../utils/indentityContext"
 
 export function Lobby() {
   const { sendMessage, roomState, useSocketEvent } = useSocketContext<"lobby">()
-  const playerName = usePlayerName()
+  const { name, cid } = useIdentity()
+  const isOwner = roomState.owner === cid
 
   useSocketEvent("s-new-player", (data, draft) => {
     draft.players.push(data)
@@ -19,13 +20,14 @@ export function Lobby() {
 
   return (
     <>
-      <h5>Your name: {playerName}</h5>
+      <h5>Your name: {name}</h5>
+      {isOwner && <button onClick={() => sendMessage("c-start-game", null)}>Start game</button>}
       <button onClick={() => sendMessage("c-leave-lobby", null)}>Leave</button>
       <h1>{roomState.name}</h1>
       <h2>Players</h2>
       <ul>
         {roomState.players.map(player => (
-          <li key={player.cid}>
+          <li key={player.cid} style={{ fontWeight: player.cid === cid ? "bold" : "normal" }}>
             {player.name} {player.cid === roomState.owner && "👑"}
           </li>
         ))}

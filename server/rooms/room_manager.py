@@ -2,7 +2,7 @@ import asyncio
 from typing import Optional, TYPE_CHECKING
 from dto.lobby_data import LobbyDataDto
 from messages.client import ClientMsg, CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg
-from messages.server import SLobbyRemovedMsg, ServerMsg, SNewLobbyMsg
+from messages.server import SLobbyRemovedMsg, ServerMsg, SUpsertLobbyMsg
 from rooms import ConnectionRoom, GameRoom, MenuRoom
 from utils.uid import CID, LID, get_lid
 
@@ -49,11 +49,24 @@ class RoomManager:
         prev_room = self._connection_room(cid)
         if prev_room is not None:
             await prev_room.on_leave(cid)
-            if isinstance(prev_room, GameRoom) and prev_room.player_count == 0:
-                await self._remove_game_room(prev_room.lid)
+            if isinstance(prev_room, GameRoom):
+                if prev_room.player_count == 0:
+                    await self._remove_game_room(prev_room.lid)
+                else:
+                    await self._menu_room.broadcast_message(SUpsertLobbyMsg(LobbyDataDto(
+                        prev_room.lid,
+                        prev_room.name,
+                        prev_room.player_count
+                    )))
 
         if new_room is not None:
             await new_room.on_join(cid)
+            if isinstance(new_room, GameRoom):
+                await self._menu_room.broadcast_message(SUpsertLobbyMsg(LobbyDataDto(
+                    new_room.lid,
+                    new_room.name,
+                    new_room.player_count
+                )))
 
     async def _remove_game_room(self, lid: LID):
         del self._game_rooms[lid]
@@ -63,7 +76,7 @@ class RoomManager:
         lid = get_lid()
         name = f"{self._connection_manager.cid_to_display_name(owner_cid)}'s Game"
         self._game_rooms[lid] = GameRoom(self, owner_cid, lid, name)
-        await self._menu_room.broadcast_message(SNewLobbyMsg(LobbyDataDto(lid, name, 1)))
+        await self._menu_room.broadcast_message(SUpsertLobbyMsg(LobbyDataDto(lid, name, 1)))
         await self._join_game_room(owner_cid, lid)
 
     async def _join_game_room(self, cid: CID, lid: LID):

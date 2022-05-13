@@ -3,9 +3,8 @@ from cattr import Converter
 from .create_lobby import CCreateLobbyMsg
 from .enter_lobby import CEnterLobbyMsg
 from .leave_lobby import CLeaveLobbyMsg
-from .refetch_display_name import CRefetchDisplayNameMsg
 
-ClientMsg = Union[CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg, CRefetchDisplayNameMsg]
+ClientMsg = Union[CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg]
 
 _converter = Converter()
 
@@ -18,8 +17,6 @@ def _class_from_tag(tag):
             return CEnterLobbyMsg
         case "c-leave-lobby":
             return CLeaveLobbyMsg
-        case "c-refetch-display-name":
-            return CRefetchDisplayNameMsg
 
 
 _converter.register_structure_hook_func(
