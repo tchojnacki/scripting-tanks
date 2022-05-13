@@ -1,13 +1,17 @@
 import asyncio
+from attr import asdict
 from fastapi import WebSocket, WebSocketDisconnect
-from connection_data import ConnectionData
-from room_manager import RoomManager
+from messages.client import ClientMsg, parse_message, CRefetchDisplayNameMsg
+from messages.server import SAssignDisplayNameMsg, ServerMsg
+from rooms.room_manager import RoomManager
 from utils.display_names import gen_random_name
+from utils.connection_data import ConnectionData
+from utils.uid import CID
 
 
 class ConnectionManager:
     def __init__(self):
-        self._active_connections: dict[str, ConnectionData] = {}
+        self._active_connections: dict[CID, ConnectionData] = {}
         self._room_manager: RoomManager = RoomManager(self)
 
     async def _handle_on_connect(self, socket: WebSocket):
@@ -16,7 +20,7 @@ class ConnectionManager:
         cid = ConnectionData.cid_from_socket(socket)
         con = ConnectionData(socket, gen_random_name())
         self._active_connections[cid] = con
-        await self.send_to_single(cid, "assign-display-name", con.display_name)
+        await self.send_to_single(cid, SAssignDisplayNameMsg(con.display_name))
         await self._room_manager.on_connect(cid)
 
     def _handle_on_disconnect(self, socket: WebSocket):
@@ -24,15 +28,15 @@ class ConnectionManager:
         del self._active_connections[cid]
         asyncio.ensure_future(self._room_manager.on_disconnect(cid))
 
-    def _handle_message(self, sender_cid: str, tag: str, data: any):
-        match tag:
-            case "refetch-display-name":
+    def _handle_message(self, sender_cid: CID, cmsg: ClientMsg):
+        match cmsg:
+            case CRefetchDisplayNameMsg():
                 asyncio.ensure_future(self.send_to_single(
-                    sender_cid, "assign-display-name",
-                    self._active_connections[sender_cid].display_name
+                    sender_cid,
+                    SAssignDisplayNameMsg(self._active_connections[sender_cid].display_name)
                 ))
             case _:
-                self._room_manager.handle_message(sender_cid, tag, data)
+                self._room_manager.handle_message(sender_cid, cmsg)
 
     async def handle_connection(self, socket: WebSocket):
         await self._handle_on_connect(socket)
@@ -40,13 +44,13 @@ class ConnectionManager:
         try:
             while True:
                 message = await socket.receive_json()
-                if "tag" in message:
-                    self._handle_message(cid, message["tag"], message["data"])
+                if (parsed_msg := parse_message(message)) is not None:
+                    self._handle_message(cid, parsed_msg)
         except WebSocketDisconnect:
             self._handle_on_disconnect(socket)
 
-    async def send_to_single(self, cid: str, tag: str, data: any):
-        await self._active_connections[cid].socket.send_json({"tag": tag, "data": data})
+    async def send_to_single(self, cid: CID, smsg: ServerMsg):
+        await self._active_connections[cid].socket.send_json(asdict(smsg))
 
-    def cid_to_display_name(self, cid: str) -> str:
+    def cid_to_display_name(self, cid: CID) -> str:
         return self._active_connections[cid].display_name

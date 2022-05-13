@@ -4,7 +4,7 @@
 	"postCreateCommand": "pip install --no-cache-dir -r requirements.txt && npm --prefix client install",
 	"appPort": [
 		"3000:3000",
-		"8000:8000",
+		"8000:8000"
 	],
 	"settings": {
 		"terminal.integrated.defaultProfile.linux": "ash",
@@ -15,12 +15,12 @@
 		"python.formatting.provider": "autopep8",
 		"python.formatting.autopep8Args": [
 			"--max-line-length",
-			"100",
+			"100"
 		]
 	},
 	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",
-		"esbenp.prettier-vscode",
-	],
+		"esbenp.prettier-vscode"
+	]
 }
