@@ -14,6 +14,8 @@ import { WEBSOCKET_ROOT } from "../config"
 import { FullRoomStateDto } from "./dtos"
 import {
   RoomLocation,
+  SendMessageData,
+  SendMessageTag,
   SocketEventData,
   SocketEventHandler,
   SocketEventTag,
@@ -22,7 +24,7 @@ import {
 
 interface SocketContextValue<R extends RoomLocation> {
   roomState: StateForRoom<R>
-  sendMessage: <T extends SocketEventTag>(tag: T, data: SocketEventData<T>) => void
+  sendMessage: <T extends SendMessageTag>(tag: T, data: SendMessageData<T>) => void
   useSocketEvent: <T extends SocketEventTag>(tag: T, handler: SocketEventHandler<T, R>) => void
 }
 
@@ -64,7 +66,7 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const sendMessage = useCallback(<T extends SocketEventTag>(tag: T, data: SocketEventData<T>) => {
+  const sendMessage = useCallback(<T extends SendMessageTag>(tag: T, data: SendMessageData<T>) => {
     wsRef.current?.send(JSON.stringify({ tag, data }))
   }, [])
 

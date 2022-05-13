@@ -1,6 +1,6 @@
 import { FullRoomStateDto, LobbyDataDto, PlayerDataDto } from "./dtos"
 
-export type MessageDataMap = {
+export type ServerMessageDataMap = {
   "s-assign-display-name": string
   "s-new-player": PlayerDataDto
   "s-player-left": string
@@ -8,7 +8,9 @@ export type MessageDataMap = {
   "s-full-room-state": FullRoomStateDto
   "s-new-lobby": LobbyDataDto
   "s-lobby-removed": string
+}
 
+export type ClientMessageDataMap = {
   "refetch-display-name": null
   "create-lobby": null
   "enter-lobby": string
