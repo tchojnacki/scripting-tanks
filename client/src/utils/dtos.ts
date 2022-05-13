@@ -1,40 +1,24 @@
-export interface AssignDisplayNameDto {
-  name: string
-}
-
-interface FullGameStateDto {
-  location: string
-  name: string
-  owner: string
-  players: Record<string, string>[]
-}
-
-interface FullMenuStateDto {
-  location: string
-  lobbies: Record<string, string>[]
-}
-
-export type FullRoomStateDto = FullGameStateDto | FullMenuStateDto
-
-export interface LobbyRemovedDto {
-  lid: string
-}
-
-export interface NewLobbyDto {
+export interface LobbyDataDto {
   lid: string
   name: string
   players: number
 }
 
-export interface NewPlayerDto {
+export interface PlayerDataDto {
   cid: string
   name: string
 }
 
-export interface OwnerChangeDto {
-  cid: string
+export interface FullGameStateDto {
+  location: "lobby"
+  name: string
+  owner: string
+  players: PlayerDataDto[]
 }
 
-export interface PlayerLeftDto {
-  cid: string
+export interface FullMenuStateDto {
+  location: "menu"
+  lobbies: LobbyDataDto[]
 }
+
+export type FullRoomStateDto = FullGameStateDto | FullMenuStateDto

@@ -5,12 +5,12 @@ export function Menu() {
   const { roomState, sendMessage, useSocketEvent } = useSocketContext<"menu">()
   const playerName = usePlayerName()
 
-  useSocketEvent("new-lobby", (data, draft) => {
+  useSocketEvent("s-new-lobby", (data, draft) => {
     draft.lobbies.push(data)
   })
 
-  useSocketEvent("lobby-removed", (data, draft) => {
-    draft.lobbies = draft.lobbies.filter(({ lid }) => lid !== data.lid)
+  useSocketEvent("s-lobby-removed", (data, draft) => {
+    draft.lobbies = draft.lobbies.filter(({ lid }) => lid !== data)
   })
 
   return (

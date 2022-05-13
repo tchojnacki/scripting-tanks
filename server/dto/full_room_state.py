@@ -1,9 +1,6 @@
-from attr import frozen
-from dto.tagged_dto import TaggedDto
+from typing import Union
+from dto.full_game_state import FullGameStateDto
+from dto.full_menu_state import FullMenuStateDto
 
 
-@frozen
-class FullRoomStateDto(TaggedDto):
-    @staticmethod
-    def tag() -> str:
-        return "full-room-state"
+FullRoomStateDto = Union[FullGameStateDto, FullMenuStateDto]

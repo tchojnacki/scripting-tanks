@@ -11,9 +11,9 @@ import {
   useState,
 } from "react"
 import { WEBSOCKET_ROOT } from "../config"
+import { FullRoomStateDto } from "./dtos"
 import {
   RoomLocation,
-  RoomState,
   SocketEventData,
   SocketEventHandler,
   SocketEventTag,
@@ -38,7 +38,7 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
     Partial<{ [T in SocketEventTag]: SocketEventHandler<T, RoomLocation>[] }>
   >({})
 
-  const [roomState, setRoomState] = useState<RoomState>({
+  const [roomState, setRoomState] = useState<FullRoomStateDto>({
     location: "menu",
     lobbies: [],
   })

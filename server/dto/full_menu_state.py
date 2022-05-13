@@ -1,16 +1,9 @@
 from typing import Literal
 from attr import field, frozen
-from dto.full_room_state import FullRoomStateDto
+from dto.lobby_data import LobbyDataDto
 
 
 @frozen
-class FullMenuStateLobbyDto:
-    lid: str
-    name: str
-    players: int
-
-
-@frozen
-class FullMenuStateDto(FullRoomStateDto):
+class FullMenuStateDto:
     location: Literal["menu"] = field(init=False, default="menu")
-    lobbies: list[FullMenuStateLobbyDto]
+    lobbies: list[LobbyDataDto]

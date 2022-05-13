@@ -4,7 +4,7 @@ import { useSocketContext } from "./utils/socketContext"
 export function App() {
   const { roomState, useSocketEvent } = useSocketContext()
 
-  useSocketEvent("full-room-state", data => data)
+  useSocketEvent("s-full-room-state", data => data)
 
   if (roomState.location === "menu") {
     return <Menu />

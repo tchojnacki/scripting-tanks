@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 import asyncio
 from typing import TYPE_CHECKING
-
-from dto.tagged_dto import TaggedDto
 from dto.full_room_state import FullRoomStateDto
+from messages.full_room_state import SFullRoomStateMsg
+from messages.message_types import ServerMsg
 
 if TYPE_CHECKING:
     from room_manager import RoomManager
@@ -18,15 +18,15 @@ class ConnectionRoom(ABC):
         self._player_ids.add(joiner_cid)
         await self._room_manager.send_to_single(
             joiner_cid,
-            self.get_full_room_state()
+            SFullRoomStateMsg(self.get_full_room_state()),
         )
 
     async def on_leave(self, leaver_cid: str):
         self._player_ids.remove(leaver_cid)
 
-    async def broadcast_message(self, dto: TaggedDto):
+    async def broadcast_message(self, smsg: ServerMsg):
         await asyncio.gather(*[
-            self._room_manager.send_to_single(cid, dto)
+            self._room_manager.send_to_single(cid, smsg)
             for cid in self._player_ids
         ])
 

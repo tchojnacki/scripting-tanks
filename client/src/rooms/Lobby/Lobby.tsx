@@ -5,16 +5,16 @@ export function Lobby() {
   const { sendMessage, roomState, useSocketEvent } = useSocketContext<"lobby">()
   const playerName = usePlayerName()
 
-  useSocketEvent("new-player", (data, draft) => {
+  useSocketEvent("s-new-player", (data, draft) => {
     draft.players.push(data)
   })
 
-  useSocketEvent("player-left", (data, draft) => {
-    draft.players = draft.players.filter(p => p.cid !== data.cid)
+  useSocketEvent("s-player-left", (data, draft) => {
+    draft.players = draft.players.filter(p => p.cid !== data)
   })
 
-  useSocketEvent("owner-change", (data, draft) => {
-    draft.owner = data.cid
+  useSocketEvent("s-owner-change", (data, draft) => {
+    draft.owner = data
   })
 
   return (
