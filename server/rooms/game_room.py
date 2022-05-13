@@ -2,6 +2,7 @@ import random
 from typing import TYPE_CHECKING
 from dto import FullGameStateDto, PlayerDataDto
 from messages.server import SNewPlayerMsg, SOwnerChangeMsg, SPlayerLeftMsg
+from utils.uid import CID, LID
 from .connection_room import ConnectionRoom
 
 if TYPE_CHECKING:
@@ -9,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class GameRoom(ConnectionRoom):
-    def __init__(self, room_manager: "RoomManager", owner: str, lid: str, name: str):
+    def __init__(self, room_manager: "RoomManager", owner: CID, lid: LID, name: str):
         super().__init__(room_manager)
         self._owner: str = owner
         self.lid: str = lid
@@ -25,13 +26,13 @@ class GameRoom(ConnectionRoom):
             ]
         )
 
-    async def on_join(self, joiner_cid: str):
+    async def on_join(self, joiner_cid: CID):
         await self.broadcast_message(SNewPlayerMsg(PlayerDataDto(
             joiner_cid, self._room_manager.cid_to_display_name(joiner_cid)
         )))
         await super().on_join(joiner_cid)
 
-    async def on_leave(self, leaver_cid: str):
+    async def on_leave(self, leaver_cid: CID):
         await super().on_leave(leaver_cid)
         await self.broadcast_message(SPlayerLeftMsg(leaver_cid))
         if leaver_cid == self._owner and len(self._player_ids) > 0:

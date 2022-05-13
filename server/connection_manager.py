@@ -5,11 +5,12 @@ from connection_data import ConnectionData
 from messages.server import SAssignDisplayNameMsg, ServerMsg
 from room_manager import RoomManager
 from utils.display_names import gen_random_name
+from utils.uid import CID
 
 
 class ConnectionManager:
     def __init__(self):
-        self._active_connections: dict[str, ConnectionData] = {}
+        self._active_connections: dict[CID, ConnectionData] = {}
         self._room_manager: RoomManager = RoomManager(self)
 
     async def _handle_on_connect(self, socket: WebSocket):
@@ -26,7 +27,7 @@ class ConnectionManager:
         del self._active_connections[cid]
         asyncio.ensure_future(self._room_manager.on_disconnect(cid))
 
-    def _handle_message(self, sender_cid: str, tag: str, data: any):
+    def _handle_message(self, sender_cid: CID, tag: str, data: any):
         match tag:
             case "refetch-display-name":
                 asyncio.ensure_future(self.send_to_single(
@@ -47,8 +48,8 @@ class ConnectionManager:
         except WebSocketDisconnect:
             self._handle_on_disconnect(socket)
 
-    async def send_to_single(self, cid: str, smsg: ServerMsg):
+    async def send_to_single(self, cid: CID, smsg: ServerMsg):
         await self._active_connections[cid].socket.send_json(asdict(smsg))
 
-    def cid_to_display_name(self, cid: str) -> str:
+    def cid_to_display_name(self, cid: CID) -> str:
         return self._active_connections[cid].display_name

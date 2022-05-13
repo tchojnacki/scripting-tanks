@@ -1,7 +1,8 @@
 from attr import frozen
+from utils.uid import CID
 
 
 @frozen
 class PlayerDataDto:
-    cid: str
+    cid: CID
     name: str

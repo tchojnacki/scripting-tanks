@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from fastapi import WebSocket
-from utils.uid import get_uid
+from utils.uid import CID, get_cid
 
 
 @dataclass
@@ -9,9 +9,9 @@ class ConnectionData:
     display_name: str
 
     @staticmethod
-    def cid_from_socket(socket: WebSocket) -> str:
-        return "cid$" + get_uid(id(socket))
+    def cid_from_socket(socket: WebSocket) -> CID:
+        return get_cid(id(socket))
 
     @property
-    def cid(self) -> str:
+    def cid(self) -> CID:
         return ConnectionData.cid_from_socket(self.socket)

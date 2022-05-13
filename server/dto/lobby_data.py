@@ -1,8 +1,9 @@
 from attr import frozen
+from utils.uid import LID
 
 
 @frozen
 class LobbyDataDto:
-    lid: str
+    lid: LID
     name: str
     players: int
