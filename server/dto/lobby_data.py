@@ -7,3 +7,4 @@ class LobbyDataDto:
     lid: LID
     name: str
     players: int
+    joinable: bool

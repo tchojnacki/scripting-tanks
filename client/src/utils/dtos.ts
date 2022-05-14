@@ -2,6 +2,7 @@ export interface LobbyDataDto {
   lid: string
   name: string
   players: number
+  joinable: boolean
 }
 
 export interface PlayerDataDto {
@@ -9,14 +10,28 @@ export interface PlayerDataDto {
   name: string
 }
 
-export interface FullGameStateDto {
-  location: "lobby"
+export interface EntityDataDto {
+  eid: string
+  color: string
+  x: number
+  y: number
+}
+
+interface FullGameWaitingStateDto {
+  location: "game-waiting"
   name: string
   owner: string
   players: PlayerDataDto[]
 }
 
-export interface FullMenuStateDto {
+interface FullGamePlayingStateDto {
+  location: "game-playing"
+  entities: EntityDataDto[]
+}
+
+export type FullGameStateDto = FullGameWaitingStateDto | FullGamePlayingStateDto
+
+interface FullMenuStateDto {
   location: "menu"
   lobbies: LobbyDataDto[]
 }

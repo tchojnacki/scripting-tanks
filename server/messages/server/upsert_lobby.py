@@ -4,6 +4,6 @@ from dto.lobby_data import LobbyDataDto
 
 
 @frozen
-class SNewLobbyMsg:
-    tag: Literal["s-new-lobby"] = field(init=False, default="s-new-lobby")
+class SUpsertLobbyMsg:
+    tag: Literal["s-upsert-lobby"] = field(init=False, default="s-upsert-lobby")
     data: LobbyDataDto

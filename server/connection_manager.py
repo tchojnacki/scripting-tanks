@@ -1,8 +1,9 @@
 import asyncio
 from attr import asdict
 from fastapi import WebSocket, WebSocketDisconnect
-from messages.client import ClientMsg, parse_message, CRefetchDisplayNameMsg
-from messages.server import SAssignDisplayNameMsg, ServerMsg
+from dto.player_data import PlayerDataDto
+from messages.client import ClientMsg, parse_message
+from messages.server import SAssignIdentityMsg, ServerMsg
 from rooms.room_manager import RoomManager
 from utils.display_names import gen_random_name
 from utils.connection_data import ConnectionData
@@ -20,7 +21,7 @@ class ConnectionManager:
         cid = ConnectionData.cid_from_socket(socket)
         con = ConnectionData(socket, gen_random_name())
         self._active_connections[cid] = con
-        await self.send_to_single(cid, SAssignDisplayNameMsg(con.display_name))
+        await self.send_to_single(cid, SAssignIdentityMsg(PlayerDataDto(cid, con.display_name)))
         await self._room_manager.on_connect(cid)
 
     def _handle_on_disconnect(self, socket: WebSocket):
@@ -29,14 +30,7 @@ class ConnectionManager:
         asyncio.ensure_future(self._room_manager.on_disconnect(cid))
 
     def _handle_message(self, sender_cid: CID, cmsg: ClientMsg):
-        match cmsg:
-            case CRefetchDisplayNameMsg():
-                asyncio.ensure_future(self.send_to_single(
-                    sender_cid,
-                    SAssignDisplayNameMsg(self._active_connections[sender_cid].display_name)
-                ))
-            case _:
-                self._room_manager.handle_message(sender_cid, cmsg)
+        self._room_manager.handle_message(sender_cid, cmsg)
 
     async def handle_connection(self, socket: WebSocket):
         await self._handle_on_connect(socket)

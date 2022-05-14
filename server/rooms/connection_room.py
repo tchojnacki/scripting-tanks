@@ -34,10 +34,6 @@ class ConnectionRoom(ABC):
     def has_player(self, cid: CID) -> bool:
         return cid in self._player_ids
 
-    @property
-    def player_count(self) -> int:
-        return len(self._player_ids)
-
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         pass
 
