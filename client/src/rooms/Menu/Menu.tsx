@@ -25,7 +25,12 @@ export function Menu() {
         {roomState.lobbies.map(lobby => (
           <li key={lobby.lid}>
             {lobby.name} {lobby.players}{" "}
-            <button onClick={() => sendMessage("c-enter-lobby", lobby.lid)}>Enter</button>
+            <button
+              disabled={!lobby.joinable}
+              onClick={() => sendMessage("c-enter-lobby", lobby.lid)}
+            >
+              Enter
+            </button>
           </li>
         ))}
       </ul>

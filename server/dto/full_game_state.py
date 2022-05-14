@@ -1,12 +1,5 @@
-from typing import Literal
-from attr import field, frozen
-from utils.uid import CID
-from .player_data import PlayerDataDto
+from typing import Union
+from .full_game_playing_state import FullGamePlayingStateDto
+from .full_game_waiting_state import FullGameWaitingStateDto
 
-
-@frozen
-class FullGameStateDto:
-    location: Literal["lobby"] = field(init=False, default="lobby")
-    name: str
-    owner: CID
-    players: list[PlayerDataDto]
+FullGameStateDto = Union[FullGamePlayingStateDto, FullGameWaitingStateDto]

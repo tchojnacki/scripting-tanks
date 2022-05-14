@@ -12,6 +12,10 @@ export function Game() {
       />
       <ambientLight intensity={0.25} />
       <pointLight position={[30, 40, 20]} intensity={0.5} castShadow />
+      <mesh>
+        <boxGeometry args={[5, 5, 5]} />
+        <meshStandardMaterial color="hotpink" />
+      </mesh>
     </Canvas>
   )
 }

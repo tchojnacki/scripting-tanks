@@ -2,7 +2,7 @@ import { useSocketContext } from "../../utils/socketContext"
 import { useIdentity } from "../../utils/indentityContext"
 
 export function Lobby() {
-  const { sendMessage, roomState, useSocketEvent } = useSocketContext<"lobby">()
+  const { sendMessage, roomState, useSocketEvent } = useSocketContext<"game-waiting">()
   const { name, cid } = useIdentity()
   const isOwner = roomState.owner === cid
 
