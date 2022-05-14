@@ -10,6 +10,13 @@ export interface PlayerDataDto {
   name: string
 }
 
+export interface EntityDataDto {
+  eid: string
+  color: string
+  x: number
+  y: number
+}
+
 interface FullGameWaitingStateDto {
   location: "game-waiting"
   name: string
@@ -19,11 +26,12 @@ interface FullGameWaitingStateDto {
 
 interface FullGamePlayingStateDto {
   location: "game-playing"
+  entities: EntityDataDto[]
 }
 
 export type FullGameStateDto = FullGameWaitingStateDto | FullGamePlayingStateDto
 
-export interface FullMenuStateDto {
+interface FullMenuStateDto {
   location: "menu"
   lobbies: LobbyDataDto[]
 }

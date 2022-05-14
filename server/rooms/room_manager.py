@@ -53,7 +53,7 @@ class RoomManager:
         if prev_room is not None:
             await prev_room.on_leave(cid)
             if isinstance(prev_room, GameRoom):
-                if prev_room.player_count == 0:
+                if len(prev_room.players) == 0:
                     await self._remove_game_room(prev_room.lid)
                 else:
                     await self.upsert_lobby(prev_room)

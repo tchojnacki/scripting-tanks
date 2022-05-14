@@ -61,6 +61,6 @@ class GameRoom(ConnectionRoom):
         return LobbyDataDto(
             self.lid,
             self.name,
-            self.player_count,
+            len(self.players),
             self.joinable,
         )

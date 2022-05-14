@@ -1,3 +1,4 @@
+from .entity_data import EntityDataDto
 from .full_game_playing_state import FullGamePlayingStateDto
 from .full_game_waiting_state import FullGameWaitingStateDto
 from .full_game_state import FullGameStateDto
