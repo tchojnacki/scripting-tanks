@@ -4,8 +4,10 @@ from .create_lobby import CCreateLobbyMsg
 from .enter_lobby import CEnterLobbyMsg
 from .leave_lobby import CLeaveLobbyMsg
 from .start_game import CStartGameMsg
+from .set_input_axes import CSetInputAxesMsg
 
-ClientMsg = Union[CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg, CStartGameMsg]
+
+ClientMsg = Union[CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg, CSetInputAxesMsg, CStartGameMsg]
 
 _converter = Converter()
 
@@ -27,5 +29,8 @@ _converter.register_structure_hook(
 
 
 def parse_message(data: Any) -> Optional[ClientMsg]:
-    result = _converter.structure(data, ClientMsg)
-    return result if isinstance(result, ClientMsg) else None
+    try:
+        result = _converter.structure(data, ClientMsg)
+        return result if isinstance(result, ClientMsg) else None
+    except:  # pylint: disable=bare-except
+        return None

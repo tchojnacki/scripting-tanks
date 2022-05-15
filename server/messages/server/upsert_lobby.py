@@ -1,6 +1,6 @@
 from typing import Literal
 from attr import field, frozen
-from dto.lobby_data import LobbyDataDto
+from dto import LobbyDataDto
 
 
 @frozen
