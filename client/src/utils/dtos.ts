@@ -12,9 +12,16 @@ export interface PlayerDataDto {
 
 export interface EntityDataDto {
   eid: string
+  kind: "tank"
   color: string
   x: number
-  y: number
+  z: number
+  angle: number
+}
+
+export interface InputAxesDto {
+  vertical: number
+  horizontal: number
 }
 
 interface FullGameWaitingStateDto {

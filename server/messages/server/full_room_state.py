@@ -1,6 +1,6 @@
 from typing import Literal
 from attr import field, frozen
-from dto.full_room_state import FullRoomStateDto
+from dto import FullRoomStateDto
 
 
 @frozen
