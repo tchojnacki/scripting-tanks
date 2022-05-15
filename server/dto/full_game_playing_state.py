@@ -6,4 +6,5 @@ from .entity_data import EntityDataDto
 @frozen
 class FullGamePlayingStateDto:
     location: Literal["game-playing"] = field(init=False, default="game-playing")
+    radius: int
     entities: list[EntityDataDto]
