@@ -4,6 +4,8 @@ import { useIdentity } from "../../utils/indentityContext"
 import { useInput } from "../../utils/input"
 import { useSocketContext } from "../../utils/socketContext"
 
+const CAMERA_OFFSET = 256
+
 export function Game() {
   const { roomState, useSocketEvent } = useSocketContext<"game-playing">()
   const { cid } = useIdentity()
@@ -17,22 +19,28 @@ export function Game() {
     draft.entities[idx] = data
   })
 
+  const cameraFar = CAMERA_OFFSET + roomState.radius * 3
+
   return (
     <Canvas shadows>
       <color attach="background" args={[0.7, 0.9, 1.0]} />
       <PerspectiveCamera
         position={[
-          player.x - Math.sin(player.pitch) * 256,
-          128,
-          player.z - Math.cos(player.pitch) * 256,
+          player.x - Math.sin(player.pitch) * CAMERA_OFFSET,
+          CAMERA_OFFSET / 2,
+          player.z - Math.cos(player.pitch) * CAMERA_OFFSET,
         ]}
         rotation={[0, player.pitch + Math.PI, 0]}
         fov={75}
         near={1}
-        far={2048}
+        far={cameraFar}
         makeDefault
       >
-        <Plane args={[8192, 8192]} position={-192} rotation={[-Math.PI / 2, 0, 0]}>
+        <Plane
+          args={[cameraFar * 4, cameraFar * 4]}
+          position={[0, -192, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
           <meshBasicMaterial color="#064273" />
         </Plane>
       </PerspectiveCamera>
@@ -40,12 +48,16 @@ export function Game() {
       <pointLight
         position={[0, 1024, 0]}
         intensity={0.5}
-        distance={2048}
+        distance={1024 + roomState.radius}
         castShadow
-        shadow-mapSize-height={1024}
-        shadow-mapSize-width={1024}
+        shadow-mapSize-height={2048}
+        shadow-mapSize-width={2048}
       />
-      <Cylinder args={[600, 600, 64, 256]} position={[0, -32, 0]} receiveShadow>
+      <Cylinder
+        args={[roomState.radius, roomState.radius, 64, 128]}
+        position={[0, -32, 0]}
+        receiveShadow
+      >
         <meshLambertMaterial color="#C2B280" />
       </Cylinder>
       {roomState.entities.map(entity => (

@@ -1,4 +1,4 @@
-from math import pi, sin, cos
+from math import pi, sin, cos, sqrt
 import asyncio
 from typing import TYPE_CHECKING
 from attr import evolve
@@ -13,16 +13,22 @@ if TYPE_CHECKING:
     from rooms.game_room import GameRoom
 
 FPS = 30
-MAP_RADIUS = 512
+PLAYER_DISTANCE = 1024
+ISLAND_MARGIN = 64
 MOVE_SPEED = 10
-TURN_SPEED = 0.025
+TURN_SPEED = 0.05
 
 
 class PlayingGameState(GameState):
     def __init__(self, room: "GameRoom"):
         super().__init__(room)
 
-        step = (2 * pi) / len(self._room.players)
+        player_count = len(self._room.players)
+        step = (2 * pi) / player_count
+        self.radius = int(
+            PLAYER_DISTANCE / 2 if player_count == 1 else
+            PLAYER_DISTANCE / sqrt(2 - 2 * cos(2 * pi / player_count))
+        ) + ISLAND_MARGIN
 
         self.entities = [
             EntityDataDto(
@@ -30,8 +36,8 @@ class PlayingGameState(GameState):
                 player.cid,
                 "tank",
                 assign_color(eid),
-                sin(step * i) * MAP_RADIUS,
-                cos(step * i) * MAP_RADIUS,
+                sin(step * i) * (self.radius - ISLAND_MARGIN),
+                cos(step * i) * (self.radius - ISLAND_MARGIN),
                 step * i + pi
             )
             for i, player in enumerate(self._room.players)
@@ -68,7 +74,7 @@ class PlayingGameState(GameState):
             asyncio.ensure_future(self._loop())
 
     def get_full_room_state(self) -> FullGamePlayingStateDto:
-        return FullGamePlayingStateDto(self.entities)
+        return FullGamePlayingStateDto(self.radius, self.entities)
 
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         match cmsg:

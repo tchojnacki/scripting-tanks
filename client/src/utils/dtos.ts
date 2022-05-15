@@ -34,6 +34,7 @@ interface FullGameWaitingStateDto {
 
 interface FullGamePlayingStateDto {
   location: "game-playing"
+  radius: number
   entities: EntityDataDto[]
 }
 
