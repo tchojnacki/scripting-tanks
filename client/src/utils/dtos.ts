@@ -12,11 +12,12 @@ export interface PlayerDataDto {
 
 export interface EntityDataDto {
   eid: string
+  cid: string
   kind: "tank"
   color: string
   x: number
   z: number
-  angle: number
+  pitch: number
 }
 
 export interface InputAxesDto {

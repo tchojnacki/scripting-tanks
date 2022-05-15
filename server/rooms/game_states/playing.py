@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 FPS = 30
 MAP_RADIUS = 512
 MOVE_SPEED = 10
-TURN_SPEED = 0.05
+TURN_SPEED = 0.025
 
 
 class PlayingGameState(GameState):
@@ -27,10 +27,11 @@ class PlayingGameState(GameState):
         self.entities = [
             EntityDataDto(
                 eid := get_eid(player.cid),
+                player.cid,
                 "tank",
                 assign_color(eid),
-                cos(step * i) * MAP_RADIUS,
                 sin(step * i) * MAP_RADIUS,
+                cos(step * i) * MAP_RADIUS,
                 step * i + pi
             )
             for i, player in enumerate(self._room.players)
@@ -53,9 +54,9 @@ class PlayingGameState(GameState):
 
             new_entity = evolve(
                 old_entity,
-                angle=old_entity.angle + axes.horizontal * TURN_SPEED,
-                x=old_entity.x + cos(old_entity.angle) * axes.vertical * MOVE_SPEED,
-                z=old_entity.z + sin(old_entity.angle) * axes.vertical * MOVE_SPEED
+                pitch=old_entity.pitch - axes.horizontal * TURN_SPEED,
+                x=old_entity.x + sin(old_entity.pitch) * axes.vertical * MOVE_SPEED,
+                z=old_entity.z + cos(old_entity.pitch) * axes.vertical * MOVE_SPEED
             )
 
             if old_entity != new_entity:
@@ -63,7 +64,8 @@ class PlayingGameState(GameState):
                 await self._room.broadcast_message(SEntityUpdateMsg(new_entity))
 
         await asyncio.sleep(1 / FPS)
-        asyncio.ensure_future(self._loop())
+        if len(self._room.players) > 0:
+            asyncio.ensure_future(self._loop())
 
     def get_full_room_state(self) -> FullGamePlayingStateDto:
         return FullGamePlayingStateDto(self.entities)
