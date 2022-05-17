@@ -1,8 +1,9 @@
-import { Box, Cylinder, PerspectiveCamera, Plane } from "@react-three/drei"
+import { Cylinder, PerspectiveCamera, Plane } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { useIdentity } from "../../utils/indentityContext"
 import { useInput } from "../../utils/input"
 import { useSocketContext } from "../../utils/socketContext"
+import { Tank } from "./components"
 
 const CAMERA_OFFSET = 256
 
@@ -54,26 +55,14 @@ export function Game() {
         shadow-mapSize-width={2048}
       />
       <Cylinder
-        args={[roomState.radius, roomState.radius, 64, 128]}
+        args={[roomState.radius, roomState.radius, 64, 64]}
         position={[0, -32, 0]}
         receiveShadow
       >
         <meshLambertMaterial color="#C2B280" />
       </Cylinder>
       {roomState.entities.map(entity => (
-        <Box
-          key={entity.eid}
-          args={[64, 64, 64]}
-          position={[entity.x, 32, entity.z]}
-          rotation={[0, entity.pitch, 0]}
-          castShadow
-          receiveShadow
-        >
-          <meshLambertMaterial color={entity.color} />
-          <Box args={[16, 16, 32]} position={[0, 0, 48]} castShadow receiveShadow>
-            <meshLambertMaterial color={entity.color} />
-          </Box>
-        </Box>
+        <Tank key={entity.eid} entity={entity} />
       ))}
     </Canvas>
   )
