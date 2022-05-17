@@ -16,7 +16,7 @@ FPS = 30
 PLAYER_DISTANCE = 1024
 ISLAND_MARGIN = 128
 MOVE_SPEED = 10
-TURN_SPEED = 0.05
+TURN_SPEED = 0.025
 
 
 class PlayingGameState(GameState):
@@ -60,7 +60,7 @@ class PlayingGameState(GameState):
 
             new_entity = evolve(
                 old_entity,
-                pitch=old_entity.pitch - axes.horizontal * TURN_SPEED,
+                pitch=old_entity.pitch - axes.horizontal * axes.vertical * TURN_SPEED,
                 x=old_entity.x + sin(old_entity.pitch) * axes.vertical * MOVE_SPEED,
                 z=old_entity.z + cos(old_entity.pitch) * axes.vertical * MOVE_SPEED
             )
