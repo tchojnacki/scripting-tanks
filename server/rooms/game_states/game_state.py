@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 from dto import FullGameStateDto
@@ -9,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class GameState(ABC):
-    def __init__(self, room: "GameRoom"):
+    def __init__(self, room: GameRoom):
         self._room = room
 
     @abstractmethod

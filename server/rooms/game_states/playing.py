@@ -1,10 +1,11 @@
+from __future__ import annotations
 from math import pi, sin, cos, sqrt
 import asyncio
 from typing import TYPE_CHECKING
 from dto import FullGamePlayingStateDto, InputAxesDto
 from messages.client import ClientMsg, CSetInputAxesMsg
 from messages.server import SEntityUpdateMsg
-from models import Entity, Vector
+from models import Vector, Tank
 from utils.assign_color import assign_color
 from utils.uid import CID, get_eid
 from .game_state import GameState
@@ -20,7 +21,7 @@ TURN_SPEED = 0.025
 
 
 class PlayingGameState(GameState):
-    def __init__(self, room: "GameRoom"):
+    def __init__(self, room: GameRoom):
         super().__init__(room)
 
         player_count = len(self._room.players)
@@ -31,17 +32,15 @@ class PlayingGameState(GameState):
         ) + ISLAND_MARGIN
 
         self.entities = [
-            Entity(
-                eid := get_eid(player.cid),
-                player.cid,
-                "tank",
-                assign_color(eid),
-                Vector(
+            Tank(
+                cid=player.cid,
+                color=assign_color(player.cid),
+                pos=Vector(
                     sin(step * i) * (self.radius - ISLAND_MARGIN),
                     0,
                     cos(step * i) * (self.radius - ISLAND_MARGIN),
                 ),
-                step * i + pi
+                pitch=step * i + pi
             )
             for i, player in enumerate(self._room.players)
         ]
