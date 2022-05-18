@@ -1,5 +1,5 @@
 import asyncio
-from attr import asdict
+from attrs import asdict
 from fastapi import WebSocket, WebSocketDisconnect
 from dto.player_data import PlayerDataDto
 from messages.client import ClientMsg, parse_message

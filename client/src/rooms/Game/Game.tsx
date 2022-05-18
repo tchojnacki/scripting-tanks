@@ -27,9 +27,9 @@ export function Game() {
       <color attach="background" args={[0.7, 0.9, 1.0]} />
       <PerspectiveCamera
         position={[
-          player.x - Math.sin(player.pitch) * CAMERA_OFFSET,
+          player.pos[0] - Math.sin(player.pitch) * CAMERA_OFFSET,
           CAMERA_OFFSET / 2,
-          player.z - Math.cos(player.pitch) * CAMERA_OFFSET,
+          player.pos[2] - Math.cos(player.pitch) * CAMERA_OFFSET,
         ]}
         rotation={[0, player.pitch + Math.PI, 0]}
         fov={75}
@@ -45,10 +45,10 @@ export function Game() {
           <meshBasicMaterial color="#064273" />
         </Plane>
       </PerspectiveCamera>
-      <ambientLight intensity={0.25} />
+      <ambientLight intensity={0.2} />
       <pointLight
         position={[0, 1024, 0]}
-        intensity={0.5}
+        intensity={0.3}
         distance={1024 + roomState.radius}
         castShadow
         shadow-mapSize-height={2048}

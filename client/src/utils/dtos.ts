@@ -15,8 +15,7 @@ export interface EntityDataDto {
   cid: string
   kind: "tank"
   color: string
-  x: number
-  z: number
+  pos: [number, number, number]
   pitch: number
 }
 

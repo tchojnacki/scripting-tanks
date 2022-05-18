@@ -39,7 +39,7 @@ function Turret({ color, position }: { color: string; position: [number, number,
 
 export function Tank({ entity }: { entity: EntityDataDto }) {
   return (
-    <group position={[entity.x, 0, entity.z]} rotation={[0, entity.pitch, 0]}>
+    <group position={entity.pos} rotation={[0, entity.pitch, 0]}>
       <Box args={[64, 32, 96]} position={[0, 32, 0]} castShadow receiveShadow>
         <meshLambertMaterial color={entity.color} />
       </Box>

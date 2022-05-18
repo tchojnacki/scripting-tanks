@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Tuple
 from attr import frozen
 from utils.uid import CID, EID
 
@@ -9,6 +9,5 @@ class EntityDataDto:
     cid: CID
     kind: Literal["tank"]
     color: str
-    x: float
-    z: float
+    pos: Tuple[float, float, float]
     pitch: float
