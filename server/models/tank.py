@@ -16,7 +16,6 @@ C_ROLL_RESIST = 5_000
 ENGINE_FORCE = 2_000_000
 REVERSE_MULT = 0.25
 TANK_MASS = 10_000
-TANK_LENGTH = 96
 TURN_DEGREE = pi/12
 
 GRAVITY_PULL = Vector(0, -600, 0)
@@ -32,7 +31,14 @@ class Tank(Entity):
         color: str,
         pitch: float = 0
     ):
-        super().__init__(world=world, eid=get_eid(cid), kind="tank", pos=pos, mass=TANK_MASS)
+        super().__init__(
+            world=world,
+            eid=get_eid(cid),
+            kind="tank",
+            pos=pos,
+            mass=TANK_MASS,
+            size=Vector(96, 64, 96)
+        )
         self._cid = cid
         self._color = color
         self._pitch = pitch
@@ -56,8 +62,8 @@ class Tank(Entity):
 
         if self._pos.length > self.world.radius:
             f_gravity += GRAVITY_PULL
-            if self._pos.length < self.world.radius + TANK_LENGTH / 2:
-                f_gravity += self._pos.normalized() * 5 * TANK_LENGTH
+            if self._pos.length < self.world.radius + self._size.x / 2:
+                f_gravity += self._pos.normalized() * 5 * self._size.x
             f_gravity *= self._mass
 
         return f_gravity
@@ -67,7 +73,7 @@ class Tank(Entity):
                        self.input_axes.vertical) * TURN_DEGREE)
 
         if abs(turn_angle) > 0.01:
-            turn_radius = TANK_LENGTH / sin(turn_angle)
+            turn_radius = self._size.z / sin(turn_angle)
             omega = self._vel.length / turn_radius
             self._pitch += omega * dtime
 

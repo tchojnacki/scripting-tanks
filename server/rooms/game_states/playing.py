@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 TICK_RATE = 24
 PLAYER_DISTANCE = 2048
-ISLAND_MARGIN = 256
+ISLAND_MARGIN = 128
 
 
 class PlayingGameState(GameState):
@@ -54,8 +54,14 @@ class PlayingGameState(GameState):
         dtime = now - self._last_update
         self._last_update = now
 
+        delete_queue = set()
         for entity in self.entities.values():
             entity.update(dtime)
+            if entity.highest_point < -100:
+                delete_queue.add(entity.eid)
+
+        for eid in delete_queue:
+            del self.entities[eid]
 
         await self._room.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
 
@@ -64,12 +70,14 @@ class PlayingGameState(GameState):
             asyncio.ensure_future(self._loop())
 
     async def on_leave(self, leaver_cid: CID):
-        del self.entities[get_eid(leaver_cid)]
+        if (eid := get_eid(leaver_cid)) in self.entities:
+            del self.entities[eid]
 
     def get_full_room_state(self) -> FullGamePlayingStateDto:
         return FullGamePlayingStateDto(self.radius, [e.to_dto() for e in self.entities.values()])
 
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
-        match cmsg:
-            case CSetInputAxesMsg(new_axes):
-                self.entities[get_eid(sender_cid)].input_axes = new_axes
+        if (eid := get_eid(sender_cid)) in self.entities:
+            match cmsg:
+                case CSetInputAxesMsg(new_axes):
+                    self.entities[eid].input_axes = new_axes
