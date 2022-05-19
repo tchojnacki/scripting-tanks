@@ -3,6 +3,6 @@ from attrs import frozen
 
 
 @frozen
-class CCreateLobbyMsg:
-    tag: ClassVar[Literal["c-create-lobby"]] = "c-create-lobby"
+class CShootMsg:
+    tag: ClassVar[Literal["c-shoot"]] = "c-shoot"
     data: None

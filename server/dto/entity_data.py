@@ -1,14 +1,6 @@
-from typing import Literal, Tuple
-from attr import frozen
-from utils.uid import CID, EID
+from typing import Union
+from .bullet_data import BulletDataDto
+from .tank_data import TankDataDto
 
 
-@frozen
-class EntityDataDto:
-    eid: EID
-    cid: CID
-    kind: Literal["tank"]
-    color: str
-    pos: Tuple[float, float, float]
-    pitch: float
-    barrel: float
+EntityDataDto = Union[TankDataDto, BulletDataDto]

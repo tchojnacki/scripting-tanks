@@ -1,5 +1,5 @@
 import { Box, Cylinder } from "@react-three/drei"
-import { EntityDataDto } from "../../../utils/dtos"
+import { TankDataDto } from "../../../utils/dtos"
 
 function Catterpillar({ color, position }: { color: string; position: [number, number, number] }) {
   return (
@@ -38,22 +38,22 @@ function Turret({
       <Cylinder args={[24, 32, 24, 16]}>
         <meshLambertMaterial color={color} />
       </Cylinder>
-      <Cylinder args={[8, 8, 48]} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 48]}>
+      <Cylinder args={[8, 8, 48, 8]} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 48]}>
         <meshLambertMaterial color={color} />
       </Cylinder>
     </group>
   )
 }
 
-export function Tank({ entity }: { entity: EntityDataDto }) {
+export function Tank({ tank }: { tank: TankDataDto }) {
   return (
-    <group position={entity.pos} rotation={[0, entity.pitch, 0]}>
+    <group position={tank.pos} rotation={[0, tank.pitch, 0]}>
       <Box args={[64, 32, 96]} position={[0, 32, 0]} castShadow receiveShadow>
-        <meshLambertMaterial color={entity.color} />
+        <meshLambertMaterial color={tank.color} />
       </Box>
-      <Turret color={entity.color} position={[0, 64, 0]} rotation={entity.barrel - entity.pitch} />
+      <Turret color={tank.color} position={[0, 64, 0]} rotation={tank.barrel - tank.pitch} />
       {[1, -1].map(side => (
-        <Catterpillar key={side} color={entity.color} position={[side * 40, 12, 0]} />
+        <Catterpillar key={side} color={tank.color} position={[side * 40, 12, 0]} />
       ))}
     </group>
   )

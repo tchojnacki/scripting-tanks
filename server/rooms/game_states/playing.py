@@ -6,10 +6,11 @@ from typing import TYPE_CHECKING
 from dto import FullGamePlayingStateDto
 from messages.client import ClientMsg, CSetInputAxesMsg
 from messages.client.set_barrel_target import CSetBarrelTargetMsg
+from messages.client.shoot import CShootMsg
 from messages.server.full_room_state import SFullRoomStateMsg
-from models import Vector, Tank
+from models import Vector, Tank, Entity
 from utils.assign_color import assign_color
-from utils.uid import CID, get_eid
+from utils.uid import CID, EID, get_eid
 from .game_state import GameState
 
 if TYPE_CHECKING:
@@ -33,7 +34,7 @@ class PlayingGameState(GameState):
             PLAYER_DISTANCE / sqrt(2 - 2 * cos(2 * pi / player_count))
         ) + ISLAND_MARGIN
 
-        self.entities = {
+        self.entities: dict[EID, Entity] = {
             (tank := Tank(
                 world=self,
                 cid=player.cid,
@@ -48,6 +49,8 @@ class PlayingGameState(GameState):
             for i, player in enumerate(self._room.players)
         }
 
+        self._destroy_queue: set[EID] = set()
+
         asyncio.ensure_future(self._loop())
 
     async def _loop(self):
@@ -55,14 +58,20 @@ class PlayingGameState(GameState):
         dtime = now - self._last_update
         self._last_update = now
 
-        delete_queue = set()
         for entity in self.entities.values():
             entity.update(dtime)
-            if entity.highest_point < -100:
-                delete_queue.add(entity.eid)
 
-        for eid in delete_queue:
+        for (eid1, ent1) in self.entities.items():
+            for (eid2, ent2) in self.entities.items():
+                if eid2 > eid1 and (ent2.pos - ent1.pos).length < ent1.radius + ent2.radius:
+                    if isinstance(ent1, Tank):
+                        ent1.collide_with(ent2)
+                    elif isinstance(ent2, Tank):
+                        ent2.collide_with(ent1)
+
+        for eid in self._destroy_queue:
             del self.entities[eid]
+        self._destroy_queue.clear()
 
         await self._room.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
 
@@ -71,6 +80,12 @@ class PlayingGameState(GameState):
             asyncio.ensure_future(self._loop())
         else:
             await self._room.end_game()
+
+    def spawn(self, entity: Entity):
+        self.entities[entity.eid] = entity
+
+    def destroy(self, entity: Entity):
+        self._destroy_queue.add(entity.eid)
 
     async def on_leave(self, leaver_cid: CID):
         if (eid := get_eid(leaver_cid)) in self.entities:
@@ -86,3 +101,5 @@ class PlayingGameState(GameState):
                     self.entities[eid].input_axes = new_axes
                 case CSetBarrelTargetMsg(new_target):
                     self.entities[eid].barrel_target = new_target
+                case CShootMsg():
+                    self.entities[eid].shoot()

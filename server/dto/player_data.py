@@ -1,4 +1,4 @@
-from attr import frozen
+from attrs import frozen
 from utils.uid import CID
 
 

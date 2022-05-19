@@ -1,6 +1,7 @@
-import { Cylinder, PerspectiveCamera, Plane, Text } from "@react-three/drei"
+import { Cylinder, PerspectiveCamera, Plane, Sphere, Text } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { BulletDataDto, TankDataDto } from "../../utils/dtos"
 import { useIdentity } from "../../utils/indentityContext"
 import { useInput } from "../../utils/input"
 import { useSocketContext } from "../../utils/socketContext"
@@ -14,11 +15,25 @@ type N3 = [number, number, number]
 export function Game() {
   const { roomState, sendMessage } = useSocketContext<"game-playing">()
   const { cid } = useIdentity()
-  const { canvasRef, pitch, inputAxes } = useInput()
 
-  const player = roomState.entities.find(e => e.cid === cid) ??
-    roomState.entities[0] ?? { pos: [0, 0, 0], pitch: 0 }
-  const isSpectating = !roomState.entities.some(e => e.cid === cid)
+  const tanks = roomState.entities.filter(e => e.kind === "tank") as TankDataDto[]
+  const bullets = roomState.entities.filter(e => e.kind === "bullet") as BulletDataDto[]
+
+  const [spectateTarget, setSpectateTarget] = useState(0)
+  const player = tanks.find(e => e.cid === cid) ??
+    tanks[spectateTarget % tanks.length] ?? { pos: [0, 0, 0], pitch: 0 }
+  const isSpectating = !tanks.some(e => e.cid === cid)
+
+  const { canvasRef, pitch, inputAxes } = useInput({
+    handleShot: () => {
+      if (isSpectating) {
+        setSpectateTarget(prev => prev + 1)
+      } else {
+        sendMessage("c-shoot", null)
+      }
+    },
+  })
+
   const aimPitch = player.pitch + pitch
   const cameraPos = [
     player.pos[0] - Math.sin(aimPitch) * CAMERA_OFFSET,
@@ -82,8 +97,13 @@ export function Game() {
       >
         <meshLambertMaterial color="#C2B280" />
       </Cylinder>
-      {roomState.entities.map(entity => (
-        <Tank key={entity.eid} entity={entity} />
+      {tanks.map(tank => (
+        <Tank key={tank.eid} tank={tank} />
+      ))}
+      {bullets.map(bullet => (
+        <Sphere key={bullet.eid} position={bullet.pos} args={[bullet.radius, 8, 8]}>
+          <meshLambertMaterial color={bullet.owner === cid ? "#060" : "#600"} />
+        </Sphere>
       ))}
     </Canvas>
   )

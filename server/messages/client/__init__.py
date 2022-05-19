@@ -4,12 +4,13 @@ from .create_lobby import CCreateLobbyMsg
 from .enter_lobby import CEnterLobbyMsg
 from .leave_lobby import CLeaveLobbyMsg
 from .set_barrel_target import CSetBarrelTargetMsg
-from .start_game import CStartGameMsg
 from .set_input_axes import CSetInputAxesMsg
+from .shoot import CShootMsg
+from .start_game import CStartGameMsg
 
 
 ClientMsg = Union[CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg,
-                  CSetBarrelTargetMsg, CStartGameMsg, CSetInputAxesMsg]
+                  CSetBarrelTargetMsg, CSetInputAxesMsg, CShootMsg, CStartGameMsg]
 
 _converter = Converter()
 

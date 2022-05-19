@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 import asyncio
 from typing import TYPE_CHECKING
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class ConnectionRoom(ABC):
-    def __init__(self, room_manager: "RoomManager"):
+    def __init__(self, room_manager: RoomManager):
         self._room_manager = room_manager
         self._player_ids: set[CID] = set()
 

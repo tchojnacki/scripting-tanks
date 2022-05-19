@@ -1,5 +1,5 @@
 from typing import ClassVar, Literal
-from attr import frozen
+from attrs import frozen
 
 
 @frozen

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from math import sqrt
-from attr import define
+from attrs import define
 
 
 @define
@@ -34,6 +34,10 @@ class Vector:
     def __add__(self, other):
         if isinstance(other, Vector):
             return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+
+    def __sub__(self, other):
+        if isinstance(other, Vector):
+            return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):

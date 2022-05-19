@@ -17,4 +17,5 @@ export type ClientMessageDataMap = {
   "c-start-game": null
   "c-set-input-axes": InputAxesDto
   "c-set-barrel-target": number
+  "c-shoot": null
 }

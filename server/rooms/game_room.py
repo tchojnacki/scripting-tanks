@@ -1,3 +1,4 @@
+from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
 from dto import FullGameStateDto, PlayerDataDto
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class GameRoom(ConnectionRoom):
-    def __init__(self, room_manager: "RoomManager", owner: CID, lid: LID, name: str):
+    def __init__(self, room_manager: RoomManager, owner: CID, lid: LID, name: str):
         super().__init__(room_manager)
         self.owner = owner
         self.lid = lid

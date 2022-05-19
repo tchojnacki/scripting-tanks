@@ -1,3 +1,4 @@
+from __future__ import annotations
 import asyncio
 from typing import Optional, TYPE_CHECKING
 from dto.lobby_data import LobbyDataDto
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class RoomManager:
-    def __init__(self, connection_manager: "ConnectionManager"):
+    def __init__(self, connection_manager: ConnectionManager):
         self._connection_manager = connection_manager
         self._menu_room = MenuRoom(self)
         self._game_rooms: dict[LID, GameRoom] = {}
