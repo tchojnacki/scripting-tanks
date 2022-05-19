@@ -14,15 +14,23 @@ class Entity(ABC):
         pos: Optional[Vector] = None,
         vel: Optional[Vector] = None,
         acc: Optional[Vector] = None,
+        mass: float = 1
     ):
         self.eid = eid if eid is not None else get_eid()
-        self.kind = kind
-        self.pos = pos if pos is not None else Vector.zero()
-        self.vel = vel if vel is not None else Vector.zero()
-        self.acc = acc if acc is not None else Vector.zero()
+        self._kind = kind
+        self._pos = pos if pos is not None else Vector.zero()
+        self._vel = vel if vel is not None else Vector.zero()
+        self._acc = acc if acc is not None else Vector.zero()
+        self._mass = mass
 
-    def update(self):
-        pass
+    def update(self, dtime: float):
+        forces = self.calculate_forces()
+        self._acc = forces / self._mass
+        self._vel += self._acc * dtime
+        self._pos += self._vel * dtime
+
+    def calculate_forces(self) -> Vector:
+        return Vector.zero()
 
     @abstractmethod
     def to_dto(self) -> EntityDataDto:

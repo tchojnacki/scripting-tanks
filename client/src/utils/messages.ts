@@ -8,7 +8,6 @@ export type ServerMessageDataMap = {
   "s-full-room-state": FullRoomStateDto
   "s-upsert-lobby": LobbyDataDto
   "s-lobby-removed": string
-  "s-entity-update": EntityDataDto
 }
 
 export type ClientMessageDataMap = {

@@ -1,10 +1,11 @@
 from __future__ import annotations
 from math import pi, sin, cos, sqrt
+from time import monotonic
 import asyncio
 from typing import TYPE_CHECKING
-from dto import FullGamePlayingStateDto, InputAxesDto
+from dto import FullGamePlayingStateDto
 from messages.client import ClientMsg, CSetInputAxesMsg
-from messages.server import SEntityUpdateMsg
+from messages.server.full_room_state import SFullRoomStateMsg
 from models import Vector, Tank
 from utils.assign_color import assign_color
 from utils.uid import CID, get_eid
@@ -14,15 +15,15 @@ if TYPE_CHECKING:
     from rooms.game_room import GameRoom
 
 TICK_RATE = 24
-PLAYER_DISTANCE = 1024
-ISLAND_MARGIN = 128
-MOVE_SPEED = 10
-TURN_SPEED = 0.025
+PLAYER_DISTANCE = 2048
+ISLAND_MARGIN = 256
 
 
 class PlayingGameState(GameState):
     def __init__(self, room: GameRoom):
         super().__init__(room)
+
+        self._last_update = monotonic()
 
         player_count = len(self._room.players)
         step = (2 * pi) / player_count
@@ -31,8 +32,8 @@ class PlayingGameState(GameState):
             PLAYER_DISTANCE / sqrt(2 - 2 * cos(2 * pi / player_count))
         ) + ISLAND_MARGIN
 
-        self.entities = [
-            Tank(
+        self.entities = {
+            (tank := Tank(
                 cid=player.cid,
                 color=assign_color(player.cid),
                 pos=Vector(
@@ -41,35 +42,30 @@ class PlayingGameState(GameState):
                     cos(step * i) * (self.radius - ISLAND_MARGIN),
                 ),
                 pitch=step * i + pi
-            )
+            )).eid: tank
             for i, player in enumerate(self._room.players)
-        ]
-
-        self._input_axes: dict[CID, InputAxesDto] = {
-            (player.cid): InputAxesDto(0, 0) for player in self._room.players
         }
 
         asyncio.ensure_future(self._loop())
 
     async def _loop(self):
-        for (cid, axes) in self._input_axes.items():
-            eid = get_eid(cid)
-            entity = next(e for e in self.entities if e.eid == eid)
+        now = monotonic()
+        dtime = now - self._last_update
+        self._last_update = now
 
-            entity.pitch -= axes.horizontal * axes.vertical * TURN_SPEED
-            entity.pos.x += sin(entity.pitch) * axes.vertical * MOVE_SPEED
-            entity.pos.z += cos(entity.pitch) * axes.vertical * MOVE_SPEED
+        for entity in self.entities.values():
+            entity.update(dtime)
 
-            await self._room.broadcast_message(SEntityUpdateMsg(entity.to_dto()))
+        await self._room.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
 
         await asyncio.sleep(1 / TICK_RATE)
         if len(self._room.players) > 0:
             asyncio.ensure_future(self._loop())
 
     def get_full_room_state(self) -> FullGamePlayingStateDto:
-        return FullGamePlayingStateDto(self.radius, [e.to_dto() for e in self.entities])
+        return FullGamePlayingStateDto(self.radius, [e.to_dto() for e in self.entities.values()])
 
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         match cmsg:
             case CSetInputAxesMsg(new_axes):
-                self._input_axes[sender_cid] = new_axes
+                self.entities[get_eid(sender_cid)].input_axes = new_axes

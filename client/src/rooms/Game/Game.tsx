@@ -8,17 +8,12 @@ import { Tank } from "./components"
 const CAMERA_OFFSET = 256
 
 export function Game() {
-  const { roomState, useSocketEvent } = useSocketContext<"game-playing">()
+  const { roomState } = useSocketContext<"game-playing">()
   const { cid } = useIdentity()
 
   const player = roomState.entities.find(e => e.cid === cid)!
 
   useInput()
-
-  useSocketEvent("s-entity-update", (data, draft) => {
-    const idx = draft.entities.findIndex(({ eid }) => eid === data.eid)
-    draft.entities[idx] = data
-  })
 
   const cameraFar = CAMERA_OFFSET + roomState.radius * 3
 
