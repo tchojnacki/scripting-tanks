@@ -2,7 +2,7 @@ export interface LobbyDataDto {
   lid: string
   name: string
   players: number
-  joinable: boolean
+  location: "game-playing" | "game-waiting"
 }
 
 export interface PlayerDataDto {

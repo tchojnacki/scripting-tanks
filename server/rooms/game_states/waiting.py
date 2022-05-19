@@ -14,9 +14,6 @@ class WaitingGameState(GameState):
             self._room.players,
         )
 
-    def is_joinable(self) -> bool:
-        return True
-
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         match cmsg:
             case CStartGameMsg():

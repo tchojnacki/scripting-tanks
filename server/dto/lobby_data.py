@@ -1,3 +1,4 @@
+from typing import Literal
 from attr import frozen
 from utils.uid import LID
 
@@ -7,4 +8,4 @@ class LobbyDataDto:
     lid: LID
     name: str
     players: int
-    joinable: bool
+    location: Literal["game-playing", "game-waiting"]

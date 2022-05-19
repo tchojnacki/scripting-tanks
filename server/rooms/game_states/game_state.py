@@ -17,9 +17,6 @@ class GameState(ABC):
     def get_full_room_state(self) -> FullGameStateDto:
         pass
 
-    def is_joinable(self) -> bool:
-        return False
-
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         pass
 

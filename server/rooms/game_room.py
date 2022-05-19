@@ -23,11 +23,18 @@ class GameRoom(ConnectionRoom):
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         self._state.handle_message(sender_cid, cmsg)
 
+    async def _switch_state(self, state_cls: type[GameState]):
+        self._state = state_cls(self)
+        await self.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
+        await self._room_manager.upsert_lobby(self)
+
     async def start_game(self):
         if isinstance(self._state, WaitingGameState):
-            self._state = PlayingGameState(self)
-            await self.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
-            await self._room_manager.upsert_lobby(self)
+            await self._switch_state(PlayingGameState)
+
+    async def end_game(self):
+        if isinstance(self._state, PlayingGameState):
+            await self._switch_state(WaitingGameState)
 
     def get_full_room_state(self) -> FullGameStateDto:
         return self._state.get_full_room_state()
@@ -51,14 +58,10 @@ class GameRoom(ConnectionRoom):
         ]
 
     @property
-    def joinable(self) -> bool:
-        return self._state.is_joinable()
-
-    @property
     def lobby_data(self) -> LobbyDataDto:
         return LobbyDataDto(
             self.lid,
             self.name,
             len(self.players),
-            self.joinable,
+            self.get_full_room_state().location
         )

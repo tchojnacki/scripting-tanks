@@ -66,8 +66,10 @@ class PlayingGameState(GameState):
         await self._room.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
 
         await asyncio.sleep(1 / TICK_RATE)
-        if len(self._room.players) > 0:
+        if len(self.entities) > 0:
             asyncio.ensure_future(self._loop())
+        else:
+            await self._room.end_game()
 
     async def on_leave(self, leaver_cid: CID):
         if (eid := get_eid(leaver_cid)) in self.entities:
