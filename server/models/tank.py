@@ -1,5 +1,5 @@
 from __future__ import annotations
-from math import cos, sin, pi, copysign
+from math import atan2, cos, sin, pi, copysign
 from typing import TYPE_CHECKING, Optional
 from attr import astuple
 from dto import EntityDataDto, InputAxesDto
@@ -13,10 +13,11 @@ if TYPE_CHECKING:
 
 C_DRAG = 100
 C_ROLL_RESIST = 5_000
-ENGINE_FORCE = 2_000_000
+ENGINE_FORCE = 3_000_000
 REVERSE_MULT = 0.25
 TANK_MASS = 10_000
 TURN_DEGREE = pi/12
+BARREL_TURN_SPEED = pi/2
 
 GRAVITY_PULL = Vector(0, -600, 0)
 
@@ -42,6 +43,8 @@ class Tank(Entity):
         self._cid = cid
         self._color = color
         self._pitch = pitch
+        self._barrel_pitch = pitch
+        self.barrel_target = pitch
         self.input_axes = InputAxesDto(0, 0)
 
     def calculate_forces(self) -> Vector:
@@ -77,10 +80,19 @@ class Tank(Entity):
             omega = self._vel.length / turn_radius
             self._pitch += omega * dtime
 
+        barrel_diff = atan2(sin(self.barrel_target-self._barrel_pitch),
+                            cos(self.barrel_target-self._barrel_pitch))
+
+        self._barrel_pitch += copysign(
+            min(BARREL_TURN_SPEED * dtime, abs(barrel_diff)),
+            barrel_diff
+        )
+
         super().update(dtime)
 
     def to_dto(self) -> EntityDataDto:
         return EntityDataDto(
             self.eid, self._cid, self._kind,
-            self._color, astuple(self._pos), self._pitch
+            self._color, astuple(self._pos), self._pitch,
+            self._barrel_pitch
         )

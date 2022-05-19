@@ -11,3 +11,4 @@ class EntityDataDto:
     color: str
     pos: Tuple[float, float, float]
     pitch: float
+    barrel: float

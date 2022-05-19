@@ -17,6 +17,7 @@ export interface EntityDataDto {
   color: string
   pos: [number, number, number]
   pitch: number
+  barrel: number
 }
 
 export interface InputAxesDto {

@@ -1,4 +1,4 @@
-import { EntityDataDto, FullRoomStateDto, InputAxesDto, LobbyDataDto, PlayerDataDto } from "./dtos"
+import { FullRoomStateDto, InputAxesDto, LobbyDataDto, PlayerDataDto } from "./dtos"
 
 export type ServerMessageDataMap = {
   "s-assign-identity": PlayerDataDto
@@ -16,4 +16,5 @@ export type ClientMessageDataMap = {
   "c-leave-lobby": null
   "c-start-game": null
   "c-set-input-axes": InputAxesDto
+  "c-set-barrel-target": number
 }

@@ -3,11 +3,13 @@ from cattr import Converter
 from .create_lobby import CCreateLobbyMsg
 from .enter_lobby import CEnterLobbyMsg
 from .leave_lobby import CLeaveLobbyMsg
+from .set_barrel_target import CSetBarrelTargetMsg
 from .start_game import CStartGameMsg
 from .set_input_axes import CSetInputAxesMsg
 
 
-ClientMsg = Union[CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg, CSetInputAxesMsg, CStartGameMsg]
+ClientMsg = Union[CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg,
+                  CSetBarrelTargetMsg, CStartGameMsg, CSetInputAxesMsg]
 
 _converter = Converter()
 

@@ -5,6 +5,7 @@ import asyncio
 from typing import TYPE_CHECKING
 from dto import FullGamePlayingStateDto
 from messages.client import ClientMsg, CSetInputAxesMsg
+from messages.client.set_barrel_target import CSetBarrelTargetMsg
 from messages.server.full_room_state import SFullRoomStateMsg
 from models import Vector, Tank
 from utils.assign_color import assign_color
@@ -83,3 +84,5 @@ class PlayingGameState(GameState):
             match cmsg:
                 case CSetInputAxesMsg(new_axes):
                     self.entities[eid].input_axes = new_axes
+                case CSetBarrelTargetMsg(new_target):
+                    self.entities[eid].barrel_target = new_target

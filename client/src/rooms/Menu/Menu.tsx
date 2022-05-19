@@ -11,7 +11,6 @@ export function Menu() {
   })
 
   useSocketEvent("s-lobby-removed", (data, draft) => {
-    console.log(data)
     draft.lobbies = draft.lobbies.filter(({ lid }) => lid !== data)
   })
 

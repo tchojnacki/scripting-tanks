@@ -1,5 +1,6 @@
 import { Cylinder, PerspectiveCamera, Plane, Text } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
+import { useEffect } from "react"
 import { useIdentity } from "../../utils/indentityContext"
 import { useInput } from "../../utils/input"
 import { useSocketContext } from "../../utils/socketContext"
@@ -11,24 +12,32 @@ const SKY_HEIGHT = 1024
 type N3 = [number, number, number]
 
 export function Game() {
-  const { roomState } = useSocketContext<"game-playing">()
+  const { roomState, sendMessage } = useSocketContext<"game-playing">()
   const { cid } = useIdentity()
-  useInput()
+  const { canvasRef, pitch, inputAxes } = useInput()
 
   const player = roomState.entities.find(e => e.cid === cid) ??
     roomState.entities[0] ?? { pos: [0, 0, 0], pitch: 0 }
   const isSpectating = !roomState.entities.some(e => e.cid === cid)
-
+  const aimPitch = player.pitch + pitch
   const cameraPos = [
-    player.pos[0] - Math.sin(player.pitch) * CAMERA_OFFSET,
+    player.pos[0] - Math.sin(aimPitch) * CAMERA_OFFSET,
     Math.max(player.pos[1] + CAMERA_OFFSET / 2, 8),
-    player.pos[2] - Math.cos(player.pitch) * CAMERA_OFFSET,
+    player.pos[2] - Math.cos(aimPitch) * CAMERA_OFFSET,
   ] as N3
-  const cameraRot = [0, player.pitch + Math.PI, 0] as N3
+  const cameraRot = [0, aimPitch + Math.PI, 0] as N3
   const cameraFar = CAMERA_OFFSET + roomState.radius * 3
 
+  useEffect(() => {
+    sendMessage("c-set-input-axes", inputAxes)
+  }, [inputAxes, sendMessage])
+
+  useEffect(() => {
+    sendMessage("c-set-barrel-target", aimPitch)
+  }, [aimPitch, sendMessage])
+
   return (
-    <Canvas shadows>
+    <Canvas shadows ref={canvasRef}>
       <color attach="background" args={[0.7, 0.9, 1.0]} />
       <PerspectiveCamera
         position={cameraPos}
