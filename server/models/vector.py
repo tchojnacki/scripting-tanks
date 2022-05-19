@@ -35,6 +35,10 @@ class Vector:
         if isinstance(other, Vector):
             return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
 
+    def __sub__(self, other):
+        if isinstance(other, Vector):
+            return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+
     def __mul__(self, other):
         if isinstance(other, (int, float)):
             return Vector(self.x * other, self.y * other, self.z * other)

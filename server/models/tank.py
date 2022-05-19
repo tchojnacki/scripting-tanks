@@ -38,7 +38,7 @@ class Tank(Entity):
             world=world,
             eid=get_eid(cid),
             pos=pos,
-            size=Vector(96, 64, 96),
+            radius=64,
             mass=TANK_MASS,
         )
         self._cid = cid
@@ -65,10 +65,10 @@ class Tank(Entity):
     def _calculate_gravity_force(self) -> Vector:
         f_gravity = Vector.zero()
 
-        if self._pos.length > self.world.radius:
+        if self.pos.length > self.world.radius:
             f_gravity += GRAVITY_PULL
-            if self._pos.length < self.world.radius + self._size.x / 2:
-                f_gravity += self._pos.normalized() * 5 * self._size.x
+            if self.pos.length < self.world.radius + self.radius:
+                f_gravity += self.pos.normalized() * 8 * self.radius
             f_gravity *= self._mass
 
         return f_gravity
@@ -78,7 +78,7 @@ class Tank(Entity):
                        self.input_axes.vertical) * TURN_DEGREE)
 
         if abs(turn_angle) > 0.01:
-            turn_radius = self._size.z / sin(turn_angle)
+            turn_radius = 2 * self.radius / sin(turn_angle)
             omega = self._vel.length / turn_radius
             self._pitch += omega * dtime
 
@@ -100,11 +100,20 @@ class Tank(Entity):
                 world=self.world,
                 owner=self._cid,
                 direction=self._barrel_pitch,
-                pos=self._pos + Vector(0, self._size.y, 0),
+                pos=self.pos + Vector(0, self.radius, 0),
             ))
+
+    def collide_with(self, other: Entity):
+        if isinstance(other, Bullet):
+            if other.owner != self._cid:
+                self.world.destroy(self)
+                self.world.destroy(other)
+        elif isinstance(other, Tank):
+            self.world.destroy(self)
+            self.world.destroy(other)
 
     def to_dto(self) -> TankDataDto:
         return TankDataDto(
             self.eid, self._cid, self._color,
-            astuple(self._pos), self._pitch, self._barrel_pitch
+            astuple(self.pos), self._pitch, self._barrel_pitch
         )

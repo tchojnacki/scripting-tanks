@@ -49,6 +49,8 @@ class PlayingGameState(GameState):
             for i, player in enumerate(self._room.players)
         }
 
+        self._destroy_queue: set[EID] = set()
+
         asyncio.ensure_future(self._loop())
 
     async def _loop(self):
@@ -56,14 +58,20 @@ class PlayingGameState(GameState):
         dtime = now - self._last_update
         self._last_update = now
 
-        delete_queue = set()
         for entity in self.entities.values():
             entity.update(dtime)
-            if entity.highest_point < -100:
-                delete_queue.add(entity.eid)
 
-        for eid in delete_queue:
+        for (eid1, ent1) in self.entities.items():
+            for (eid2, ent2) in self.entities.items():
+                if eid2 > eid1 and (ent2.pos - ent1.pos).length < ent1.radius + ent2.radius:
+                    if isinstance(ent1, Tank):
+                        ent1.collide_with(ent2)
+                    elif isinstance(ent2, Tank):
+                        ent2.collide_with(ent1)
+
+        for eid in self._destroy_queue:
             del self.entities[eid]
+        self._destroy_queue.clear()
 
         await self._room.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
 
@@ -75,6 +83,9 @@ class PlayingGameState(GameState):
 
     def spawn(self, entity: Entity):
         self.entities[entity.eid] = entity
+
+    def destroy(self, entity: Entity):
+        self._destroy_queue.add(entity.eid)
 
     async def on_leave(self, leaver_cid: CID):
         if (eid := get_eid(leaver_cid)) in self.entities:
