@@ -98,6 +98,7 @@ class Tank(Entity):
             self._last_shot = now
             self.world.spawn(Bullet(
                 world=self.world,
+                owner=self._cid,
                 direction=self._barrel_pitch,
                 pos=self._pos + Vector(0, self._size.y, 0),
             ))

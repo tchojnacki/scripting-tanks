@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from math import sin, cos
 from attrs import astuple
 from dto import BulletDataDto
+from utils.uid import CID
 from .vector import Vector
 from .entity import Entity
 
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from rooms.game_states import PlayingGameState
 
 BULLET_SPEED = 1024
-BULLET_GROW_TEMPO = 32
+BULLET_GROW_TEMPO = 64
 GRAVITY_PULL = Vector(0, -200, 0)
 
 
@@ -19,6 +20,7 @@ class Bullet(Entity):
         self,
         *,
         world: PlayingGameState,
+        owner: CID,
         direction: float,
         pos: Vector
     ):
@@ -28,6 +30,7 @@ class Bullet(Entity):
             vel=Vector(sin(direction), 0, cos(direction)) * BULLET_SPEED,
             size=Vector(32, 32, 32),
         )
+        self._owner = owner
         self._visible_radius = 0
 
     def calculate_forces(self) -> Vector:
@@ -39,5 +42,5 @@ class Bullet(Entity):
 
     def to_dto(self) -> BulletDataDto:
         return BulletDataDto(
-            self.eid, astuple(self._pos), self._visible_radius
+            self.eid, self._owner, astuple(self._pos), self._visible_radius
         )

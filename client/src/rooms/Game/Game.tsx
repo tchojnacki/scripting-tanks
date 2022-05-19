@@ -102,7 +102,7 @@ export function Game() {
       ))}
       {bullets.map(bullet => (
         <Sphere key={bullet.eid} position={bullet.pos} args={[bullet.radius, 8, 8]}>
-          <meshLambertMaterial color="#444" />
+          <meshLambertMaterial color={bullet.owner === cid ? "#060" : "#600"} />
         </Sphere>
       ))}
     </Canvas>

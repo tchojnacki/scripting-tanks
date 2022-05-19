@@ -23,6 +23,7 @@ export interface TankDataDto {
 export interface BulletDataDto {
   kind: "bullet"
   eid: string
+  owner: string
   pos: [number, number, number]
   radius: number
 }
