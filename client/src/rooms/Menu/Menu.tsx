@@ -11,7 +11,6 @@ export function Menu() {
   })
 
   useSocketEvent("s-lobby-removed", (data, draft) => {
-    console.log(data)
     draft.lobbies = draft.lobbies.filter(({ lid }) => lid !== data)
   })
 
@@ -25,11 +24,8 @@ export function Menu() {
         {roomState.lobbies.map(lobby => (
           <li key={lobby.lid}>
             {lobby.name} {lobby.players}{" "}
-            <button
-              disabled={!lobby.joinable}
-              onClick={() => sendMessage("c-enter-lobby", lobby.lid)}
-            >
-              Enter
+            <button onClick={() => sendMessage("c-enter-lobby", lobby.lid)}>
+              {lobby.location === "game-playing" ? "Spectate" : "Enter"}
             </button>
           </li>
         ))}

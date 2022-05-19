@@ -75,7 +75,7 @@ class RoomManager:
         await self._join_game_room(owner_cid, lid)
 
     async def _join_game_room(self, cid: CID, lid: LID):
-        if lid in self._game_rooms and self._game_rooms[lid].joinable:
+        if lid in self._game_rooms:
             await self._switch_room(cid, self._game_rooms[lid])
 
     @property

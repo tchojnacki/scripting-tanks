@@ -2,7 +2,7 @@ export interface LobbyDataDto {
   lid: string
   name: string
   players: number
-  joinable: boolean
+  location: "game-playing" | "game-waiting"
 }
 
 export interface PlayerDataDto {
@@ -15,9 +15,9 @@ export interface EntityDataDto {
   cid: string
   kind: "tank"
   color: string
-  x: number
-  z: number
+  pos: [number, number, number]
   pitch: number
+  barrel: number
 }
 
 export interface InputAxesDto {

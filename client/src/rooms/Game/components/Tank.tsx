@@ -24,9 +24,17 @@ function Catterpillar({ color, position }: { color: string; position: [number, n
   )
 }
 
-function Turret({ color, position }: { color: string; position: [number, number, number] }) {
+function Turret({
+  color,
+  position,
+  rotation,
+}: {
+  color: string
+  position: [number, number, number]
+  rotation: number
+}) {
   return (
-    <group position={position}>
+    <group position={position} rotation={[0, rotation, 0]}>
       <Cylinder args={[24, 32, 24, 16]}>
         <meshLambertMaterial color={color} />
       </Cylinder>
@@ -39,11 +47,11 @@ function Turret({ color, position }: { color: string; position: [number, number,
 
 export function Tank({ entity }: { entity: EntityDataDto }) {
   return (
-    <group position={[entity.x, 0, entity.z]} rotation={[0, entity.pitch, 0]}>
+    <group position={entity.pos} rotation={[0, entity.pitch, 0]}>
       <Box args={[64, 32, 96]} position={[0, 32, 0]} castShadow receiveShadow>
         <meshLambertMaterial color={entity.color} />
       </Box>
-      <Turret color={entity.color} position={[0, 64, 0]} />
+      <Turret color={entity.color} position={[0, 64, 0]} rotation={entity.barrel - entity.pitch} />
       {[1, -1].map(side => (
         <Catterpillar key={side} color={entity.color} position={[side * 40, 12, 0]} />
       ))}
