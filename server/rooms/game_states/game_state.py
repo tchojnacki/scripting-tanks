@@ -22,3 +22,9 @@ class GameState(ABC):
 
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         pass
+
+    async def on_join(self, joiner_cid: CID):
+        pass
+
+    async def on_leave(self, leaver_cid: CID):
+        pass

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from dto import FullGameStateDto, PlayerDataDto
 from dto.lobby_data import LobbyDataDto
 from messages.client import ClientMsg
-from messages.server import SNewPlayerMsg, SOwnerChangeMsg, SPlayerLeftMsg, SFullRoomStateMsg
+from messages.server import SOwnerChangeMsg, SFullRoomStateMsg
 from rooms.game_states import WaitingGameState, PlayingGameState, GameState
 from utils.uid import CID, LID
 from .connection_room import ConnectionRoom
@@ -33,14 +33,12 @@ class GameRoom(ConnectionRoom):
         return self._state.get_full_room_state()
 
     async def on_join(self, joiner_cid: CID):
-        await self.broadcast_message(SNewPlayerMsg(PlayerDataDto(
-            joiner_cid, self._room_manager.cid_to_display_name(joiner_cid)
-        )))
+        await self._state.on_join(joiner_cid)
         await super().on_join(joiner_cid)
 
     async def on_leave(self, leaver_cid: CID):
         await super().on_leave(leaver_cid)
-        await self.broadcast_message(SPlayerLeftMsg(leaver_cid))
+        await self._state.on_leave(leaver_cid)
         if leaver_cid == self.owner and len(self._player_ids) > 0:
             self.owner = random.choice(tuple(self._player_ids))
             await self.broadcast_message(SOwnerChangeMsg(self.owner))

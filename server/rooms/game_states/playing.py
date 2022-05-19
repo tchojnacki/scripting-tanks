@@ -62,6 +62,9 @@ class PlayingGameState(GameState):
         if len(self._room.players) > 0:
             asyncio.ensure_future(self._loop())
 
+    async def on_leave(self, leaver_cid: CID):
+        del self.entities[get_eid(leaver_cid)]
+
     def get_full_room_state(self) -> FullGamePlayingStateDto:
         return FullGamePlayingStateDto(self.radius, [e.to_dto() for e in self.entities.values()])
 
