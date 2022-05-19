@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 
 const MOVEMENT_KEYS = ["w", "a", "s", "d"]
 
-export function useInput() {
+export function useInput({ handleShot }: { handleShot: () => void }) {
   const [pressed, setPressed] = useState<Set<string>>(new Set())
   const [cameraLocked, setCameraLocked] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -22,10 +22,15 @@ export function useInput() {
         if (cameraLocked) setPitch(prev => prev - e.movementX * 0.001)
       },
       click: () => {
-        if (!cameraLocked) canvas?.requestPointerLock()
+        if (cameraLocked) {
+          handleShot()
+        } else {
+          canvas?.requestPointerLock()
+        }
       },
       keydown: (e: KeyboardEvent) => {
         if (MOVEMENT_KEYS.includes(e.key)) setPressed(prev => new Set(prev).add(e.key))
+        else if (e.key === " ") handleShot()
       },
       keyup: (e: KeyboardEvent) => {
         if (MOVEMENT_KEYS.includes(e.key))
@@ -42,7 +47,7 @@ export function useInput() {
       Object.entries(listeners).forEach(([event, listener]) =>
         document.removeEventListener(event as any, listener)
       )
-  }, [cameraLocked])
+  }, [cameraLocked, handleShot])
 
   let vertical = 0
   let horizontal = 0

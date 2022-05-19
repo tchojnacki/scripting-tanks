@@ -10,15 +10,24 @@ export interface PlayerDataDto {
   name: string
 }
 
-export interface EntityDataDto {
+export interface TankDataDto {
+  kind: "tank"
   eid: string
   cid: string
-  kind: "tank"
   color: string
   pos: [number, number, number]
   pitch: number
   barrel: number
 }
+
+export interface BulletDataDto {
+  kind: "bullet"
+  eid: string
+  pos: [number, number, number]
+  radius: number
+}
+
+export type EntityDataDto = TankDataDto | BulletDataDto
 
 export interface InputAxesDto {
   vertical: number

@@ -6,10 +6,11 @@ from typing import TYPE_CHECKING
 from dto import FullGamePlayingStateDto
 from messages.client import ClientMsg, CSetInputAxesMsg
 from messages.client.set_barrel_target import CSetBarrelTargetMsg
+from messages.client.shoot import CShootMsg
 from messages.server.full_room_state import SFullRoomStateMsg
-from models import Vector, Tank
+from models import Vector, Tank, Entity
 from utils.assign_color import assign_color
-from utils.uid import CID, get_eid
+from utils.uid import CID, EID, get_eid
 from .game_state import GameState
 
 if TYPE_CHECKING:
@@ -33,7 +34,7 @@ class PlayingGameState(GameState):
             PLAYER_DISTANCE / sqrt(2 - 2 * cos(2 * pi / player_count))
         ) + ISLAND_MARGIN
 
-        self.entities = {
+        self.entities: dict[EID, Entity] = {
             (tank := Tank(
                 world=self,
                 cid=player.cid,
@@ -72,6 +73,9 @@ class PlayingGameState(GameState):
         else:
             await self._room.end_game()
 
+    def spawn(self, entity: Entity):
+        self.entities[entity.eid] = entity
+
     async def on_leave(self, leaver_cid: CID):
         if (eid := get_eid(leaver_cid)) in self.entities:
             del self.entities[eid]
@@ -86,3 +90,5 @@ class PlayingGameState(GameState):
                     self.entities[eid].input_axes = new_axes
                 case CSetBarrelTargetMsg(new_target):
                     self.entities[eid].barrel_target = new_target
+                case CShootMsg():
+                    self.entities[eid].shoot()

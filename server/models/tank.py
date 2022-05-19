@@ -1,11 +1,13 @@
 from __future__ import annotations
 from math import atan2, cos, sin, pi, copysign
+from time import monotonic
 from typing import TYPE_CHECKING, Optional
-from attr import astuple
-from dto import EntityDataDto, InputAxesDto
+from attrs import astuple
+from dto import TankDataDto, InputAxesDto
 from utils.uid import CID, get_eid
 from .vector import Vector
 from .entity import Entity
+from .bullet import Bullet
 
 if TYPE_CHECKING:
     from rooms.game_states import PlayingGameState
@@ -18,7 +20,7 @@ REVERSE_MULT = 0.25
 TANK_MASS = 10_000
 TURN_DEGREE = pi/12
 BARREL_TURN_SPEED = pi/2
-
+SHOT_COOLDOWN = 2.0
 GRAVITY_PULL = Vector(0, -600, 0)
 
 
@@ -35,15 +37,15 @@ class Tank(Entity):
         super().__init__(
             world=world,
             eid=get_eid(cid),
-            kind="tank",
             pos=pos,
+            size=Vector(96, 64, 96),
             mass=TANK_MASS,
-            size=Vector(96, 64, 96)
         )
         self._cid = cid
         self._color = color
         self._pitch = pitch
         self._barrel_pitch = pitch
+        self._last_shot = 0
         self.barrel_target = pitch
         self.input_axes = InputAxesDto(0, 0)
 
@@ -90,9 +92,18 @@ class Tank(Entity):
 
         super().update(dtime)
 
-    def to_dto(self) -> EntityDataDto:
-        return EntityDataDto(
-            self.eid, self._cid, self._kind,
-            self._color, astuple(self._pos), self._pitch,
-            self._barrel_pitch
+    def shoot(self):
+        now = monotonic()
+        if now - self._last_shot >= SHOT_COOLDOWN:
+            self._last_shot = now
+            self.world.spawn(Bullet(
+                world=self.world,
+                direction=self._barrel_pitch,
+                pos=self._pos + Vector(0, self._size.y, 0),
+            ))
+
+    def to_dto(self) -> TankDataDto:
+        return TankDataDto(
+            self.eid, self._cid, self._color,
+            astuple(self._pos), self._pitch, self._barrel_pitch
         )
