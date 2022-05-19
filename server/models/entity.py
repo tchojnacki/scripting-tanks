@@ -1,14 +1,19 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Literal, Optional
+from typing import Literal, Optional, TYPE_CHECKING
 from dto import EntityDataDto
 from utils.uid import EID, get_eid
 from .vector import Vector
+
+if TYPE_CHECKING:
+    from rooms.game_states import PlayingGameState
 
 
 class Entity(ABC):
     def __init__(
         self,
         *,
+        world: PlayingGameState,
         eid: Optional[EID] = None,
         kind: Literal["tank"],
         pos: Optional[Vector] = None,
@@ -16,6 +21,7 @@ class Entity(ABC):
         acc: Optional[Vector] = None,
         mass: float = 1
     ):
+        self.world = world
         self.eid = eid if eid is not None else get_eid()
         self._kind = kind
         self._pos = pos if pos is not None else Vector.zero()

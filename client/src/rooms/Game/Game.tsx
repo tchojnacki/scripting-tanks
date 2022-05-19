@@ -16,6 +16,7 @@ export function Game() {
   useInput()
 
   const cameraFar = CAMERA_OFFSET + roomState.radius * 3
+  const cameraY = Math.max(player.pos[1] + CAMERA_OFFSET / 2, 32)
 
   return (
     <Canvas shadows>
@@ -23,7 +24,7 @@ export function Game() {
       <PerspectiveCamera
         position={[
           player.pos[0] - Math.sin(player.pitch) * CAMERA_OFFSET,
-          CAMERA_OFFSET / 2,
+          cameraY,
           player.pos[2] - Math.cos(player.pitch) * CAMERA_OFFSET,
         ]}
         rotation={[0, player.pitch + Math.PI, 0]}
@@ -34,7 +35,7 @@ export function Game() {
       >
         <Plane
           args={[cameraFar * 4, cameraFar * 4]}
-          position={[0, -192, 0]}
+          position={[0, -cameraY - 192, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
         >
           <meshBasicMaterial color="#064273" />

@@ -34,6 +34,7 @@ class PlayingGameState(GameState):
 
         self.entities = {
             (tank := Tank(
+                world=self,
                 cid=player.cid,
                 color=assign_color(player.cid),
                 pos=Vector(

@@ -1,10 +1,15 @@
+from __future__ import annotations
 from math import cos, sin, pi, copysign
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from attr import astuple
 from dto import EntityDataDto, InputAxesDto
 from utils.uid import CID, get_eid
 from .vector import Vector
 from .entity import Entity
+
+if TYPE_CHECKING:
+    from rooms.game_states import PlayingGameState
+
 
 C_DRAG = 100
 C_ROLL_RESIST = 5_000
@@ -14,17 +19,20 @@ TANK_MASS = 10_000
 TANK_LENGTH = 96
 TURN_DEGREE = pi/12
 
+GRAVITY_PULL = Vector(0, -600, 0)
+
 
 class Tank(Entity):
     def __init__(
         self,
         *,
+        world: PlayingGameState,
         cid: CID,
         pos: Optional[Vector] = None,
         color: str,
         pitch: float = 0
     ):
-        super().__init__(eid=get_eid(cid), kind="tank", pos=pos, mass=TANK_MASS)
+        super().__init__(world=world, eid=get_eid(cid), kind="tank", pos=pos, mass=TANK_MASS)
         self._cid = cid
         self._color = color
         self._pitch = pitch
@@ -39,8 +47,20 @@ class Tank(Entity):
         f_traction = u * engine_force
         f_drag = -C_DRAG * self._vel * self._vel.length
         f_roll_resist = -C_ROLL_RESIST * self._vel
+        f_gravity = self._calculate_gravity_force()
 
-        return f_traction + f_drag + f_roll_resist
+        return f_traction + f_drag + f_roll_resist + f_gravity
+
+    def _calculate_gravity_force(self) -> Vector:
+        f_gravity = Vector.zero()
+
+        if self._pos.length > self.world.radius:
+            f_gravity += GRAVITY_PULL
+            if self._pos.length < self.world.radius + TANK_LENGTH / 2:
+                f_gravity += self._pos.normalized() * 5 * TANK_LENGTH
+            f_gravity *= self._mass
+
+        return f_gravity
 
     def update(self, dtime):
         turn_angle = -(self.input_axes.horizontal * copysign(1,

@@ -13,6 +13,9 @@ class Vector:
     def length(self) -> float:
         return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
+    def normalized(self) -> Vector:
+        return self / self.length
+
     @staticmethod
     def zero() -> Vector:
         return Vector(0, 0, 0)
