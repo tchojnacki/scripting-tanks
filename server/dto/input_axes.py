@@ -1,4 +1,4 @@
-from attr import field, frozen
+from attrs import field, frozen
 
 
 def _axis_validator(_i, _a, value):

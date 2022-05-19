@@ -1,5 +1,5 @@
 from typing import Literal
-from attr import field, frozen
+from attrs import field, frozen
 from dto import FullRoomStateDto
 
 
