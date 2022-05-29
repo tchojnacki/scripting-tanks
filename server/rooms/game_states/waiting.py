@@ -17,7 +17,8 @@ class WaitingGameState(GameState):
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         match cmsg:
             case CStartGameMsg():
-                asyncio.ensure_future(self._room.start_game())
+                if len(self._room.players) >= 2:
+                    asyncio.ensure_future(self._room.start_game())
 
     async def on_join(self, joiner_cid: CID):
         await self._room.broadcast_message(SNewPlayerMsg(PlayerDataDto(
