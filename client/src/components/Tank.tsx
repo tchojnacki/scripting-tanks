@@ -1,5 +1,5 @@
 import { Box, Cylinder } from "@react-three/drei"
-import { TankDataDto } from "../../../utils/dtos"
+import { TankDataDto } from "../utils/dtos"
 
 function Catterpillar({ color, position }: { color: string; position: [number, number, number] }) {
   return (

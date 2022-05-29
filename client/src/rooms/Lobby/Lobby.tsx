@@ -21,7 +21,14 @@ export function Lobby() {
   return (
     <>
       <h5>Your name: {name}</h5>
-      {isOwner && <button onClick={() => sendMessage("c-start-game", null)}>Start game</button>}
+      {isOwner && (
+        <button
+          disabled={roomState.players.length < 2}
+          onClick={() => sendMessage("c-start-game", null)}
+        >
+          Start game
+        </button>
+      )}
       <button onClick={() => sendMessage("c-leave-lobby", null)}>Leave</button>
       <h1>{roomState.name}</h1>
       <h2>Players</h2>

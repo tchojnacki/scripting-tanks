@@ -1,14 +1,13 @@
-import { Cylinder, PerspectiveCamera, Plane, Sphere, Text } from "@react-three/drei"
+import { Cylinder, MeshWobbleMaterial, PerspectiveCamera, Plane, Sphere } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { useEffect, useState } from "react"
 import { BulletDataDto, TankDataDto } from "../../utils/dtos"
 import { useIdentity } from "../../utils/indentityContext"
 import { useInput } from "../../utils/input"
 import { useSocketContext } from "../../utils/socketContext"
-import { Tank } from "./components"
+import { Tank, HUD, SceneLight } from "../../components"
 
 const CAMERA_OFFSET = 256
-const SKY_HEIGHT = 1024
 
 type N3 = [number, number, number]
 
@@ -52,59 +51,46 @@ export function Game() {
   }, [aimPitch, sendMessage])
 
   return (
-    <Canvas shadows ref={canvasRef}>
-      <color attach="background" args={[0.7, 0.9, 1.0]} />
-      <PerspectiveCamera
-        position={cameraPos}
-        rotation={cameraRot}
-        fov={75}
-        near={1}
-        far={cameraFar}
-        makeDefault
-      >
-        {isSpectating && (
-          <Text
-            color="red"
-            anchorX="center"
-            anchorY="middle"
-            fontSize={64}
-            position={[0, 128, -512]}
-          >
-            SPECTATING
-          </Text>
-        )}
-        <Plane
-          args={[cameraFar * 4, cameraFar * 4]}
-          position={[0, -cameraPos[1] - 64, 0]}
-          rotation={[-Math.PI / 2, 0, 0]}
+    <>
+      {isSpectating && (
+        <HUD justifyContent="flex-start">
+          <div style={{ color: "red", fontSize: 64, paddingTop: 64 }}>SPECTATING</div>
+        </HUD>
+      )}
+      <Canvas shadows ref={canvasRef}>
+        <PerspectiveCamera
+          position={cameraPos}
+          rotation={cameraRot}
+          fov={75}
+          near={1}
+          far={cameraFar}
+          makeDefault
         >
-          <meshBasicMaterial color="#064273" />
-        </Plane>
-      </PerspectiveCamera>
-      <ambientLight intensity={0.2} />
-      <pointLight
-        position={[0, SKY_HEIGHT, 0]}
-        intensity={0.3}
-        distance={SKY_HEIGHT + roomState.radius}
-        castShadow
-        shadow-mapSize-height={2048}
-        shadow-mapSize-width={2048}
-      />
-      <Cylinder
-        args={[roomState.radius, roomState.radius, 64, 64]}
-        position={[0, -32, 0]}
-        receiveShadow
-      >
-        <meshLambertMaterial color="#C2B280" />
-      </Cylinder>
-      {tanks.map(tank => (
-        <Tank key={tank.eid} tank={tank} />
-      ))}
-      {bullets.map(bullet => (
-        <Sphere key={bullet.eid} position={bullet.pos} args={[bullet.radius, 8, 8]}>
-          <meshLambertMaterial color={bullet.owner === cid ? "#060" : "#600"} />
-        </Sphere>
-      ))}
-    </Canvas>
+          <Plane
+            args={[cameraFar * 4, cameraFar * 4]}
+            position={[0, -cameraPos[1] - 64, 0]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          >
+            <MeshWobbleMaterial factor={0.01} color="#517cdb" />
+          </Plane>
+        </PerspectiveCamera>
+        <SceneLight radius={roomState.radius} />
+        <Cylinder
+          args={[roomState.radius, roomState.radius, 64, 64]}
+          position={[0, -32, 0]}
+          receiveShadow
+        >
+          <meshLambertMaterial color="#C2B280" />
+        </Cylinder>
+        {tanks.map(tank => (
+          <Tank key={tank.eid} tank={tank} />
+        ))}
+        {bullets.map(bullet => (
+          <Sphere key={bullet.eid} position={bullet.pos} args={[bullet.radius, 8, 8]}>
+            <meshLambertMaterial color={bullet.owner === cid ? "#060" : "#600"} />
+          </Sphere>
+        ))}
+      </Canvas>
+    </>
   )
 }

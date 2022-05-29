@@ -4,10 +4,8 @@ from time import monotonic
 import asyncio
 from typing import TYPE_CHECKING
 from dto import FullGamePlayingStateDto
-from messages.client import ClientMsg, CSetInputAxesMsg
-from messages.client.set_barrel_target import CSetBarrelTargetMsg
-from messages.client.shoot import CShootMsg
-from messages.server.full_room_state import SFullRoomStateMsg
+from messages.client import ClientMsg, CSetInputAxesMsg, CSetBarrelTargetMsg, CShootMsg
+from messages.server import SFullRoomStateMsg
 from models import Vector, Tank, Entity
 from utils.assign_color import assign_color
 from utils.uid import CID, EID, get_eid
@@ -76,10 +74,10 @@ class PlayingGameState(GameState):
         await self._room.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
 
         await asyncio.sleep(1 / TICK_RATE)
-        if len(self.entities) > 0:
+        if len([p for p in self.entities.values() if isinstance(p, Tank)]) >= 2:
             asyncio.ensure_future(self._loop())
         else:
-            await self._room.end_game()
+            await self._room.show_summary()
 
     def spawn(self, entity: Entity):
         self.entities[entity.eid] = entity

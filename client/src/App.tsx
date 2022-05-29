@@ -1,4 +1,4 @@
-import { Menu, Lobby, Game } from "./rooms"
+import { Menu, Lobby, Game, Summary } from "./rooms"
 import { useSocketContext } from "./utils/socketContext"
 
 export function App() {
@@ -12,6 +12,8 @@ export function App() {
     return <Lobby />
   } else if (roomState.location === "game-playing") {
     return <Game />
+  } else if (roomState.location === "game-summary") {
+    return <Summary />
   } else {
     return null
   }
