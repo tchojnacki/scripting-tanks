@@ -5,7 +5,7 @@ from dto import FullGameStateDto, PlayerDataDto
 from dto.lobby_data import LobbyDataDto
 from messages.client import ClientMsg
 from messages.server import SOwnerChangeMsg, SFullRoomStateMsg
-from rooms.game_states import WaitingGameState, PlayingGameState, GameState
+from rooms.game_states import WaitingGameState, PlayingGameState, GameState, SummaryGameState
 from utils.uid import CID, LID
 from .connection_room import ConnectionRoom
 
@@ -33,8 +33,12 @@ class GameRoom(ConnectionRoom):
         if isinstance(self._state, WaitingGameState):
             await self._switch_state(PlayingGameState)
 
-    async def end_game(self):
+    async def show_summary(self):
         if isinstance(self._state, PlayingGameState):
+            await self._switch_state(SummaryGameState)
+
+    async def play_again(self):
+        if isinstance(self._state, SummaryGameState):
             await self._switch_state(WaitingGameState)
 
     def get_full_room_state(self) -> FullGameStateDto:

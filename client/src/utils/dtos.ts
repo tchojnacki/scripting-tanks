@@ -48,7 +48,16 @@ interface FullGamePlayingStateDto {
   entities: EntityDataDto[]
 }
 
-export type FullGameStateDto = FullGameWaitingStateDto | FullGamePlayingStateDto
+interface FullSummaryStateDto {
+  location: "game-summary"
+  remaining: number
+  tanks: TankDataDto[]
+}
+
+export type FullGameStateDto =
+  | FullGameWaitingStateDto
+  | FullGamePlayingStateDto
+  | FullSummaryStateDto
 
 interface FullMenuStateDto {
   location: "menu"
