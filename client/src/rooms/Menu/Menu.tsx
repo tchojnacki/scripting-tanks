@@ -1,8 +1,27 @@
 import { useSocketContext } from "../../utils/socketContext"
-import { ActionIcon, Button, Title, useMantineColorScheme } from "@mantine/core"
+import {
+  ActionIcon,
+  Button,
+  Paper,
+  Text,
+  Stack,
+  Title,
+  useMantineColorScheme,
+  Group,
+  Badge,
+  Avatar,
+} from "@mantine/core"
 import { PlayerInfo, StandardLayout } from "../../components"
-import { CirclePlus, MoonStars, Sun } from "tabler-icons-react"
+import { CirclePlus, DoorEnter, Eye, MoonStars, Sun } from "tabler-icons-react"
 import { useDocumentTitle } from "@mantine/hooks"
+
+function gameAbbr(name: string) {
+  return name
+    .split(" ")
+    .map(word => word[0])
+    .slice(0, 2)
+    .join("")
+}
 
 export function Menu() {
   useDocumentTitle("Menu | Tanks")
@@ -30,16 +49,31 @@ export function Menu() {
     >
       <div>
         <Title order={3}>Lobbies</Title>
-        <ul>
+        <Stack py="xl">
           {roomState.lobbies.map(lobby => (
-            <li key={lobby.lid}>
-              {lobby.name} {lobby.players}{" "}
-              <button onClick={() => sendMessage("c-enter-lobby", lobby.lid)}>
-                {lobby.location === "game-playing" ? "Spectate" : "Enter"}
-              </button>
-            </li>
+            <Paper key={lobby.lid} p="sm" radius="md" shadow="xl" withBorder>
+              <Group position="apart">
+                <Group>
+                  <Avatar color="blue" radius="xl">
+                    {gameAbbr(lobby.name)}
+                  </Avatar>
+                  <Text>{lobby.name}</Text>
+                  <Badge>{lobby.players}</Badge>
+                </Group>
+                <Button
+                  compact
+                  color={lobby.location === "game-waiting" ? "blue" : "gray"}
+                  leftIcon={
+                    lobby.location === "game-waiting" ? <DoorEnter size={14} /> : <Eye size={14} />
+                  }
+                  onClick={() => sendMessage("c-enter-lobby", lobby.lid)}
+                >
+                  {lobby.location === "game-waiting" ? "Enter" : "Spectate"}
+                </Button>
+              </Group>
+            </Paper>
           ))}
-        </ul>
+        </Stack>
         <Button
           leftIcon={<CirclePlus size={16} />}
           onClick={() => sendMessage("c-create-lobby", null)}

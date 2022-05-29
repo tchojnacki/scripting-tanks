@@ -21,6 +21,13 @@ export function StandardLayout({ title, headerRight, children }: StandardLayoutP
           </Group>
         </Header>
       }
+      styles={theme => ({
+        main: {
+          backgroundColor:
+            theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[1],
+          minHeight: "calc(100vh - 64px)",
+        },
+      })}
     >
       <SimpleGrid cols={isMobile ? 1 : 2} spacing="xl" p="xl">
         {children}

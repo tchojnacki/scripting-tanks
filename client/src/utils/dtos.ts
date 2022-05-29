@@ -1,10 +1,3 @@
-export interface LobbyDataDto {
-  lid: string
-  name: string
-  players: number
-  location: "game-playing" | "game-waiting"
-}
-
 export interface PlayerDataDto {
   cid: string
   name: string
@@ -58,6 +51,13 @@ export type FullGameStateDto =
   | FullGameWaitingStateDto
   | FullGamePlayingStateDto
   | FullSummaryStateDto
+
+export interface LobbyDataDto {
+  lid: string
+  name: string
+  players: number
+  location: FullGameStateDto["location"]
+}
 
 interface FullMenuStateDto {
   location: "menu"
