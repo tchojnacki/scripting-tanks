@@ -3,8 +3,11 @@ import { Canvas } from "@react-three/fiber"
 import { Fragment } from "react"
 import { useSocketContext } from "../../utils/socketContext"
 import { Tank, HUD, SceneLight } from "../../components"
+import { useDocumentTitle } from "@mantine/hooks"
 
 export function Summary() {
+  useDocumentTitle("Post-game | Tanks")
+
   const { roomState } = useSocketContext<"game-summary">()
 
   return (

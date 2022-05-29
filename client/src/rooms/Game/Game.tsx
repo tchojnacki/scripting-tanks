@@ -6,12 +6,15 @@ import { useIdentity } from "../../utils/indentityContext"
 import { useInput } from "../../utils/input"
 import { useSocketContext } from "../../utils/socketContext"
 import { Tank, HUD, SceneLight } from "../../components"
+import { useDocumentTitle } from "@mantine/hooks"
 
 const CAMERA_OFFSET = 256
 
 type N3 = [number, number, number]
 
 export function Game() {
+  useDocumentTitle("Playing | Tanks")
+
   const { roomState, sendMessage } = useSocketContext<"game-playing">()
   const { cid } = useIdentity()
 
