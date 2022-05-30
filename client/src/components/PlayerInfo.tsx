@@ -1,7 +1,7 @@
 import { ActionIcon, AspectRatio, Avatar, ColorInput, Group, Stack, Title } from "@mantine/core"
 import { PerspectiveCamera } from "@react-three/drei"
 import { Canvas, useFrame } from "@react-three/fiber"
-import { Suspense, useState } from "react"
+import { useState } from "react"
 import { ArrowsShuffle } from "tabler-icons-react"
 import { useIdentity } from "../utils/indentityContext"
 import { Tank } from "./Tank"
@@ -48,8 +48,8 @@ export function PlayerInfo({ compact, unmutable }: PlayerInfoProps) {
   return (
     <div>
       <Title order={3}>Player info</Title>
-      <Stack align="center">
-        <Group py="md">
+      <Stack align="center" py="xl">
+        <Group>
           <Avatar color="blue" radius="xl" size={24}>
             {nameAbbr(name)}
           </Avatar>

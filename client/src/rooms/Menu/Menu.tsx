@@ -14,6 +14,7 @@ import {
 import { PlayerInfo, StandardLayout } from "../../components"
 import { CirclePlus, DoorEnter, Eye, MoonStars, Sun } from "tabler-icons-react"
 import { useDocumentTitle } from "@mantine/hooks"
+import { sortBy } from "lodash"
 
 function gameAbbr(name: string) {
   return name
@@ -50,8 +51,12 @@ export function Menu() {
         <div>
           <Title order={3}>Lobbies</Title>
           <Stack py="xl">
-            {roomState.lobbies.map(lobby => (
-              <Paper key={lobby.lid} p="sm" radius="md" shadow="xl" withBorder>
+            {sortBy(roomState.lobbies, [
+              l => (l.location === "game-waiting" ? 0 : 1),
+              l => -l.players,
+              "name",
+            ]).map(lobby => (
+              <Paper key={lobby.lid} p="md" radius="md" shadow="xl" withBorder>
                 <Group position="apart">
                   <Group>
                     <Avatar color="blue" radius="xl">
