@@ -1,3 +1,5 @@
 export * from "./Tank"
 export * from "./HUD"
 export * from "./SceneLight"
+export * from "./PlayerInfo"
+export * from "./StandardLayout"
