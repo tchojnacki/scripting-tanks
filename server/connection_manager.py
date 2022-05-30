@@ -1,8 +1,8 @@
 import asyncio
 from attrs import asdict
 from fastapi import WebSocket, WebSocketDisconnect
-from dto.player_data import PlayerDataDto
-from messages.client import ClientMsg, parse_message
+from dto import PlayerDataDto
+from messages.client import ClientMsg, parse_message, CRerollNameMsg, CCustomizeColorsMsg
 from messages.server import SAssignIdentityMsg, ServerMsg
 from rooms.room_manager import RoomManager
 from utils.display_names import gen_random_name
@@ -21,7 +21,7 @@ class ConnectionManager:
         cid = ConnectionData.cid_from_socket(socket)
         con = ConnectionData(socket, gen_random_name())
         self._active_connections[cid] = con
-        await self.send_to_single(cid, SAssignIdentityMsg(PlayerDataDto(cid, con.display_name)))
+        await self.send_to_single(cid, SAssignIdentityMsg(con.player_data))
         await self._room_manager.on_connect(cid)
 
     def _handle_on_disconnect(self, socket: WebSocket):
@@ -30,7 +30,20 @@ class ConnectionManager:
         asyncio.ensure_future(self._room_manager.on_disconnect(cid))
 
     def _handle_message(self, sender_cid: CID, cmsg: ClientMsg):
-        self._room_manager.handle_message(sender_cid, cmsg)
+        con = self._active_connections[sender_cid]
+        match cmsg:
+            case CRerollNameMsg() if self._room_manager.can_customize(sender_cid):
+                con.display_name = gen_random_name()
+                asyncio.ensure_future(self.send_to_single(
+                    sender_cid, SAssignIdentityMsg(con.player_data)
+                ))
+            case CCustomizeColorsMsg(dto) if self._room_manager.can_customize(sender_cid):
+                con.colors = dto.colors
+                asyncio.ensure_future(self.send_to_single(
+                    sender_cid, SAssignIdentityMsg(con.player_data)
+                ))
+            case _:
+                self._room_manager.handle_message(sender_cid, cmsg)
 
     async def handle_connection(self, socket: WebSocket):
         await self._handle_on_connect(socket)
@@ -46,5 +59,5 @@ class ConnectionManager:
     async def send_to_single(self, cid: CID, smsg: ServerMsg):
         await self._active_connections[cid].socket.send_json(asdict(smsg))
 
-    def cid_to_display_name(self, cid: CID) -> str:
-        return self._active_connections[cid].display_name
+    def cid_to_player_data(self, cid: CID) -> PlayerDataDto:
+        return self._active_connections[cid].player_data

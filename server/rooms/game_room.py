@@ -58,7 +58,7 @@ class GameRoom(ConnectionRoom):
     @property
     def players(self) -> list[PlayerDataDto]:
         return [
-            PlayerDataDto(cid, self._room_manager.cid_to_display_name(cid))
+            self._room_manager.cid_to_player_data(cid)
             for cid in self._player_ids
         ]
 

@@ -15,14 +15,7 @@ import { PlayerInfo, StandardLayout } from "../../components"
 import { CirclePlus, DoorEnter, Eye, MoonStars, Sun } from "tabler-icons-react"
 import { useDocumentTitle } from "@mantine/hooks"
 import { sortBy } from "lodash"
-
-function gameAbbr(name: string) {
-  return name
-    .split(" ")
-    .map(word => word[0])
-    .slice(0, 2)
-    .join("")
-}
+import { nameAbbr } from "../../utils/nameAbbr"
 
 export function Menu() {
   useDocumentTitle("Menu | Tanks")
@@ -60,7 +53,7 @@ export function Menu() {
                 <Group position="apart">
                   <Group>
                     <Avatar color="blue" radius="xl">
-                      {gameAbbr(lobby.name)}
+                      {nameAbbr(lobby.name)}
                     </Avatar>
                     <Text>{lobby.name}</Text>
                     <Badge>{lobby.players}</Badge>

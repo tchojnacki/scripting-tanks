@@ -7,7 +7,6 @@ from dto import FullGamePlayingStateDto
 from messages.client import ClientMsg, CSetInputAxesMsg, CSetBarrelTargetMsg, CShootMsg
 from messages.server import SFullRoomStateMsg
 from models import Vector, Tank, Entity
-from utils.assign_color import assign_color
 from utils.uid import CID, EID, get_eid
 from .game_state import GameState
 
@@ -36,7 +35,7 @@ class PlayingGameState(GameState):
             (tank := Tank(
                 world=self,
                 cid=player.cid,
-                color=assign_color(player.cid),
+                colors=self._room.cid_to_player_data(player.cid).colors,
                 pos=Vector(
                     sin(step * i) * (self.radius - ISLAND_MARGIN),
                     0,

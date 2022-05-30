@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 from typing import Optional, TYPE_CHECKING
-from dto.lobby_data import LobbyDataDto
+from dto import LobbyDataDto, PlayerDataDto
 from messages.client import ClientMsg, CCreateLobbyMsg, CEnterLobbyMsg, CLeaveLobbyMsg
 from messages.server import SLobbyRemovedMsg, ServerMsg, SUpsertLobbyMsg
 from rooms import ConnectionRoom, GameRoom, MenuRoom
@@ -40,8 +40,11 @@ class RoomManager:
             case _:
                 self._connection_room(sender_cid).handle_message(sender_cid, cmsg)
 
-    def cid_to_display_name(self, cid: CID) -> str:
-        return self._connection_manager.cid_to_display_name(cid)
+    def cid_to_player_data(self, cid: CID) -> PlayerDataDto:
+        return self._connection_manager.cid_to_player_data(cid)
+
+    def can_customize(self, cid: CID) -> bool:
+        return self._connection_room(cid) == self._menu_room
 
     async def send_to_single(self, cid: CID, smsg: ServerMsg):
         await self._connection_manager.send_to_single(cid, smsg)
@@ -70,7 +73,7 @@ class RoomManager:
 
     async def _create_lobby(self, owner_cid: CID):
         lid = get_lid()
-        name = f"{self._connection_manager.cid_to_display_name(owner_cid)}'s Game"
+        name = f"{self._connection_manager.cid_to_player_data(owner_cid).name}'s Game"
         self._game_rooms[lid] = GameRoom(self, owner_cid, lid, name)
         await self.upsert_lobby(self._game_rooms[lid])
         await self._join_game_room(owner_cid, lid)
