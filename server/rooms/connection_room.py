@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import asyncio
 from typing import TYPE_CHECKING
-from dto import FullRoomStateDto
+from dto import FullRoomStateDto, PlayerDataDto
 from messages.client import ClientMsg
 from messages.server import ServerMsg, SFullRoomStateMsg
 from utils.uid import CID
@@ -38,8 +38,8 @@ class ConnectionRoom(ABC):
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         pass
 
-    def cid_to_display_name(self, cid: CID) -> str:
-        return self._room_manager.cid_to_display_name(cid)
+    def cid_to_player_data(self, cid: CID) -> PlayerDataDto:
+        return self._room_manager.cid_to_player_data(cid)
 
     @abstractmethod
     def get_full_room_state(self) -> FullRoomStateDto:

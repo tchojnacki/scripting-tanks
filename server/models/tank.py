@@ -4,6 +4,7 @@ from time import monotonic
 from typing import TYPE_CHECKING, Optional
 from attrs import astuple
 from dto import TankDataDto, InputAxesDto
+from utils.tank_colors import TankColors
 from utils.uid import CID, get_eid
 from .vector import Vector
 from .entity import Entity
@@ -32,7 +33,7 @@ class Tank(Entity):
         world: PlayingGameState,
         cid: CID,
         pos: Optional[Vector] = None,
-        color: str,
+        colors: TankColors,
         pitch: float = 0
     ):
         super().__init__(
@@ -43,7 +44,7 @@ class Tank(Entity):
             mass=TANK_MASS,
         )
         self._cid = cid
-        self._color = color
+        self._colors = colors
         self._pitch = pitch
         self._barrel_pitch = pitch
         self._last_shot = 0
@@ -115,6 +116,6 @@ class Tank(Entity):
 
     def to_dto(self) -> TankDataDto:
         return TankDataDto(
-            self.eid, self._cid, self._color,
+            self.eid, self._cid, self._colors,
             astuple(self.pos), self._pitch, self._barrel_pitch
         )

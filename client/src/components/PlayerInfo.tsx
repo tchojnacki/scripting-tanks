@@ -1,22 +1,28 @@
-import { ActionIcon, AspectRatio, Avatar, ColorInput, Group, Stack, Title } from "@mantine/core"
+import {
+  ActionIcon,
+  AspectRatio,
+  Avatar,
+  ColorInput,
+  DEFAULT_THEME,
+  Group,
+  Stack,
+  Title,
+} from "@mantine/core"
 import { PerspectiveCamera } from "@react-three/drei"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { useState } from "react"
-import { ArrowsShuffle } from "tabler-icons-react"
+import { ArrowsShuffle, Copy } from "tabler-icons-react"
 import { useIdentity } from "../utils/indentityContext"
+import { nameAbbr } from "../utils/nameAbbr"
+import { useSocketContext } from "../utils/socketContext"
 import { Tank } from "./Tank"
+import { sample } from "lodash"
+import { TankColors } from "../utils/dtos"
 
 const TANK_ROT_SPEED = 0.5
 const BARREL_ROT_SPEED = 0.6
 
-function nameAbbr(name: string) {
-  return name
-    .split(" ")
-    .map(word => word[0])
-    .join("")
-}
-
-function DisplayTank() {
+function DisplayTank({ colors }: { colors: TankColors }) {
   const [pitch, setPitch] = useState(0)
   const [barrel, setBarrel] = useState(0)
 
@@ -29,12 +35,22 @@ function DisplayTank() {
     <Tank
       tank={{
         pos: [0, 0, 0],
-        color: "red",
+        colors,
         pitch,
         barrel,
       }}
     />
   )
+}
+
+const colorInputProps = {
+  size: "xs" as const,
+  disallowInput: true,
+  withPicker: false,
+  swatches: Object.keys(DEFAULT_THEME.colors)
+    .filter(c => !["gray", "dark"].includes(c))
+    .flatMap(c => DEFAULT_THEME.colors[c].slice(-5)),
+  swatchesPerRow: 10,
 }
 
 interface PlayerInfoProps {
@@ -43,7 +59,13 @@ interface PlayerInfoProps {
 }
 
 export function PlayerInfo({ compact, unmutable }: PlayerInfoProps) {
-  const { name } = useIdentity()
+  const { sendMessage } = useSocketContext()
+  const { name, colors } = useIdentity()
+
+  const setColors = (newColors: TankColors) =>
+    sendMessage("c-customize-colors", { colors: newColors })
+  const setTankColor = (color: string) => setColors([color, colors[1]])
+  const setTurretColor = (color: string) => setColors([colors[0], color])
 
   return (
     <div>
@@ -55,7 +77,7 @@ export function PlayerInfo({ compact, unmutable }: PlayerInfoProps) {
           </Avatar>
           <Title order={4}>{name}</Title>
           {!unmutable && (
-            <ActionIcon variant="filled">
+            <ActionIcon variant="filled" onClick={() => sendMessage("c-reroll-name", null)}>
               <ArrowsShuffle size={16} />
             </ActionIcon>
           )}
@@ -73,14 +95,45 @@ export function PlayerInfo({ compact, unmutable }: PlayerInfoProps) {
                       position={[0, 64, 192]}
                       rotation={[-Math.PI / 16, 0, 0]}
                     />
-                    <DisplayTank />
+                    <DisplayTank colors={colors} />
                   </Canvas>
                 </div>
               </AspectRatio>
             </>
           )}
-          <ColorInput label="Tank" disabled={unmutable} size="xs" />
-          <ColorInput label="Turret" disabled={unmutable} size="xs" />
+          <ColorInput
+            {...colorInputProps}
+            label="Tank"
+            disabled={unmutable}
+            value={colors[0]}
+            onChange={setTankColor}
+            rightSection={
+              !unmutable && (
+                <ActionIcon
+                  onClick={() => {
+                    const color = sample(colorInputProps.swatches)!
+                    setColors([color, color])
+                  }}
+                >
+                  <ArrowsShuffle size={16} />
+                </ActionIcon>
+              )
+            }
+          />
+          <ColorInput
+            {...colorInputProps}
+            label="Turret"
+            disabled={unmutable}
+            value={colors[1]}
+            onChange={setTurretColor}
+            rightSection={
+              !unmutable && (
+                <ActionIcon onClick={() => setTurretColor(colors[0])}>
+                  <Copy size={16} />
+                </ActionIcon>
+              )
+            }
+          />
         </div>
       </Stack>
     </div>

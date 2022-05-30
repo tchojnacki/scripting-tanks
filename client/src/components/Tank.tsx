@@ -46,18 +46,18 @@ function Turret({
 }
 
 interface TankProps {
-  tank: Pick<TankDataDto, "pos" | "color" | "pitch" | "barrel">
+  tank: Pick<TankDataDto, "pos" | "colors" | "pitch" | "barrel">
 }
 
 export function Tank({ tank }: TankProps) {
   return (
     <group position={tank.pos} rotation={[0, tank.pitch, 0]}>
       <Box args={[64, 32, 96]} position={[0, 32, 0]} castShadow receiveShadow>
-        <meshLambertMaterial color={tank.color} />
+        <meshLambertMaterial color={tank.colors[0]} />
       </Box>
-      <Turret color={tank.color} position={[0, 60, 0]} rotation={tank.barrel - tank.pitch} />
+      <Turret color={tank.colors[1]} position={[0, 60, 0]} rotation={tank.barrel - tank.pitch} />
       {[1, -1].map(side => (
-        <Catterpillar key={side} color={tank.color} position={[side * 40, 12, 0]} />
+        <Catterpillar key={side} color={tank.colors[0]} position={[side * 40, 12, 0]} />
       ))}
     </group>
   )

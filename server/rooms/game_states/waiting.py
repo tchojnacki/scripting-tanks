@@ -1,5 +1,5 @@
 import asyncio
-from dto import FullGameWaitingStateDto, PlayerDataDto
+from dto import FullGameWaitingStateDto
 from messages.client import ClientMsg, CStartGameMsg
 from messages.server import SNewPlayerMsg, SPlayerLeftMsg
 from utils.uid import CID
@@ -16,14 +16,13 @@ class WaitingGameState(GameState):
 
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         match cmsg:
-            case CStartGameMsg():
-                if len(self._room.players) >= 2:
-                    asyncio.ensure_future(self._room.start_game())
+            case CStartGameMsg() if len(self._room.players) >= 2:
+                asyncio.ensure_future(self._room.start_game())
 
     async def on_join(self, joiner_cid: CID):
-        await self._room.broadcast_message(SNewPlayerMsg(PlayerDataDto(
-            joiner_cid, self._room.cid_to_display_name(joiner_cid)
-        )))
+        await self._room.broadcast_message(SNewPlayerMsg(
+            self._room.cid_to_player_data(joiner_cid)
+        ))
 
     async def on_leave(self, leaver_cid: CID):
         await self._room.broadcast_message(SPlayerLeftMsg(leaver_cid))

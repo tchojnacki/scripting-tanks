@@ -1,13 +1,20 @@
+export type TankColors = [string, string]
+
 export interface PlayerDataDto {
   cid: string
   name: string
+  colors: TankColors
+}
+
+export interface CustomColorsDto {
+  colors: TankColors
 }
 
 export interface TankDataDto {
   kind: "tank"
   eid: string
   cid: string
-  color: string
+  colors: TankColors
   pos: [number, number, number]
   pitch: number
   barrel: number

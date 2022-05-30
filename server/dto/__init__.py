@@ -1,4 +1,5 @@
 from .bullet_data import BulletDataDto
+from .custom_colors import CustomColorsDto
 from .input_axes import InputAxesDto
 from .lobby_data import LobbyDataDto
 from .entity_data import EntityDataDto
