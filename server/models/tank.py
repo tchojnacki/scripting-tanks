@@ -20,6 +20,7 @@ REVERSE_MULT = 0.25
 TANK_MASS = 10_000
 TURN_DEGREE = pi/12
 BARREL_TURN_SPEED = pi/2
+BARREL_HEIGHT = 60
 SHOT_COOLDOWN = 2.0
 GRAVITY_PULL = Vector(0, -600, 0)
 
@@ -100,7 +101,7 @@ class Tank(Entity):
                 world=self.world,
                 owner=self._cid,
                 direction=self._barrel_pitch,
-                pos=self.pos + Vector(0, self.radius, 0),
+                pos=self.pos + Vector(0, BARREL_HEIGHT, 0),
             ))
 
     def collide_with(self, other: Entity):

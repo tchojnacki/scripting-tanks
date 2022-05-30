@@ -42,46 +42,51 @@ export function Menu() {
     <StandardLayout
       title="Menu"
       headerRight={
-        <ActionIcon variant="default" onClick={() => toggleColorScheme()} size={30}>
-          {colorScheme === "dark" ? <Sun size={16} /> : <MoonStars size={16} />}
+        <ActionIcon variant="default" onClick={() => toggleColorScheme()} size={32}>
+          {colorScheme === "dark" ? <Sun /> : <MoonStars />}
         </ActionIcon>
       }
-    >
-      <div>
-        <Title order={3}>Lobbies</Title>
-        <Stack py="xl">
-          {roomState.lobbies.map(lobby => (
-            <Paper key={lobby.lid} p="sm" radius="md" shadow="xl" withBorder>
-              <Group position="apart">
-                <Group>
-                  <Avatar color="blue" radius="xl">
-                    {gameAbbr(lobby.name)}
-                  </Avatar>
-                  <Text>{lobby.name}</Text>
-                  <Badge>{lobby.players}</Badge>
+      left={
+        <div>
+          <Title order={3}>Lobbies</Title>
+          <Stack py="xl">
+            {roomState.lobbies.map(lobby => (
+              <Paper key={lobby.lid} p="sm" radius="md" shadow="xl" withBorder>
+                <Group position="apart">
+                  <Group>
+                    <Avatar color="blue" radius="xl">
+                      {gameAbbr(lobby.name)}
+                    </Avatar>
+                    <Text>{lobby.name}</Text>
+                    <Badge>{lobby.players}</Badge>
+                  </Group>
+                  <Button
+                    compact
+                    color={lobby.location === "game-waiting" ? "blue" : "gray"}
+                    leftIcon={
+                      lobby.location === "game-waiting" ? (
+                        <DoorEnter size={14} />
+                      ) : (
+                        <Eye size={14} />
+                      )
+                    }
+                    onClick={() => sendMessage("c-enter-lobby", lobby.lid)}
+                  >
+                    {lobby.location === "game-waiting" ? "Enter" : "Spectate"}
+                  </Button>
                 </Group>
-                <Button
-                  compact
-                  color={lobby.location === "game-waiting" ? "blue" : "gray"}
-                  leftIcon={
-                    lobby.location === "game-waiting" ? <DoorEnter size={14} /> : <Eye size={14} />
-                  }
-                  onClick={() => sendMessage("c-enter-lobby", lobby.lid)}
-                >
-                  {lobby.location === "game-waiting" ? "Enter" : "Spectate"}
-                </Button>
-              </Group>
-            </Paper>
-          ))}
-        </Stack>
-        <Button
-          leftIcon={<CirclePlus size={16} />}
-          onClick={() => sendMessage("c-create-lobby", null)}
-        >
-          Create lobby
-        </Button>
-      </div>
-      <PlayerInfo />
-    </StandardLayout>
+              </Paper>
+            ))}
+          </Stack>
+          <Button
+            leftIcon={<CirclePlus size={16} />}
+            onClick={() => sendMessage("c-create-lobby", null)}
+          >
+            Create lobby
+          </Button>
+        </div>
+      }
+      right={<PlayerInfo />}
+    />
   )
 }

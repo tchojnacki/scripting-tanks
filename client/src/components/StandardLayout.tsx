@@ -1,15 +1,16 @@
-import { AppShell, Header, SimpleGrid, Title, Group } from "@mantine/core"
+import { AppShell, Header, Title, Group, Grid } from "@mantine/core"
 import { useMediaQuery } from "@mantine/hooks"
-import { ReactElement, ReactNode } from "react"
+import { ReactNode } from "react"
 
 interface StandardLayoutProps {
   title: string
   headerRight: ReactNode
-  children: [ReactElement, ReactElement]
+  left: ReactNode
+  right: ReactNode
 }
 
-export function StandardLayout({ title, headerRight, children }: StandardLayoutProps) {
-  const isMobile = useMediaQuery("(max-width: 500px)")
+export function StandardLayout({ title, headerRight, left, right }: StandardLayoutProps) {
+  const isMobile = useMediaQuery("(max-width: 700px)")
 
   return (
     <AppShell
@@ -29,9 +30,10 @@ export function StandardLayout({ title, headerRight, children }: StandardLayoutP
         },
       })}
     >
-      <SimpleGrid cols={isMobile ? 1 : 2} spacing="xl" p="xl">
-        {children}
-      </SimpleGrid>
+      <Grid grow columns={isMobile ? 2 : 3} gutter="xl" p="xl">
+        <Grid.Col span={2}>{left}</Grid.Col>
+        <Grid.Col span={1}>{right}</Grid.Col>
+      </Grid>
     </AppShell>
   )
 }
