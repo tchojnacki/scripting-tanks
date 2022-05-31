@@ -4,8 +4,7 @@
 .dockerignore
 __pycache__
 node_modules
-build/*
-!build/.gitkeep
+dist
 *.sh
 Dockerfile
 heroku.yml

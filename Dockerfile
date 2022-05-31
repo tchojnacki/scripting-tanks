@@ -20,5 +20,5 @@ RUN pip install --no-cache-dir --requirement requirements.txt
 
 # Run server
 COPY . .
-COPY --from=client_build /client/build client/build
+COPY --from=client_build /client/dist client/dist
 CMD python server/main.py
