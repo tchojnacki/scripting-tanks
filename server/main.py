@@ -21,7 +21,7 @@ app.include_router(sockets)
 app.include_router(api)
 
 if not DEVELOPMENT:
-    app.mount("/", StaticFiles(directory="client/build", html=True), name="static")
+    app.mount("/", StaticFiles(directory="client/dist", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(
