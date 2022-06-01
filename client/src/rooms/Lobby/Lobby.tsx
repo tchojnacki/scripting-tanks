@@ -71,7 +71,11 @@ export function Lobby() {
                     {isOwner && player.cid !== roomState.owner && (
                       <Menu trigger="hover" delay={100}>
                         <Menu.Label>Player</Menu.Label>
-                        <Menu.Item icon={<UserMinus size={16} />} color="red">
+                        <Menu.Item
+                          onClick={() => sendMessage("c-kick-player", player.cid)}
+                          icon={<UserMinus size={16} />}
+                          color="red"
+                        >
                           Kick
                         </Menu.Item>
                         <Menu.Item

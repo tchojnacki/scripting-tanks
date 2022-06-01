@@ -36,7 +36,7 @@ class RoomManager:
             case CEnterLobbyMsg(lid):
                 asyncio.ensure_future(self._join_game_room(sender_cid, lid))
             case CLeaveLobbyMsg():
-                asyncio.ensure_future(self._switch_room(sender_cid, self._menu_room))
+                asyncio.ensure_future(self.kick(sender_cid))
             case _:
                 self._connection_room(sender_cid).handle_message(sender_cid, cmsg)
 
@@ -53,7 +53,7 @@ class RoomManager:
         await self._menu_room.broadcast_message(SUpsertLobbyMsg(game_room.lobby_data))
 
     async def close_lobby(self, game_room: GameRoom):
-        await asyncio.gather(*(self._switch_room(player.cid, self._menu_room)
+        await asyncio.gather(*(self.kick(player.cid)
                                for player in game_room.players))
 
     async def _switch_room(self, cid: CID, new_room: Optional[ConnectionRoom]):
@@ -70,6 +70,9 @@ class RoomManager:
             await new_room.on_join(cid)
             if isinstance(new_room, GameRoom):
                 await self.upsert_lobby(new_room)
+
+    async def kick(self, cid: CID):
+        await self._switch_room(cid, self._menu_room)
 
     async def _remove_game_room(self, lid: LID):
         if lid in self._game_rooms:

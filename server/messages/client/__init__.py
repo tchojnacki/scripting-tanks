@@ -4,6 +4,7 @@ from .close_lobby import CCloseLobbyMsg
 from .create_lobby import CCreateLobbyMsg
 from .customize_colors import CCustomizeColorsMsg
 from .enter_lobby import CEnterLobbyMsg
+from .kick_player import CKickPlayerMsg
 from .leave_lobby import CLeaveLobbyMsg
 from .promote_player import CPromotePlayerMsg
 from .reroll_name import CRerollNameMsg
@@ -14,8 +15,8 @@ from .start_game import CStartGameMsg
 
 
 ClientMsg = Union[CCloseLobbyMsg, CCreateLobbyMsg, CCustomizeColorsMsg, CEnterLobbyMsg,
-                  CLeaveLobbyMsg, CPromotePlayerMsg, CRerollNameMsg, CSetBarrelTargetMsg,
-                  CSetInputAxesMsg, CShootMsg, CStartGameMsg]
+                  CKickPlayerMsg, CLeaveLobbyMsg, CPromotePlayerMsg, CRerollNameMsg,
+                  CSetBarrelTargetMsg, CSetInputAxesMsg, CShootMsg, CStartGameMsg]
 
 _converter = Converter()
 
