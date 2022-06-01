@@ -1,5 +1,6 @@
 from typing import Any, NewType, Optional, Union, get_args
 from cattr import Converter
+from .close_lobby import CCloseLobbyMsg
 from .create_lobby import CCreateLobbyMsg
 from .customize_colors import CCustomizeColorsMsg
 from .enter_lobby import CEnterLobbyMsg
@@ -11,8 +12,9 @@ from .shoot import CShootMsg
 from .start_game import CStartGameMsg
 
 
-ClientMsg = Union[CCreateLobbyMsg, CCustomizeColorsMsg, CEnterLobbyMsg, CLeaveLobbyMsg, CRerollNameMsg,
-                  CSetBarrelTargetMsg, CSetInputAxesMsg, CShootMsg, CStartGameMsg]
+ClientMsg = Union[CCloseLobbyMsg, CCreateLobbyMsg, CCustomizeColorsMsg, CEnterLobbyMsg,
+                  CLeaveLobbyMsg, CRerollNameMsg, CSetBarrelTargetMsg, CSetInputAxesMsg,
+                  CShootMsg, CStartGameMsg]
 
 _converter = Converter()
 

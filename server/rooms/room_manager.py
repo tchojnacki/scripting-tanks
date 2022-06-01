@@ -52,6 +52,10 @@ class RoomManager:
     async def upsert_lobby(self, game_room: GameRoom):
         await self._menu_room.broadcast_message(SUpsertLobbyMsg(game_room.lobby_data))
 
+    async def close_lobby(self, game_room: GameRoom):
+        await asyncio.gather(*(self._switch_room(player.cid, self._menu_room)
+                               for player in game_room.players))
+
     async def _switch_room(self, cid: CID, new_room: Optional[ConnectionRoom]):
         prev_room = self._connection_room(cid)
         if prev_room is not None:
@@ -68,8 +72,9 @@ class RoomManager:
                 await self.upsert_lobby(new_room)
 
     async def _remove_game_room(self, lid: LID):
-        del self._game_rooms[lid]
-        await self._menu_room.broadcast_message(SLobbyRemovedMsg(lid))
+        if lid in self._game_rooms:
+            del self._game_rooms[lid]
+            await self._menu_room.broadcast_message(SLobbyRemovedMsg(lid))
 
     async def _create_lobby(self, owner_cid: CID):
         lid = get_lid()

@@ -1,6 +1,6 @@
 import asyncio
 from dto import FullGameWaitingStateDto
-from messages.client import ClientMsg, CStartGameMsg
+from messages.client import ClientMsg, CStartGameMsg, CCloseLobbyMsg
 from messages.server import SNewPlayerMsg, SPlayerLeftMsg
 from utils.uid import CID
 from .game_state import GameState
@@ -15,9 +15,12 @@ class WaitingGameState(GameState):
         )
 
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
+        is_owner = sender_cid == self._room.owner
         match cmsg:
-            case CStartGameMsg() if len(self._room.players) >= 2:
+            case CStartGameMsg() if is_owner and len(self._room.players) >= 2:
                 asyncio.ensure_future(self._room.start_game())
+            case CCloseLobbyMsg() if is_owner:
+                asyncio.ensure_future(self._room.close_lobby())
 
     async def on_join(self, joiner_cid: CID):
         await self._room.broadcast_message(SNewPlayerMsg(

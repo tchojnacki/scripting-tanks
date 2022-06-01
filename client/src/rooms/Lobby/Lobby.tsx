@@ -55,7 +55,7 @@ export function Lobby() {
         <>
           <Group>
             <Title order={3}>Players</Title>
-            <Badge>1</Badge>
+            <Badge>{roomState.players.length}</Badge>
           </Group>
           <SimpleGrid py="xl" cols={2}>
             {sortBy(roomState.players, [p => (p.cid === roomState.owner ? 0 : 1), "name"]).map(
@@ -85,7 +85,7 @@ export function Lobby() {
             )}
           </SimpleGrid>
           {isOwner && (
-            <Button variant="light" leftIcon={<Robot size={16} />}>
+            <Button disabled variant="light" leftIcon={<Robot size={16} />}>
               Add bot
             </Button>
           )}
@@ -113,7 +113,11 @@ export function Lobby() {
                     Start game
                   </Button>
                 </Tooltip>
-                <Button leftIcon={<TrashX size={16} />} color="red">
+                <Button
+                  onClick={() => sendMessage("c-close-lobby", null)}
+                  leftIcon={<TrashX size={16} />}
+                  color="red"
+                >
                   Close lobby
                 </Button>
               </Group>

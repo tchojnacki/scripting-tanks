@@ -22,6 +22,7 @@ export type ClientMessageDataMap = {
   "c-create-lobby": null
   "c-enter-lobby": string
   "c-leave-lobby": null
+  "c-close-lobby": null
   "c-start-game": null
   "c-set-input-axes": InputAxesDto
   "c-set-barrel-target": number

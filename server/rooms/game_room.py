@@ -41,6 +41,9 @@ class GameRoom(ConnectionRoom):
         if isinstance(self._state, SummaryGameState):
             await self._switch_state(WaitingGameState)
 
+    async def close_lobby(self):
+        await self._room_manager.close_lobby(self)
+
     def get_full_room_state(self) -> FullGameStateDto:
         return self._state.get_full_room_state()
 
