@@ -55,7 +55,7 @@ export function Lobby() {
         <>
           <Group>
             <Title order={3}>Players</Title>
-            <Badge>1</Badge>
+            <Badge>{roomState.players.length}</Badge>
           </Group>
           <SimpleGrid py="xl" cols={2}>
             {sortBy(roomState.players, [p => (p.cid === roomState.owner ? 0 : 1), "name"]).map(
@@ -71,10 +71,18 @@ export function Lobby() {
                     {isOwner && player.cid !== roomState.owner && (
                       <Menu trigger="hover" delay={100}>
                         <Menu.Label>Player</Menu.Label>
-                        <Menu.Item icon={<UserMinus size={16} />} color="red">
+                        <Menu.Item
+                          onClick={() => sendMessage("c-kick-player", player.cid)}
+                          icon={<UserMinus size={16} />}
+                          color="red"
+                        >
                           Kick
                         </Menu.Item>
-                        <Menu.Item icon={<Crown size={16} />} color="yellow">
+                        <Menu.Item
+                          onClick={() => sendMessage("c-promote-player", player.cid)}
+                          icon={<Crown size={16} />}
+                          color="yellow"
+                        >
                           Make owner
                         </Menu.Item>
                       </Menu>
@@ -85,7 +93,7 @@ export function Lobby() {
             )}
           </SimpleGrid>
           {isOwner && (
-            <Button variant="light" leftIcon={<Robot size={16} />}>
+            <Button disabled variant="light" leftIcon={<Robot size={16} />}>
               Add bot
             </Button>
           )}
@@ -106,14 +114,18 @@ export function Lobby() {
                   withArrow
                 >
                   <Button
-                    leftIcon={<PlayerPlay size={16} />}
-                    disabled={roomState.players.length < 2}
                     onClick={() => sendMessage("c-start-game", null)}
+                    disabled={roomState.players.length < 2}
+                    leftIcon={<PlayerPlay size={16} />}
                   >
                     Start game
                   </Button>
                 </Tooltip>
-                <Button leftIcon={<TrashX size={16} />} color="red">
+                <Button
+                  onClick={() => sendMessage("c-close-lobby", null)}
+                  leftIcon={<TrashX size={16} />}
+                  color="red"
+                >
                   Close lobby
                 </Button>
               </Group>
