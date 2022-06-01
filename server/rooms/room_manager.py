@@ -53,8 +53,8 @@ class RoomManager:
         await self._menu_room.broadcast_message(SUpsertLobbyMsg(game_room.lobby_data))
 
     async def close_lobby(self, game_room: GameRoom):
-        await asyncio.gather(*(self.kick(player.cid)
-                               for player in game_room.players))
+        await self._remove_game_room(game_room.lid)
+        await asyncio.gather(*(self._menu_room.on_join(player.cid) for player in game_room.players))
 
     async def _switch_room(self, cid: CID, new_room: Optional[ConnectionRoom]):
         prev_room = self._connection_room(cid)
