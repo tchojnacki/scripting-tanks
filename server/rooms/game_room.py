@@ -44,6 +44,11 @@ class GameRoom(ConnectionRoom):
     async def close_lobby(self):
         await self._room_manager.close_lobby(self)
 
+    async def promote(self, target):
+        if self.has_player(target):
+            self.owner = target
+            await self.broadcast_message(SOwnerChangeMsg(self.owner))
+
     def get_full_room_state(self) -> FullGameStateDto:
         return self._state.get_full_room_state()
 

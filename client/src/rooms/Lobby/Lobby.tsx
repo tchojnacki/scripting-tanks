@@ -74,7 +74,11 @@ export function Lobby() {
                         <Menu.Item icon={<UserMinus size={16} />} color="red">
                           Kick
                         </Menu.Item>
-                        <Menu.Item icon={<Crown size={16} />} color="yellow">
+                        <Menu.Item
+                          onClick={() => sendMessage("c-promote-player", player.cid)}
+                          icon={<Crown size={16} />}
+                          color="yellow"
+                        >
                           Make owner
                         </Menu.Item>
                       </Menu>
@@ -106,9 +110,9 @@ export function Lobby() {
                   withArrow
                 >
                   <Button
-                    leftIcon={<PlayerPlay size={16} />}
-                    disabled={roomState.players.length < 2}
                     onClick={() => sendMessage("c-start-game", null)}
+                    disabled={roomState.players.length < 2}
+                    leftIcon={<PlayerPlay size={16} />}
                   >
                     Start game
                   </Button>
