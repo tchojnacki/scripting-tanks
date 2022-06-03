@@ -35,6 +35,7 @@ class PlayingGameState(GameState):
             (tank := Tank(
                 world=self,
                 cid=player.cid,
+                name=player.name,
                 colors=self._room.cid_to_player_data(player.cid).colors,
                 pos=Vector(
                     sin(step * i) * (self.radius - ISLAND_MARGIN),
