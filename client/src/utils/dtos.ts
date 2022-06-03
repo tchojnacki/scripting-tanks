@@ -14,6 +14,7 @@ export interface TankDataDto {
   kind: "tank"
   eid: string
   cid: string
+  name?: string
   colors: TankColors
   pos: [number, number, number]
   pitch: number

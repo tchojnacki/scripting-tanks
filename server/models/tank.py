@@ -32,6 +32,7 @@ class Tank(Entity):
         *,
         world: PlayingGameState,
         cid: CID,
+        name: str = None,
         pos: Optional[Vector] = None,
         colors: TankColors,
         pitch: float = 0
@@ -44,6 +45,7 @@ class Tank(Entity):
             mass=TANK_MASS,
         )
         self._cid = cid
+        self._name = name
         self._colors = colors
         self._pitch = pitch
         self._barrel_pitch = pitch
@@ -116,6 +118,6 @@ class Tank(Entity):
 
     def to_dto(self) -> TankDataDto:
         return TankDataDto(
-            self.eid, self._cid, self._colors,
+            self.eid, self._cid, self._name, self._colors,
             astuple(self.pos), self._pitch, self._barrel_pitch
         )

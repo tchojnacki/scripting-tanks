@@ -3,7 +3,7 @@ import { Canvas } from "@react-three/fiber"
 import { useEffect, useState } from "react"
 import { BulletDataDto, TankDataDto } from "../../utils/dtos"
 import { useIdentity } from "../../utils/indentityContext"
-import { useInput } from "../../utils/input"
+import { useInput } from "../../utils/useInput"
 import { useSocketContext } from "../../utils/socketContext"
 import { Tank, HUD, SceneLight } from "../../components"
 import { useDocumentTitle } from "@mantine/hooks"
@@ -57,7 +57,7 @@ export function Game() {
     <>
       {isSpectating && (
         <HUD justifyContent="flex-start">
-          <div style={{ color: "red", fontSize: 64, paddingTop: 64 }}>SPECTATING</div>
+          <div style={{ color: "#FF4136", fontSize: 64, paddingTop: 64 }}>SPECTATING</div>
         </HUD>
       )}
       <Canvas shadows ref={canvasRef}>
@@ -86,7 +86,7 @@ export function Game() {
           <meshLambertMaterial color="#C2B280" />
         </Cylinder>
         {tanks.map(tank => (
-          <Tank key={tank.eid} tank={tank} />
+          <Tank key={tank.eid} tank={{ ...tank, name: tank.cid === cid ? undefined : tank.name }} />
         ))}
         {bullets.map(bullet => (
           <Sphere key={bullet.eid} position={bullet.pos} args={[bullet.radius, 8, 8]}>
