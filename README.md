@@ -1,4 +1,6 @@
 # Tanks - *Script Languages* course final project 🎮
+<img src="./docs/screenshot.png" alt="">
+
 ## Task 🏫
 ### Requirements 📝
 This project was created for the *Script Languages* university course. The goal was to create an advanced Python application, following given requirements:
