@@ -93,6 +93,8 @@ class PlayingGameState(GameState):
     async def on_leave(self, leaver_cid: CID):
         if (eid := get_eid(leaver_cid)) in self._entities:
             del self._entities[eid]
+        if leaver_cid in self._scoreboard:
+            del self._scoreboard[leaver_cid]
 
     @property
     def _scoreboard_entries(self) -> list[ScoreboardEntryDto]:
