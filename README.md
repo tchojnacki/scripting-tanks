@@ -39,11 +39,13 @@ The main goal of this application was to create a multiplayer game, that can be 
 
 ## Deployment 🚀
 ### Production 🐳
-A production Docker image is provided in the `Dockerfile`. Run the container using:
+Run using Docker Compose:
 ```bash
-docker run --rm -p 8080:3000 $(docker build -q .)
+docker compose up
 ```
 The app will be available under [localhost:8080](http://localhost:8080/).
+
+Alternatively run the container from `Dockerfile` yourself.
 
 The app can be deployed to [Heroku](https://www.heroku.com/home) using *Container* framework through `heroku.yml` & `Dockerfile`.
 
