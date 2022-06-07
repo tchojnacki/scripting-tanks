@@ -25,7 +25,7 @@ export function Scoreboard({ scoreboard, focus }: ScoreboardProps) {
               }}
             >
               <td>{name}</td>
-              <td>{score}</td>
+              <td align="center">{score}</td>
             </tr>
           ))}
         </tbody>

@@ -79,7 +79,7 @@ class PlayingGameState(GameState):
         if len([p for p in self._entities.values() if isinstance(p, Tank)]) >= 2:
             asyncio.ensure_future(self._loop())
         else:
-            await self._room.show_summary(self._scoreboard)
+            await self._room.show_summary(self._scoreboard_entries)
 
     def spawn(self, entity: Entity):
         self._entities[entity.eid] = entity
@@ -94,17 +94,21 @@ class PlayingGameState(GameState):
         if (eid := get_eid(leaver_cid)) in self._entities:
             del self._entities[eid]
 
+    @property
+    def _scoreboard_entries(self) -> list[ScoreboardEntryDto]:
+        return [
+            ScoreboardEntryDto(cid, self._room.cid_to_player_data(cid).name, score)
+            for (cid, score) in sorted(
+                self._scoreboard.items(),
+                key=lambda t: t[1], reverse=True
+            )
+        ]
+
     def get_full_room_state(self) -> FullGamePlayingStateDto:
         return FullGamePlayingStateDto(
             self.radius,
             [e.to_dto() for e in self._entities.values()],
-            [
-                ScoreboardEntryDto(cid, self._room.cid_to_player_data(cid).name, score)
-                for (cid, score) in sorted(
-                    self._scoreboard.items(),
-                    key=lambda t: t[1], reverse=True
-                )
-            ]
+            self._scoreboard_entries
         )
 
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):

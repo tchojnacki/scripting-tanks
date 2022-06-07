@@ -1,8 +1,7 @@
 from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
-from dto import FullGameStateDto, PlayerDataDto
-from dto.lobby_data import LobbyDataDto
+from dto import FullGameStateDto, PlayerDataDto, LobbyDataDto, ScoreboardEntryDto
 from messages.client import ClientMsg
 from messages.server import SOwnerChangeMsg, SFullRoomStateMsg
 from rooms.game_states import WaitingGameState, PlayingGameState, GameState, SummaryGameState
@@ -33,7 +32,7 @@ class GameRoom(ConnectionRoom):
         if isinstance(self._state, WaitingGameState):
             await self._switch_state(PlayingGameState)
 
-    async def show_summary(self, scoreboard: dict[CID, int]):
+    async def show_summary(self, scoreboard: list[ScoreboardEntryDto]):
         if isinstance(self._state, PlayingGameState):
             await self._switch_state(SummaryGameState, scoreboard=scoreboard)
 

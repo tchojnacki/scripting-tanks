@@ -2,13 +2,12 @@ from __future__ import annotations
 import asyncio
 from math import cos, pi, sin
 from typing import TYPE_CHECKING
-from dto import FullGameSummaryStateDto
+from dto import FullGameSummaryStateDto,  ScoreboardEntryDto
 from messages.server import SFullRoomStateMsg
 from models import Vector, Tank, Entity
 from utils.color import assign_color
-from utils.uid import CID, EID, get_cid
+from utils.uid import EID, get_cid
 from .game_state import GameState
-from dto import ScoreboardEntryDto
 
 if TYPE_CHECKING:
     from rooms.game_room import GameRoom
@@ -19,7 +18,7 @@ SUMMARY_DURATION = 10
 
 
 class SummaryGameState(GameState):
-    def __init__(self, room: GameRoom, *, scoreboard: dict[CID, int]):
+    def __init__(self, room: GameRoom, *, scoreboard: list[ScoreboardEntryDto]):
         super().__init__(room)
 
         self._tanks: dict[EID, Entity] = {
@@ -53,11 +52,5 @@ class SummaryGameState(GameState):
         return FullGameSummaryStateDto(
             self._remaining,
             [t.to_dto() for t in self._tanks.values()],
-            [
-                ScoreboardEntryDto(cid, self._room.cid_to_player_data(cid).name, score)
-                for (cid, score) in sorted(
-                    self._scoreboard.items(),
-                    key=lambda t: t[1], reverse=True
-                )
-            ]
+            self._scoreboard
         )
