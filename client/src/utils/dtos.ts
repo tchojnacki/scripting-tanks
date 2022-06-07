@@ -43,10 +43,17 @@ interface FullGameWaitingStateDto {
   players: PlayerDataDto[]
 }
 
+interface ScoreboardEntryDto {
+  cid: string
+  name: string
+  score: number
+}
+
 interface FullGamePlayingStateDto {
   location: "game-playing"
   radius: number
   entities: EntityDataDto[]
+  scoreboard: ScoreboardEntryDto[]
 }
 
 interface FullSummaryStateDto {

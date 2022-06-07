@@ -7,14 +7,13 @@ import { useInput } from "../../utils/useInput"
 import { useSocketContext } from "../../utils/socketContext"
 import { Tank, HUD, SceneLight } from "../../components"
 import { useDocumentTitle } from "@mantine/hooks"
+import { MantineProvider, Table } from "@mantine/core"
 
 const CAMERA_OFFSET = 256
 
 type N3 = [number, number, number]
 
 export function Game() {
-  useDocumentTitle("Playing | Tanks")
-
   const { roomState, sendMessage } = useSocketContext<"game-playing">()
   const { cid } = useIdentity()
 
@@ -25,6 +24,8 @@ export function Game() {
   const player = tanks.find(e => e.cid === cid) ??
     tanks[spectateTarget % tanks.length] ?? { pos: [0, 0, 0], pitch: 0 }
   const isSpectating = !tanks.some(e => e.cid === cid)
+
+  useDocumentTitle(`${isSpectating ? "Spectating" : "Playing"} | Tanks`)
 
   const { canvasRef, pitch, inputAxes } = useInput({
     handleShot: () => {
@@ -60,6 +61,31 @@ export function Game() {
           <div style={{ color: "#FF4136", fontSize: 64, paddingTop: 64 }}>SPECTATING</div>
         </HUD>
       )}
+      <HUD justifyContent="flex-start" alignItems="flex-end">
+        <MantineProvider theme={{ colorScheme: "dark" }}>
+          <Table sx={{ width: "auto", background: "rgba(0, 0, 0, 0.75)" }}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {roomState.scoreboard.map(entry => (
+                <tr
+                  key={entry.cid}
+                  style={{
+                    backgroundColor: cid === entry.cid ? "rgba(255, 255, 255, 0.1)" : undefined,
+                  }}
+                >
+                  <td>{entry.name}</td>
+                  <td>{entry.score}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </MantineProvider>
+      </HUD>
       <Canvas shadows ref={canvasRef}>
         <PerspectiveCamera
           position={cameraPos}

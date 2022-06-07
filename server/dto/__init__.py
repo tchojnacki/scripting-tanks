@@ -10,4 +10,5 @@ from .full_game_waiting_state import FullGameWaitingStateDto
 from .full_menu_state import FullMenuStateDto
 from .full_room_state import FullRoomStateDto
 from .player_data import PlayerDataDto
+from .scoreboard_entry import ScoreboardEntryDto
 from .tank_data import TankDataDto
