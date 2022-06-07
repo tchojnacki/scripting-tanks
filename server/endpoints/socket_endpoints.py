@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket
-from connection_manager import ConnectionManager
+from utils.connection_manager import ConnectionManager
 
 manager = ConnectionManager()
 sockets = APIRouter(prefix="/ws")

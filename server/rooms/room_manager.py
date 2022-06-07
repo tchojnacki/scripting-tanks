@@ -8,7 +8,7 @@ from rooms import ConnectionRoom, GameRoom, MenuRoom
 from utils.uid import CID, LID, get_lid
 
 if TYPE_CHECKING:
-    from connection_manager import ConnectionManager
+    from utils.connection_manager import ConnectionManager
 
 
 class RoomManager:
