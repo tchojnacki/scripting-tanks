@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from utils.environment import DEVELOPMENT, PORT
-from endpoints import sockets, api
+from endpoints import sockets
 
 
 app = FastAPI()
@@ -18,7 +18,6 @@ if DEVELOPMENT:
     )
 
 app.include_router(sockets)
-app.include_router(api)
 
 if not DEVELOPMENT:
     app.mount("/", StaticFiles(directory="client/dist", html=True), name="static")
