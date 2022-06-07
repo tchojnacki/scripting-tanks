@@ -12,7 +12,7 @@ import {
   Avatar,
 } from "@mantine/core"
 import { PlayerInfo, StandardLayout } from "../../components"
-import { CirclePlus, DoorEnter, Eye, MoonStars, Sun } from "tabler-icons-react"
+import { BrandGithub, CirclePlus, DoorEnter, Eye, MoonStars, Sun } from "tabler-icons-react"
 import { useDocumentTitle } from "@mantine/hooks"
 import { sortBy } from "lodash"
 import { nameAbbr } from "../../utils/nameAbbr"
@@ -36,9 +36,19 @@ export function Menu() {
     <StandardLayout
       title="Menu"
       headerRight={
-        <ActionIcon variant="default" onClick={() => toggleColorScheme()} size={32}>
-          {colorScheme === "dark" ? <Sun /> : <MoonStars />}
-        </ActionIcon>
+        <Group>
+          <ActionIcon variant="default" onClick={() => toggleColorScheme()} size={32}>
+            {colorScheme === "dark" ? <Sun /> : <MoonStars />}
+          </ActionIcon>
+          <ActionIcon
+            variant="default"
+            size={32}
+            component="a"
+            href="https://github.com/tchojnacki/scripting-tanks"
+          >
+            <BrandGithub />
+          </ActionIcon>
+        </Group>
       }
       left={
         <div>
