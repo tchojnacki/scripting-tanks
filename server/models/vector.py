@@ -16,9 +16,9 @@ class Vector:
     def normalized(self) -> Vector:
         return self / self.length
 
-    @staticmethod
-    def zero() -> Vector:
-        return Vector(0, 0, 0)
+    @classmethod
+    def zero(cls) -> Vector:
+        return cls(0, 0, 0)
 
     @staticmethod
     def dot(a: Vector, b: Vector) -> float:

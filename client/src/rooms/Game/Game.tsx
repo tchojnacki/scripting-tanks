@@ -5,16 +5,15 @@ import { BulletDataDto, TankDataDto } from "../../utils/dtos"
 import { useIdentity } from "../../utils/indentityContext"
 import { useInput } from "../../utils/useInput"
 import { useSocketContext } from "../../utils/socketContext"
-import { Tank, HUD, SceneLight } from "../../components"
+import { Tank, HUD, SceneLight, Scoreboard } from "../../components"
 import { useDocumentTitle } from "@mantine/hooks"
+import { MantineProvider, Table } from "@mantine/core"
 
 const CAMERA_OFFSET = 256
 
 type N3 = [number, number, number]
 
 export function Game() {
-  useDocumentTitle("Playing | Tanks")
-
   const { roomState, sendMessage } = useSocketContext<"game-playing">()
   const { cid } = useIdentity()
 
@@ -25,6 +24,8 @@ export function Game() {
   const player = tanks.find(e => e.cid === cid) ??
     tanks[spectateTarget % tanks.length] ?? { pos: [0, 0, 0], pitch: 0 }
   const isSpectating = !tanks.some(e => e.cid === cid)
+
+  useDocumentTitle(`${isSpectating ? "Spectating" : "Playing"} | Tanks`)
 
   const { canvasRef, pitch, inputAxes } = useInput({
     handleShot: () => {
@@ -60,6 +61,9 @@ export function Game() {
           <div style={{ color: "#FF4136", fontSize: 64, paddingTop: 64 }}>SPECTATING</div>
         </HUD>
       )}
+      <HUD justifyContent="flex-start" alignItems="flex-end">
+        <Scoreboard scoreboard={roomState.scoreboard} focus={cid} />
+      </HUD>
       <Canvas shadows ref={canvasRef}>
         <PerspectiveCamera
           position={cameraPos}
@@ -74,7 +78,7 @@ export function Game() {
             position={[0, -cameraPos[1] - 64, 0]}
             rotation={[-Math.PI / 2, 0, 0]}
           >
-            <MeshWobbleMaterial factor={0.01} color="#517cdb" />
+            <MeshWobbleMaterial factor={0.005} color="#517cdb" />
           </Plane>
         </PerspectiveCamera>
         <SceneLight radius={roomState.radius} />

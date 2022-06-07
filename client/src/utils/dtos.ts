@@ -43,16 +43,24 @@ interface FullGameWaitingStateDto {
   players: PlayerDataDto[]
 }
 
+export interface ScoreboardEntryDto {
+  cid: string
+  name: string
+  score: number
+}
+
 interface FullGamePlayingStateDto {
   location: "game-playing"
   radius: number
   entities: EntityDataDto[]
+  scoreboard: ScoreboardEntryDto[]
 }
 
 interface FullSummaryStateDto {
   location: "game-summary"
   remaining: number
   tanks: TankDataDto[]
+  scoreboard: ScoreboardEntryDto[]
 }
 
 export type FullGameStateDto =
