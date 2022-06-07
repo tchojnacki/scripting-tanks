@@ -112,7 +112,6 @@ class Tank(Entity):
             if other.owner != self._cid:
                 self.world.destroy(self)
                 self.world.destroy(other)
-                self.world.grant_point(other.owner)
         elif isinstance(other, Tank):
             self.world.destroy(self)
             self.world.destroy(other)

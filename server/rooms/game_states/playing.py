@@ -87,8 +87,11 @@ class PlayingGameState(GameState):
     def destroy(self, entity: Entity):
         self._destroy_queue.add(entity.eid)
 
-    def grant_point(self, cid: CID):
-        self._scoreboard[cid] += 1
+        if isinstance(entity, Tank):
+            for cid in self._scoreboard:
+                eid = get_eid(cid)
+                if eid != entity.eid and any(eid == e.eid for e in self._entities.values()):
+                    self._scoreboard[cid] += 1
 
     async def on_leave(self, leaver_cid: CID):
         if (eid := get_eid(leaver_cid)) in self._entities:
