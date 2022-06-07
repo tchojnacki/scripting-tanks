@@ -2,18 +2,20 @@ import { Cylinder, PerspectiveCamera } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Fragment } from "react"
 import { useSocketContext } from "../../utils/socketContext"
-import { Tank, HUD, SceneLight } from "../../components"
+import { Tank, HUD, SceneLight, Scoreboard } from "../../components"
 import { useDocumentTitle } from "@mantine/hooks"
+import { useIdentity } from "../../utils/indentityContext"
 
 export function Summary() {
   useDocumentTitle("Post-game | Tanks")
-
+  const { cid } = useIdentity()
   const { roomState } = useSocketContext<"game-summary">()
 
   return (
     <>
       <HUD justifyContent="flex-end">
-        <div style={{ fontSize: 64, paddingBottom: 64 }}>{roomState.remaining}s</div>
+        <Scoreboard scoreboard={roomState.scoreboard} focus={cid} />
+        <div style={{ fontSize: 32, paddingBlock: 32 }}>{roomState.remaining}s</div>
       </HUD>
       <Canvas shadows>
         <PerspectiveCamera

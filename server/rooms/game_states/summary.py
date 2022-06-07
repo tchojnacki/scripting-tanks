@@ -6,8 +6,9 @@ from dto import FullGameSummaryStateDto
 from messages.server import SFullRoomStateMsg
 from models import Vector, Tank, Entity
 from utils.color import assign_color
-from utils.uid import EID, get_cid
+from utils.uid import CID, EID, get_cid
 from .game_state import GameState
+from dto import ScoreboardEntryDto
 
 if TYPE_CHECKING:
     from rooms.game_room import GameRoom
@@ -18,7 +19,7 @@ SUMMARY_DURATION = 10
 
 
 class SummaryGameState(GameState):
-    def __init__(self, room: GameRoom):
+    def __init__(self, room: GameRoom, *, scoreboard: dict[CID, int]):
         super().__init__(room)
 
         self._tanks: dict[EID, Entity] = {
@@ -36,6 +37,8 @@ class SummaryGameState(GameState):
             for i in range(3)
         }
 
+        self._scoreboard = scoreboard
+
         self._remaining = SUMMARY_DURATION
         asyncio.ensure_future(self._wait_to_play_again())
 
@@ -47,4 +50,14 @@ class SummaryGameState(GameState):
         await self._room.play_again()
 
     def get_full_room_state(self) -> FullGameSummaryStateDto:
-        return FullGameSummaryStateDto(self._remaining, [t.to_dto() for t in self._tanks.values()])
+        return FullGameSummaryStateDto(
+            self._remaining,
+            [t.to_dto() for t in self._tanks.values()],
+            [
+                ScoreboardEntryDto(cid, self._room.cid_to_player_data(cid).name, score)
+                for (cid, score) in sorted(
+                    self._scoreboard.items(),
+                    key=lambda t: t[1], reverse=True
+                )
+            ]
+        )

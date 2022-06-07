@@ -79,7 +79,7 @@ class PlayingGameState(GameState):
         if len([p for p in self._entities.values() if isinstance(p, Tank)]) >= 2:
             asyncio.ensure_future(self._loop())
         else:
-            await self._room.show_summary()
+            await self._room.show_summary(self._scoreboard)
 
     def spawn(self, entity: Entity):
         self._entities[entity.eid] = entity

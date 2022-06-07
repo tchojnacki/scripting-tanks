@@ -24,8 +24,8 @@ class GameRoom(ConnectionRoom):
     def handle_message(self, sender_cid: CID, cmsg: ClientMsg):
         self._state.handle_message(sender_cid, cmsg)
 
-    async def _switch_state(self, state_cls: type[GameState]):
-        self._state = state_cls(self)
+    async def _switch_state(self, state_cls: type[GameState], **kwargs):
+        self._state = state_cls(self, **kwargs)
         await self.broadcast_message(SFullRoomStateMsg(self.get_full_room_state()))
         await self._room_manager.upsert_lobby(self)
 
@@ -33,9 +33,9 @@ class GameRoom(ConnectionRoom):
         if isinstance(self._state, WaitingGameState):
             await self._switch_state(PlayingGameState)
 
-    async def show_summary(self):
+    async def show_summary(self, scoreboard: dict[CID, int]):
         if isinstance(self._state, PlayingGameState):
-            await self._switch_state(SummaryGameState)
+            await self._switch_state(SummaryGameState, scoreboard=scoreboard)
 
     async def play_again(self):
         if isinstance(self._state, SummaryGameState):

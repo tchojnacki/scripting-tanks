@@ -43,7 +43,7 @@ interface FullGameWaitingStateDto {
   players: PlayerDataDto[]
 }
 
-interface ScoreboardEntryDto {
+export interface ScoreboardEntryDto {
   cid: string
   name: string
   score: number
@@ -60,6 +60,7 @@ interface FullSummaryStateDto {
   location: "game-summary"
   remaining: number
   tanks: TankDataDto[]
+  scoreboard: ScoreboardEntryDto[]
 }
 
 export type FullGameStateDto =
