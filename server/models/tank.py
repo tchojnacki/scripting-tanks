@@ -4,6 +4,7 @@ from time import monotonic
 from typing import TYPE_CHECKING, Optional
 from attrs import astuple
 from dto import TankDataDto, InputAxesDto
+from models.ai import AbstractAI, SimpleAI
 from utils.tank_colors import TankColors
 from utils.uid import CID, get_eid
 from .vector import Vector
@@ -50,6 +51,8 @@ class Tank(Entity):
         self._pitch = pitch
         self._barrel_pitch = pitch
         self._last_shot = 0
+        self._ai: Optional[AbstractAI] = (SimpleAI(world)
+                                          if world.cid_to_player_data(cid).bot else None)
         self.barrel_target = pitch
         self.input_axes = InputAxesDto(0, 0)
 
@@ -78,6 +81,12 @@ class Tank(Entity):
         return f_gravity
 
     def update(self, dtime):
+        if self._ai:
+            axes, should_shoot = self._ai.apply_inputs()
+            self.input_axes = axes
+            if should_shoot:
+                self.shoot()
+
         turn_angle = -(self.input_axes.horizontal * copysign(1,
                        self.input_axes.vertical) * TURN_DEGREE)
 

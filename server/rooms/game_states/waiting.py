@@ -31,7 +31,7 @@ class WaitingGameState(GameState):
 
     async def on_join(self, joiner_cid: CID):
         await self._room.broadcast_message(SNewPlayerMsg(
-            self._room.cid_to_player_data(joiner_cid)
+            self.cid_to_player_data(joiner_cid)
         ))
 
     async def on_leave(self, leaver_cid: CID):

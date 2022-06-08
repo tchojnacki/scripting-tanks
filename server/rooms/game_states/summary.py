@@ -28,7 +28,7 @@ class SummaryGameState(GameState):
             Tank(
                 world=self,
                 cid=entry.cid,
-                name=(data := self._room.cid_to_player_data(entry.cid)).name,
+                name=(data := self.cid_to_player_data(entry.cid)).name,
                 colors=data.colors,
                 pos=Vector(
                     PODIUM_RADIUS * sin(angle := i * pi/6 + 5*pi/6),
