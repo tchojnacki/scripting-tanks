@@ -71,6 +71,6 @@ class ConnectionManager:
     def cid_to_player_data(self, cid: CID) -> PlayerDataDto:
         if cid in self._bots:
             c = assign_color(cid)
-            return PlayerDataDto(cid, "BOT", (c, c))
-        else:
-            return self._active_connections[cid].player_data
+            return PlayerDataDto(cid, "BOT", (c, c), True)
+
+        return self._active_connections[cid].player_data

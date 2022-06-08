@@ -63,7 +63,10 @@ class PlayingGameState(GameState):
 
         for (eid1, ent1) in self._entities.items():
             for (eid2, ent2) in self._entities.items():
-                if eid2 > eid1 and (ent2.pos - ent1.pos).length < ent1.radius + ent2.radius:
+                if (
+                    eid2 > eid1 and ent1.pos.y >= 0 and ent2.pos.y >= 0
+                    and (ent2.pos - ent1.pos).length < ent1.radius + ent2.radius
+                ):
                     if isinstance(ent1, Tank):
                         ent1.collide_with(ent2)
                     elif isinstance(ent2, Tank):

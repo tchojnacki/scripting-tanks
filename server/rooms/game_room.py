@@ -44,7 +44,7 @@ class GameRoom(ConnectionRoom):
         await self._room_manager.close_lobby(self)
 
     async def promote(self, target: CID):
-        if self.has_player(target):
+        if self.has_player(target) and not self.cid_to_player_data(target).bot:
             self.owner = target
             await self.broadcast_message(SOwnerChangeMsg(self.owner))
 
@@ -62,12 +62,19 @@ class GameRoom(ConnectionRoom):
         await self._state.on_join(joiner_cid)
         await super().on_join(joiner_cid)
 
+    @property
+    def real_players(self):
+        return [cid for cid in self._player_ids if not self.cid_to_player_data(cid).bot]
+
     async def on_leave(self, leaver_cid: CID):
         await super().on_leave(leaver_cid)
         await self._state.on_leave(leaver_cid)
-        if leaver_cid == self.owner and len(self._player_ids) > 0:
-            self.owner = random.choice(tuple(self._player_ids))
-            await self.broadcast_message(SOwnerChangeMsg(self.owner))
+        if leaver_cid == self.owner:
+            if len(self.real_players) > 0:
+                self.owner = random.choice(self.real_players)
+                await self.broadcast_message(SOwnerChangeMsg(self.owner))
+            else:
+                await self.close_lobby()
 
     @property
     def players(self) -> list[PlayerDataDto]:
