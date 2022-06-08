@@ -6,7 +6,7 @@ from messages.client import ClientMsg
 from utils.uid import CID
 
 if TYPE_CHECKING:
-    from rooms.game_room import GameRoom
+    from rooms import GameRoom
 
 
 class GameState(ABC):

@@ -1,6 +1,7 @@
 import asyncio
 from dto import FullGameWaitingStateDto
-from messages.client import ClientMsg, CStartGameMsg, CCloseLobbyMsg, CPromotePlayerMsg, CKickPlayerMsg
+from messages.client import ClientMsg, CAddBotMsg, CStartGameMsg, \
+    CCloseLobbyMsg, CPromotePlayerMsg, CKickPlayerMsg
 from messages.server import SNewPlayerMsg, SPlayerLeftMsg
 from utils.uid import CID
 from .game_state import GameState
@@ -25,6 +26,8 @@ class WaitingGameState(GameState):
                 asyncio.ensure_future(self._room.promote(target))
             case CKickPlayerMsg(target) if is_owner:
                 asyncio.ensure_future(self._room.kick(target))
+            case CAddBotMsg() if is_owner:
+                asyncio.ensure_future(self._room.add_bot())
 
     async def on_join(self, joiner_cid: CID):
         await self._room.broadcast_message(SNewPlayerMsg(

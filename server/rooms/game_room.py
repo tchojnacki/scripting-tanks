@@ -52,6 +52,9 @@ class GameRoom(ConnectionRoom):
         if self.has_player(target):
             await self._room_manager.kick(target)
 
+    async def add_bot(self):
+        await self._room_manager.add_bot(self)
+
     def get_full_room_state(self) -> FullGameStateDto:
         return self._state.get_full_room_state()
 
@@ -69,7 +72,7 @@ class GameRoom(ConnectionRoom):
     @property
     def players(self) -> list[PlayerDataDto]:
         return [
-            self._room_manager.cid_to_player_data(cid)
+            self.cid_to_player_data(cid)
             for cid in self._player_ids
         ]
 

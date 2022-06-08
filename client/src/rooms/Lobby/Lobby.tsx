@@ -93,7 +93,11 @@ export function Lobby() {
             )}
           </SimpleGrid>
           {isOwner && (
-            <Button disabled variant="light" leftIcon={<Robot size={16} />}>
+            <Button
+              onClick={() => sendMessage("c-add-bot", null)}
+              variant="light"
+              leftIcon={<Robot size={16} />}
+            >
               Add bot
             </Button>
           )}

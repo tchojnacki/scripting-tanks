@@ -23,6 +23,10 @@ class RoomManager:
             if room.has_player(cid)
         ), None)
 
+    async def add_bot(self, room: ConnectionRoom):
+        cid = await self._connection_manager.add_bot()
+        await self._switch_room(cid, room)
+
     async def on_connect(self, cid: CID):
         await self._switch_room(cid, self._menu_room)
 
