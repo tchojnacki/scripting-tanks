@@ -47,9 +47,7 @@ const colorInputProps = {
   size: "xs" as const,
   disallowInput: true,
   withPicker: false,
-  swatches: Object.keys(DEFAULT_THEME.colors)
-    .filter(c => !["gray", "dark"].includes(c))
-    .flatMap(c => DEFAULT_THEME.colors[c].slice(-5)),
+  swatches: Object.keys(DEFAULT_THEME.colors).flatMap(c => DEFAULT_THEME.colors[c].slice(-5)),
   swatchesPerRow: 10,
 }
 
