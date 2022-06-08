@@ -48,16 +48,16 @@ class Tank(Entity):
         self._cid = cid
         self._name = name
         self._colors = colors
-        self._pitch = pitch
+        self.pitch = pitch
         self._barrel_pitch = pitch
         self._last_shot = 0
-        self._ai: Optional[AbstractAI] = (SimpleAI(world)
+        self._ai: Optional[AbstractAI] = (SimpleAI(self.eid, world)
                                           if world.cid_to_player_data(cid).bot else None)
         self.barrel_target = pitch
         self.input_axes = InputAxesDto(0, 0)
 
     def calculate_forces(self) -> Vector:
-        u = Vector(sin(self._pitch), 0, cos(self._pitch))
+        u = Vector(sin(self.pitch), 0, cos(self.pitch))
 
         engine_force = (1 if Vector.dot(self._vel, u) > 0
                         else REVERSE_MULT) * ENGINE_FORCE * self.input_axes.vertical
@@ -82,8 +82,9 @@ class Tank(Entity):
 
     def update(self, dtime):
         if self._ai:
-            axes, should_shoot = self._ai.apply_inputs()
+            axes, pitch, should_shoot = self._ai.apply_inputs()
             self.input_axes = axes
+            self.barrel_target = pitch
             if should_shoot:
                 self.shoot()
 
@@ -93,7 +94,7 @@ class Tank(Entity):
         if abs(turn_angle) > 0.01:
             turn_radius = 2 * self.radius / sin(turn_angle)
             omega = self._vel.length / turn_radius
-            self._pitch += omega * dtime
+            self.pitch += omega * dtime
 
         barrel_diff = atan2(sin(self.barrel_target-self._barrel_pitch),
                             cos(self.barrel_target-self._barrel_pitch))
@@ -128,5 +129,5 @@ class Tank(Entity):
     def to_dto(self) -> TankDataDto:
         return TankDataDto(
             self.eid, self._cid, self._name, self._colors,
-            astuple(self.pos), self._pitch, self._barrel_pitch
+            astuple(self.pos), self.pitch, self._barrel_pitch
         )

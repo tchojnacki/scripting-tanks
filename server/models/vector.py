@@ -1,5 +1,5 @@
 from __future__ import annotations
-from math import sqrt
+from math import cos, sin, sqrt
 from attrs import define
 
 
@@ -20,9 +20,17 @@ class Vector:
     def zero(cls) -> Vector:
         return cls(0, 0, 0)
 
+    @classmethod
+    def from_pitch(cls, pitch: float) -> Vector:
+        return cls(sin(pitch), 0, cos(pitch))
+
     @staticmethod
     def dot(a: Vector, b: Vector) -> float:
         return a.x * b.x + a.y * b.y + a.z * b.z
+
+    @staticmethod
+    def cross(a: Vector, b: Vector) -> float:
+        return a.x * b.y - a.y * b.x
 
     def __iadd__(self, other):
         if isinstance(other, Vector):

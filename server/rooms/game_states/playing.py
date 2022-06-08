@@ -117,6 +117,12 @@ class PlayingGameState(GameState):
             )
         ]
 
+    @property
+    def tanks(self) -> list[Tank]:
+        return [
+            e for e in self._entities.values() if isinstance(e, Tank)
+        ]
+
     def get_full_room_state(self) -> FullGamePlayingStateDto:
         return FullGamePlayingStateDto(
             self.radius,
