@@ -78,13 +78,15 @@ export function Lobby() {
                         >
                           Kick
                         </Menu.Item>
-                        <Menu.Item
-                          onClick={() => sendMessage("c-promote-player", player.cid)}
-                          icon={<Crown size={16} />}
-                          color="yellow"
-                        >
-                          Make owner
-                        </Menu.Item>
+                        {!player.bot && (
+                          <Menu.Item
+                            onClick={() => sendMessage("c-promote-player", player.cid)}
+                            icon={<Crown size={16} />}
+                            color="yellow"
+                          >
+                            Make owner
+                          </Menu.Item>
+                        )}
                       </Menu>
                     )}
                   </Group>
@@ -92,11 +94,6 @@ export function Lobby() {
               )
             )}
           </SimpleGrid>
-          {isOwner && (
-            <Button disabled variant="light" leftIcon={<Robot size={16} />}>
-              Add bot
-            </Button>
-          )}
         </>
       }
       right={
@@ -106,29 +103,38 @@ export function Lobby() {
               <Title order={3} pb="xl">
                 Game settings
               </Title>
-              <Group position="center">
-                <Tooltip
-                  opened={roomState.players.length < 2 ? undefined : false}
-                  label="At least two players required."
-                  position="bottom"
-                  withArrow
-                >
-                  <Button
-                    onClick={() => sendMessage("c-start-game", null)}
-                    disabled={roomState.players.length < 2}
-                    leftIcon={<PlayerPlay size={16} />}
+              <Stack align="center">
+                <Group position="center">
+                  <Tooltip
+                    opened={roomState.players.length < 2 ? undefined : false}
+                    label="At least two players required."
+                    position="bottom"
+                    withArrow
                   >
-                    Start game
+                    <Button
+                      onClick={() => sendMessage("c-start-game", null)}
+                      disabled={roomState.players.length < 2}
+                      leftIcon={<PlayerPlay size={16} />}
+                    >
+                      Start game
+                    </Button>
+                  </Tooltip>
+                  <Button
+                    onClick={() => sendMessage("c-close-lobby", null)}
+                    leftIcon={<TrashX size={16} />}
+                    color="red"
+                  >
+                    Close lobby
                   </Button>
-                </Tooltip>
+                </Group>
                 <Button
-                  onClick={() => sendMessage("c-close-lobby", null)}
-                  leftIcon={<TrashX size={16} />}
-                  color="red"
+                  onClick={() => sendMessage("c-add-bot", null)}
+                  variant="light"
+                  leftIcon={<Robot size={16} />}
                 >
-                  Close lobby
+                  Add bot
                 </Button>
-              </Group>
+              </Stack>
             </div>
           )}
           <PlayerInfo unmutable compact={isOwner} />

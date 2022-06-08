@@ -1,12 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
-from dto import FullGameStateDto
+from dto import FullGameStateDto, PlayerDataDto
 from messages.client import ClientMsg
 from utils.uid import CID
 
 if TYPE_CHECKING:
-    from rooms.game_room import GameRoom
+    from rooms import GameRoom
 
 
 class GameState(ABC):
@@ -25,3 +25,6 @@ class GameState(ABC):
 
     async def on_leave(self, leaver_cid: CID):
         pass
+
+    def cid_to_player_data(self, cid: CID) -> PlayerDataDto:
+        return self._room.cid_to_player_data(cid)

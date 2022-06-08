@@ -23,6 +23,11 @@ class RoomManager:
             if room.has_player(cid)
         ), None)
 
+    async def add_bot(self, room: GameRoom):
+        if isinstance(room, GameRoom):
+            cid = await self._connection_manager.add_bot()
+            await self._switch_room(cid, room)
+
     async def on_connect(self, cid: CID):
         await self._switch_room(cid, self._menu_room)
 
@@ -53,18 +58,17 @@ class RoomManager:
         await self._menu_room.broadcast_message(SUpsertLobbyMsg(game_room.lobby_data))
 
     async def close_lobby(self, game_room: GameRoom):
-        await self._remove_game_room(game_room.lid)
+        if game_room.lid in self._game_rooms:
+            del self._game_rooms[game_room.lid]
+            await self._menu_room.broadcast_message(SLobbyRemovedMsg(game_room.lid))
         await asyncio.gather(*(self._menu_room.on_join(player.cid) for player in game_room.players))
 
     async def _switch_room(self, cid: CID, new_room: Optional[ConnectionRoom]):
         prev_room = self._connection_room(cid)
         if prev_room is not None:
             await prev_room.on_leave(cid)
-            if isinstance(prev_room, GameRoom):
-                if len(prev_room.players) == 0:
-                    await self._remove_game_room(prev_room.lid)
-                else:
-                    await self.upsert_lobby(prev_room)
+            if isinstance(prev_room, GameRoom) and len(prev_room.real_players) > 0:
+                await self.upsert_lobby(prev_room)
 
         if new_room is not None:
             await new_room.on_join(cid)
@@ -72,12 +76,10 @@ class RoomManager:
                 await self.upsert_lobby(new_room)
 
     async def kick(self, cid: CID):
-        await self._switch_room(cid, self._menu_room)
-
-    async def _remove_game_room(self, lid: LID):
-        if lid in self._game_rooms:
-            del self._game_rooms[lid]
-            await self._menu_room.broadcast_message(SLobbyRemovedMsg(lid))
+        await self._switch_room(
+            cid,
+            self._menu_room if not self.cid_to_player_data(cid).bot else None
+        )
 
     async def _create_lobby(self, owner_cid: CID):
         lid = get_lid()

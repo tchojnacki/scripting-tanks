@@ -4,6 +4,7 @@ export interface PlayerDataDto {
   cid: string
   name: string
   colors: TankColors
+  bot: boolean
 }
 
 export interface CustomColorsDto {

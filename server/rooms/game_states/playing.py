@@ -36,7 +36,7 @@ class PlayingGameState(GameState):
                 world=self,
                 cid=player.cid,
                 name=player.name,
-                colors=self._room.cid_to_player_data(player.cid).colors,
+                colors=self.cid_to_player_data(player.cid).colors,
                 pos=Vector(
                     sin(step * i) * (self.radius - ISLAND_MARGIN),
                     0,
@@ -49,6 +49,7 @@ class PlayingGameState(GameState):
 
         self._scoreboard: dict[CID, Entity] = {player.cid: 0 for player in self._room.players}
 
+        self._spawn_queue: set[Entity] = set()
         self._destroy_queue: set[EID] = set()
 
         asyncio.ensure_future(self._loop())
@@ -63,11 +64,18 @@ class PlayingGameState(GameState):
 
         for (eid1, ent1) in self._entities.items():
             for (eid2, ent2) in self._entities.items():
-                if eid2 > eid1 and (ent2.pos - ent1.pos).length < ent1.radius + ent2.radius:
+                if (
+                    eid2 > eid1 and ent1.pos.y >= 0 and ent2.pos.y >= 0
+                    and (ent2.pos - ent1.pos).length < ent1.radius + ent2.radius
+                ):
                     if isinstance(ent1, Tank):
                         ent1.collide_with(ent2)
                     elif isinstance(ent2, Tank):
                         ent2.collide_with(ent1)
+
+        for entity in self._spawn_queue:
+            self._entities[entity.eid] = entity
+        self._spawn_queue.clear()
 
         for eid in self._destroy_queue:
             del self._entities[eid]
@@ -82,7 +90,7 @@ class PlayingGameState(GameState):
             await self._room.show_summary(self._scoreboard_entries)
 
     def spawn(self, entity: Entity):
-        self._entities[entity.eid] = entity
+        self._spawn_queue.add(entity)
 
     def destroy(self, entity: Entity):
         self._destroy_queue.add(entity.eid)
@@ -102,11 +110,17 @@ class PlayingGameState(GameState):
     @property
     def _scoreboard_entries(self) -> list[ScoreboardEntryDto]:
         return [
-            ScoreboardEntryDto(cid, self._room.cid_to_player_data(cid).name, score)
+            ScoreboardEntryDto(cid, self.cid_to_player_data(cid).name, score)
             for (cid, score) in sorted(
                 self._scoreboard.items(),
                 key=lambda t: t[1], reverse=True
             )
+        ]
+
+    @property
+    def tanks(self) -> list[Tank]:
+        return [
+            e for e in self._entities.values() if isinstance(e, Tank)
         ]
 
     def get_full_room_state(self) -> FullGamePlayingStateDto:

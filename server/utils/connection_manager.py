@@ -5,14 +5,16 @@ from dto import PlayerDataDto
 from messages.client import ClientMsg, parse_message, CRerollNameMsg, CCustomizeColorsMsg
 from messages.server import SAssignIdentityMsg, ServerMsg
 from rooms.room_manager import RoomManager
+from utils.color import assign_color
 from utils.display_names import gen_random_name
 from utils.connection_data import ConnectionData
-from utils.uid import CID
+from utils.uid import CID, get_cid
 
 
 class ConnectionManager:
     def __init__(self):
         self._active_connections: dict[CID, ConnectionData] = {}
+        self._bots: set[CID] = set()
         self._room_manager: RoomManager = RoomManager(self)
 
     async def _handle_on_connect(self, socket: WebSocket):
@@ -23,6 +25,12 @@ class ConnectionManager:
         self._active_connections[cid] = con
         await self.send_to_single(cid, SAssignIdentityMsg(con.player_data))
         await self._room_manager.on_connect(cid)
+
+    async def add_bot(self) -> CID:
+        cid = get_cid()
+        self._bots.add(cid)
+        await self._room_manager.on_connect(cid)
+        return cid
 
     def _handle_on_disconnect(self, socket: WebSocket):
         cid = ConnectionData.cid_from_socket(socket)
@@ -57,7 +65,12 @@ class ConnectionManager:
             self._handle_on_disconnect(socket)
 
     async def send_to_single(self, cid: CID, smsg: ServerMsg):
-        await self._active_connections[cid].socket.send_json(asdict(smsg))
+        if cid not in self._bots:
+            await self._active_connections[cid].socket.send_json(asdict(smsg))
 
     def cid_to_player_data(self, cid: CID) -> PlayerDataDto:
+        if cid in self._bots:
+            c = assign_color(cid)
+            return PlayerDataDto(cid, "BOT", (c, c), True)
+
         return self._active_connections[cid].player_data

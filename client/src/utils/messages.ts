@@ -23,6 +23,7 @@ export type ClientMessageDataMap = {
   "c-enter-lobby": string
   "c-leave-lobby": null
   "c-close-lobby": null
+  "c-add-bot": null
   "c-promote-player": string
   "c-kick-player": string
   "c-start-game": null
