@@ -12,3 +12,5 @@ heroku.yml
 tsconfig.json
 npm-debug.log*
 .pylintrc
+bin/
+obj/

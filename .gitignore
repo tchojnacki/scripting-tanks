@@ -3,3 +3,5 @@ node_modules
 dist
 npm-debug.log*
 git-creds.sh
+bin/
+obj/

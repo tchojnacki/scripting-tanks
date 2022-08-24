@@ -34,8 +34,9 @@ const SocketContext = createContext({
   useSocketEvent: (tag, handler) => {},
 } as SocketContextValue<RoomLocation>)
 
+const ws = new WebSocket(WEBSOCKET_ROOT)
+
 export function SocketContextProvider({ children }: { children: ReactNode }) {
-  const wsRef = useRef<WebSocket>()
   const eventMapRef = useRef<
     Partial<{ [T in SocketEventTag]: SocketEventHandler<T, RoomLocation>[] }>
   >({})
@@ -46,9 +47,7 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
-    wsRef.current = new WebSocket(WEBSOCKET_ROOT)
-
-    wsRef.current.onmessage = event => {
+    ws.onmessage = event => {
       const { tag, data } = JSON.parse(event.data) as {
         tag: SocketEventTag
         data: SocketEventData<SocketEventTag>
@@ -60,14 +59,15 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
         )
       }
     }
-
-    return () => {
-      wsRef.current?.close()
-    }
   }, [])
 
   const sendMessage = useCallback(<T extends SendMessageTag>(tag: T, data: SendMessageData<T>) => {
-    wsRef.current?.send(JSON.stringify({ tag, data }))
+    const string = JSON.stringify({ tag, data })
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(string)
+    } else {
+      ws.onopen = () => ws.send(string)
+    }
   }, [])
 
   const useSocketEvent = useMemo(
