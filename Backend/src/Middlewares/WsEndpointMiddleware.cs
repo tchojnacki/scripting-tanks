@@ -1,4 +1,5 @@
 using Backend.Services;
+using Backend.Utils.Identifiers;
 
 namespace Backend.Middlewares;
 
@@ -10,7 +11,10 @@ public class WsEndpointMiddleware
     private readonly IHostApplicationLifetime _lifetime;
     private readonly IConnectionManager _connectionManager;
 
-    public WsEndpointMiddleware(RequestDelegate next, IHostApplicationLifetime lifetime, IConnectionManager connectionManager)
+    public WsEndpointMiddleware(
+        RequestDelegate next,
+        IHostApplicationLifetime lifetime,
+        IConnectionManager connectionManager)
     {
         _next = next;
         _lifetime = lifetime;
@@ -23,8 +27,11 @@ public class WsEndpointMiddleware
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
-                using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                await _connectionManager.HandleConnectionAsync(webSocket, context.Connection.Id, _lifetime.ApplicationStopping);
+                using var socket = await context.WebSockets.AcceptWebSocketAsync();
+                await _connectionManager.HandleConnectionAsync(
+                    CID.From("CID$" + context.Connection.Id),
+                    socket,
+                    _lifetime.ApplicationStopping);
             }
             else
             {

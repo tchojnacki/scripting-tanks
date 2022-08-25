@@ -1,53 +1,65 @@
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using Backend.Utils;
+using Backend.Utils.Identifiers;
+using Backend.Messages.Server;
 
 namespace Backend.Services;
 
 public class ConnectionManager : IConnectionManager
 {
-    private readonly Dictionary<string, ConnectionData> _activeConnections = new();
+    private readonly Dictionary<CID, ConnectionData> _activeConnections = new();
 
-    private readonly INameProvider _nameProvider;
-
-    public ConnectionManager(INameProvider nameProvider) => _nameProvider = nameProvider;
-
-    private async Task HandleOnConnectAsync(WebSocket webSocket, string cid)
+    private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
     {
         var connection = new ConnectionData
         {
-            Socket = webSocket,
-            DisplayName = _nameProvider.GenerateRandomName()
+            Socket = socket,
+            DisplayName = NameProvider.GenerateRandomName()
         };
 
         _activeConnections[cid] = connection;
-        await SendToSingleAsync(cid, $@"{{""cid"": ""{cid}""}}");
+        await SendToSingleAsync(cid, new AssignIdentityServerMessage
+        {
+            Data = new()
+            {
+                Cid = cid.Value,
+                Name = connection.DisplayName,
+                Colors = new() { "#ff0000", "#00ff00" }
+            }
+        });
     }
 
-    private Task HandleOnDisconnectAsync(string cid)
+    private Task HandleOnDisconnectAsync(CID cid)
     {
         _activeConnections.Remove(cid);
         return Task.CompletedTask;
     }
 
-    private Task HandleMessageAsync(string cid, string content)
+    private Task HandleMessageAsync(CID cid, string content)
     {
         Console.WriteLine(content);
         return Task.CompletedTask;
     }
 
-    public async Task SendToSingleAsync(string cid, string message)
+    public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
     {
+        var buffer = JsonSerializer.SerializeToUtf8Bytes(message, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+
         await _activeConnections[cid].Socket.SendAsync(
-            new ArraySegment<byte>(Encoding.UTF8.GetBytes(message)),
+            new ArraySegment<byte>(buffer),
             WebSocketMessageType.Text,
             true,
             CancellationToken.None);
     }
 
-    public async Task HandleConnectionAsync(WebSocket webSocket, string cid, CancellationToken cancellationToken)
+    public async Task HandleConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken)
     {
-        await HandleOnConnectAsync(webSocket, cid);
+        await HandleOnConnectAsync(cid, socket);
 
         var buffer = new byte[4096];
         WebSocketReceiveResult result;
@@ -57,7 +69,7 @@ public class ConnectionManager : IConnectionManager
             do
             {
                 Array.Clear(buffer);
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
                 await HandleMessageAsync(cid, Encoding.UTF8.GetString(buffer));
             }
             while (!result.CloseStatus.HasValue);
@@ -68,9 +80,9 @@ public class ConnectionManager : IConnectionManager
         }
         finally
         {
-            if (webSocket.State is not (WebSocketState.Closed or WebSocketState.Aborted))
+            if (socket.State is not (WebSocketState.Closed or WebSocketState.Aborted))
             {
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, cancellationToken);
+                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, cancellationToken);
             }
             await HandleOnDisconnectAsync(cid);
         }

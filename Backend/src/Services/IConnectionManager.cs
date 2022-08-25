@@ -1,8 +1,9 @@
 using System.Net.WebSockets;
+using Backend.Utils.Identifiers;
 
 namespace Backend.Services;
 
 public interface IConnectionManager
 {
-    Task HandleConnectionAsync(WebSocket webSocket, string cid, CancellationToken cancellationToken);
+    Task HandleConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken);
 }

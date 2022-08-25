@@ -1,8 +1,8 @@
 namespace Backend.Services;
 
-public class NameProvider : INameProvider
+public static class NameProvider
 {
-    public string GenerateRandomName()
+    public static string GenerateRandomName()
     {
         return "TEMPORARY NAME";
     }
