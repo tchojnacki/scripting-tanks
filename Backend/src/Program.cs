@@ -14,7 +14,7 @@ app.UseHttpsRedirection();
 
 app.UseFileServer(new FileServerOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "../client/dist")),
+    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "../Client/dist")),
     EnableDirectoryBrowsing = true
 });
 

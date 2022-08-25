@@ -1,1 +1,1 @@
-npm run start --prefix client & ASPNETCORE_ENVIRONMENT=Development dotnet watch --project Backend && fg
+npm run start --prefix Client & ASPNETCORE_ENVIRONMENT=Development dotnet watch --project Backend && fg

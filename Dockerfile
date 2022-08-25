@@ -1,29 +1,29 @@
 # == BUILD CLIENT ==
-FROM node:18.0-alpine AS client_build
+FROM node:18.0-alpine AS build-client
 
 # Install dependencies
-WORKDIR /client
-COPY client/package.json client/package-lock.json ./
+WORKDIR /Client
+COPY Client/package.json Client/package-lock.json ./
 RUN npm ci
 
 # Build client
-COPY client .
+COPY Client .
 RUN npm run build
 
-# == BUILD SERVER ==
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS server_build
+# == BUILD BACKEND ==
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-backend
 
 # Install dependencies
-WORKDIR /server
+WORKDIR /Backend
 COPY Backend/*.csproj ./
 RUN dotnet restore
 
-# Build server
+# Build backend
 COPY Backend .
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o dist
 
 # == RUN ==
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS production
-COPY --from=client_build /client/dist client/dist
-COPY --from=server_build /server/out Backend
-CMD dotnet ./Backend/Backend.dll
+COPY --from=build-client /Client/dist Client/dist
+COPY --from=build-backend /Backend/dist Backend/dist
+CMD dotnet ./Backend/dist/Backend.dll
