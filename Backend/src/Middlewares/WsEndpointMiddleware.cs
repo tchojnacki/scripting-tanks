@@ -1,5 +1,4 @@
-using System.Net.WebSockets;
-using System.Text;
+using Backend.Services;
 
 namespace Backend.Middlewares;
 
@@ -9,11 +8,13 @@ public class WsEndpointMiddleware
 
     private readonly RequestDelegate _next;
     private readonly IHostApplicationLifetime _lifetime;
+    private readonly IConnectionManager _connectionManager;
 
-    public WsEndpointMiddleware(RequestDelegate next, IHostApplicationLifetime lifetime)
+    public WsEndpointMiddleware(RequestDelegate next, IHostApplicationLifetime lifetime, IConnectionManager connectionManager)
     {
         _next = next;
         _lifetime = lifetime;
+        _connectionManager = connectionManager;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -23,7 +24,7 @@ public class WsEndpointMiddleware
             if (context.WebSockets.IsWebSocketRequest)
             {
                 using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                await HandleConnection(webSocket);
+                await _connectionManager.HandleConnectionAsync(webSocket, context.Connection.Id, _lifetime.ApplicationStopping);
             }
             else
             {
@@ -33,34 +34,6 @@ public class WsEndpointMiddleware
         else
         {
             await _next(context);
-        }
-    }
-
-    private async Task HandleConnection(WebSocket webSocket)
-    {
-        var buffer = new byte[4096];
-        WebSocketReceiveResult result;
-
-        try
-        {
-            do
-            {
-                Array.Clear(buffer);
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _lifetime.ApplicationStopping);
-                var text = Encoding.UTF8.GetString(buffer);
-                Console.WriteLine(text);
-            }
-            while (!result.CloseStatus.HasValue);
-        }
-        catch
-        {
-        }
-        finally
-        {
-            if (webSocket.State is not (WebSocketState.Closed or WebSocketState.Aborted))
-            {
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, _lifetime.ApplicationStopping);
-            }
         }
     }
 }
