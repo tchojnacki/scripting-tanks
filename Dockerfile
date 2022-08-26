@@ -26,4 +26,5 @@ RUN dotnet publish -c Release -o dist
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS production
 COPY --from=build-client /Client/dist Client/dist
 COPY --from=build-backend /Backend/dist Backend/dist
+EXPOSE 3000
 CMD dotnet ./Backend/dist/Backend.dll
