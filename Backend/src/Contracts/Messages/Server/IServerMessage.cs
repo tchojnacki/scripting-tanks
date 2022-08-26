@@ -1,4 +1,4 @@
-namespace Backend.Messages.Server;
+namespace Backend.Contracts.Messages.Server;
 
 public interface IServerMessage<T>
 {

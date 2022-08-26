@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Backend.Utils;
 using Backend.Utils.Identifiers;
-using Backend.Messages.Server;
+using Backend.Contracts.Messages.Server;
 
 namespace Backend.Services;
 
@@ -26,7 +26,8 @@ public class ConnectionManager : IConnectionManager
             {
                 Cid = cid.Value,
                 Name = connection.DisplayName,
-                Colors = new() { "#ff0000", "#00ff00" }
+                Colors = new() { "#ff0000", "#00ff00" },
+                Bot = false,
             }
         });
     }

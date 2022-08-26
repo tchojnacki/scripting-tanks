@@ -1,5 +1,4 @@
 using System.Net.WebSockets;
-using Backend.Dtos;
 
 namespace Backend.Utils;
 
