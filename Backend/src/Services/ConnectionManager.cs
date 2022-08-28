@@ -11,15 +11,25 @@ namespace Backend.Services;
 
 public class ConnectionManager : IConnectionManager
 {
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly Dictionary<CID, ConnectionData> _activeConnections = new();
+
+    private readonly ICustomizationProvider _customizationProvider;
+
+    public ConnectionManager(ICustomizationProvider customizationProvider)
+        => _customizationProvider = customizationProvider;
 
     private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
     {
         var connection = new ConnectionData
         {
             Socket = socket,
-            DisplayName = NameProvider.GenerateRandomName(),
-            Colors = new() { TankColor = "#000000", TurretColor = "#000000" }
+            DisplayName = _customizationProvider.AssignDisplayName(),
+            Colors = _customizationProvider.AssignTankColors()
         };
 
         _activeConnections[cid] = connection;
@@ -36,15 +46,12 @@ public class ConnectionManager : IConnectionManager
     {
         var tag = JsonDocument.Parse(content).RootElement.GetProperty("tag").GetString()!;
         var type = ClientMessageFactory.TagToType(tag)!;
-        var message = JsonSerializer.Deserialize(content, type, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+        var message = JsonSerializer.Deserialize(content, type, SerializerOptions);
 
         switch (message)
         {
             case RerollNameClientMessage:
-                _activeConnections[cid].DisplayName = NameProvider.GenerateRandomName();
+                _activeConnections[cid].DisplayName = _customizationProvider.AssignDisplayName();
                 await SendToSingleAsync(cid, new AssignIdentityServerMessage
                 {
                     Data = _activeConnections[cid].ToDto(cid)
@@ -64,10 +71,7 @@ public class ConnectionManager : IConnectionManager
 
     public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
     {
-        var buffer = JsonSerializer.SerializeToUtf8Bytes(message, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+        var buffer = JsonSerializer.SerializeToUtf8Bytes(message, SerializerOptions);
 
         await _activeConnections[cid].Socket.SendAsync(
             new ArraySegment<byte>(buffer),
