@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Backend.Utils;
 using Backend.Utils.Identifiers;
+using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
 
 namespace Backend.Services;
@@ -16,7 +17,8 @@ public class ConnectionManager : IConnectionManager
         var connection = new ConnectionData
         {
             Socket = socket,
-            DisplayName = NameProvider.GenerateRandomName()
+            DisplayName = NameProvider.GenerateRandomName(),
+            Colors = new List<string>() { "#000000", "#000000" }
         };
 
         _activeConnections[cid] = connection;
@@ -26,7 +28,7 @@ public class ConnectionManager : IConnectionManager
             {
                 Cid = cid.Value,
                 Name = connection.DisplayName,
-                Colors = new() { "#ff0000", "#00ff00" },
+                Colors = connection.Colors,
                 Bot = false,
             }
         });
@@ -38,10 +40,52 @@ public class ConnectionManager : IConnectionManager
         return Task.CompletedTask;
     }
 
-    private Task HandleMessageAsync(CID cid, string content)
+    private async Task HandleMessageAsync(CID cid, string content)
     {
-        Console.WriteLine(content);
-        return Task.CompletedTask;
+        var tag = JsonDocument.Parse(content).RootElement.GetProperty("tag").GetString()!;
+        var type = ClientMessageFactory.TagToType(tag)!;
+        var message = JsonSerializer.Deserialize(content, type, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+
+        switch (message)
+        {
+            case RerollNameClientMessage:
+                _activeConnections[cid] = _activeConnections[cid] with
+                {
+                    DisplayName = NameProvider.GenerateRandomName()
+                };
+                await SendToSingleAsync(cid, new AssignIdentityServerMessage
+                {
+                    Data = new()
+                    {
+                        Cid = cid.Value,
+                        Name = _activeConnections[cid].DisplayName,
+                        Colors = _activeConnections[cid].Colors,
+                        Bot = false,
+                    }
+                });
+                break;
+            case CustomizeColorsClientMessage { Data: var dto }:
+                _activeConnections[cid] = _activeConnections[cid] with
+                {
+                    Colors = dto.Colors
+                };
+                await SendToSingleAsync(cid, new AssignIdentityServerMessage
+                {
+                    Data = new()
+                    {
+                        Cid = cid.Value,
+                        Name = _activeConnections[cid].DisplayName,
+                        Colors = _activeConnections[cid].Colors,
+                        Bot = false,
+                    }
+                });
+                break;
+            default:
+                break;
+        }
     }
 
     public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
@@ -71,7 +115,7 @@ public class ConnectionManager : IConnectionManager
             {
                 Array.Clear(buffer);
                 result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
-                await HandleMessageAsync(cid, Encoding.UTF8.GetString(buffer));
+                await HandleMessageAsync(cid, Encoding.UTF8.GetString(buffer).TrimEnd('\0'));
             }
             while (!result.CloseStatus.HasValue);
         }
