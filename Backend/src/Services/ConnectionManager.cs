@@ -1,8 +1,8 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using Backend.Utils;
-using Backend.Utils.Identifiers;
+using Backend.Domain;
+using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
 
@@ -18,7 +18,7 @@ public class ConnectionManager : IConnectionManager
         {
             Socket = socket,
             DisplayName = NameProvider.GenerateRandomName(),
-            Colors = new List<string>() { "#000000", "#000000" }
+            Colors = new() { TankColor = "#000000", TurretColor = "#000000" }
         };
 
         _activeConnections[cid] = connection;
@@ -28,7 +28,11 @@ public class ConnectionManager : IConnectionManager
             {
                 Cid = cid.Value,
                 Name = connection.DisplayName,
-                Colors = connection.Colors,
+                Colors = new()
+                {
+                    TankColor = connection.Colors.TankColor,
+                    TurretColor = connection.Colors.TurretColor
+                },
                 Bot = false,
             }
         });
@@ -52,25 +56,27 @@ public class ConnectionManager : IConnectionManager
         switch (message)
         {
             case RerollNameClientMessage:
-                _activeConnections[cid] = _activeConnections[cid] with
-                {
-                    DisplayName = NameProvider.GenerateRandomName()
-                };
+                _activeConnections[cid].DisplayName = NameProvider.GenerateRandomName();
                 await SendToSingleAsync(cid, new AssignIdentityServerMessage
                 {
                     Data = new()
                     {
                         Cid = cid.Value,
                         Name = _activeConnections[cid].DisplayName,
-                        Colors = _activeConnections[cid].Colors,
+                        Colors = new()
+                        {
+                            TankColor = _activeConnections[cid].Colors.TankColor,
+                            TurretColor = _activeConnections[cid].Colors.TurretColor
+                        },
                         Bot = false,
                     }
                 });
                 break;
             case CustomizeColorsClientMessage { Data: var dto }:
-                _activeConnections[cid] = _activeConnections[cid] with
+                _activeConnections[cid].Colors = new TankColors
                 {
-                    Colors = dto.Colors
+                    TankColor = dto.Colors.TankColor,
+                    TurretColor = dto.Colors.TurretColor
                 };
                 await SendToSingleAsync(cid, new AssignIdentityServerMessage
                 {
@@ -78,7 +84,11 @@ public class ConnectionManager : IConnectionManager
                     {
                         Cid = cid.Value,
                         Name = _activeConnections[cid].DisplayName,
-                        Colors = _activeConnections[cid].Colors,
+                        Colors = new()
+                        {
+                            TankColor = _activeConnections[cid].Colors.TankColor,
+                            TurretColor = _activeConnections[cid].Colors.TurretColor
+                        },
                         Bot = false,
                     }
                 });
@@ -111,13 +121,14 @@ public class ConnectionManager : IConnectionManager
 
         try
         {
-            do
+            while (true)
             {
                 Array.Clear(buffer);
                 result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                if (result.CloseStatus.HasValue) break;
+
                 await HandleMessageAsync(cid, Encoding.UTF8.GetString(buffer).TrimEnd('\0'));
             }
-            while (!result.CloseStatus.HasValue);
         }
         catch
         {

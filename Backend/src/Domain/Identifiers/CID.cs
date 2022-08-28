@@ -1,5 +1,5 @@
 using ValueOf;
 
-namespace Backend.Utils.Identifiers;
+namespace Backend.Domain.Identifiers;
 
 public class CID : ValueOf<string, CID> { }

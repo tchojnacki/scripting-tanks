@@ -1,5 +1,5 @@
 using Backend.Services;
-using Backend.Utils.Identifiers;
+using Backend.Domain.Identifiers;
 
 namespace Backend.Middlewares;
 
