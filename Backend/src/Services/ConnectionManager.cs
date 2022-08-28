@@ -5,6 +5,7 @@ using Backend.Domain;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
+using Backend.Utils.Mappers;
 
 namespace Backend.Services;
 
@@ -22,20 +23,7 @@ public class ConnectionManager : IConnectionManager
         };
 
         _activeConnections[cid] = connection;
-        await SendToSingleAsync(cid, new AssignIdentityServerMessage
-        {
-            Data = new()
-            {
-                Cid = cid.Value,
-                Name = connection.DisplayName,
-                Colors = new()
-                {
-                    TankColor = connection.Colors.TankColor,
-                    TurretColor = connection.Colors.TurretColor
-                },
-                Bot = false,
-            }
-        });
+        await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = connection.ToDto(cid) });
     }
 
     private Task HandleOnDisconnectAsync(CID cid)
@@ -59,38 +47,14 @@ public class ConnectionManager : IConnectionManager
                 _activeConnections[cid].DisplayName = NameProvider.GenerateRandomName();
                 await SendToSingleAsync(cid, new AssignIdentityServerMessage
                 {
-                    Data = new()
-                    {
-                        Cid = cid.Value,
-                        Name = _activeConnections[cid].DisplayName,
-                        Colors = new()
-                        {
-                            TankColor = _activeConnections[cid].Colors.TankColor,
-                            TurretColor = _activeConnections[cid].Colors.TurretColor
-                        },
-                        Bot = false,
-                    }
+                    Data = _activeConnections[cid].ToDto(cid)
                 });
                 break;
             case CustomizeColorsClientMessage { Data: var dto }:
-                _activeConnections[cid].Colors = new TankColors
-                {
-                    TankColor = dto.Colors.TankColor,
-                    TurretColor = dto.Colors.TurretColor
-                };
+                _activeConnections[cid].Colors = dto.Colors.ToDomain();
                 await SendToSingleAsync(cid, new AssignIdentityServerMessage
                 {
-                    Data = new()
-                    {
-                        Cid = cid.Value,
-                        Name = _activeConnections[cid].DisplayName,
-                        Colors = new()
-                        {
-                            TankColor = _activeConnections[cid].Colors.TankColor,
-                            TurretColor = _activeConnections[cid].Colors.TurretColor
-                        },
-                        Bot = false,
-                    }
+                    Data = _activeConnections[cid].ToDto(cid)
                 });
                 break;
             default:
@@ -117,14 +81,13 @@ public class ConnectionManager : IConnectionManager
         await HandleOnConnectAsync(cid, socket);
 
         var buffer = new byte[4096];
-        WebSocketReceiveResult result;
 
         try
         {
             while (true)
             {
                 Array.Clear(buffer);
-                result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+                var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
                 if (result.CloseStatus.HasValue) break;
 
                 await HandleMessageAsync(cid, Encoding.UTF8.GetString(buffer).TrimEnd('\0'));
@@ -137,9 +100,8 @@ public class ConnectionManager : IConnectionManager
         finally
         {
             if (socket.State is not (WebSocketState.Closed or WebSocketState.Aborted))
-            {
                 await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, cancellationToken);
-            }
+
             await HandleOnDisconnectAsync(cid);
         }
     }
