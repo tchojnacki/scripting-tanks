@@ -16,7 +16,7 @@ import { useIdentity } from "../utils/indentityContext"
 import { nameAbbr } from "../utils/nameAbbr"
 import { useSocketContext } from "../utils/socketContext"
 import { Tank } from "./Tank"
-import { sample } from "lodash"
+import { sample, isEqual } from "lodash"
 import { TankColors } from "../utils/dtos"
 
 const TANK_ROT_SPEED = 0.5
@@ -60,8 +60,9 @@ export function PlayerInfo({ compact, unmutable }: PlayerInfoProps) {
   const { sendMessage } = useSocketContext()
   const { name, colors } = useIdentity()
 
-  const setColors = (newColors: TankColors) =>
-    sendMessage("c-customize-colors", { colors: newColors })
+  const setColors = (newColors: TankColors) => {
+    if (!isEqual(colors, newColors)) sendMessage("c-customize-colors", { colors: newColors })
+  }
   const setTankColor = (color: string) => setColors([color, colors[1]])
   const setTurretColor = (color: string) => setColors([colors[0], color])
 
