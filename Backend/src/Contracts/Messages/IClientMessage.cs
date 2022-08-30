@@ -1,4 +1,4 @@
-namespace Backend.Contracts.Messages.Client;
+namespace Backend.Contracts.Messages;
 
 public interface IClientMessage<out T>
 {

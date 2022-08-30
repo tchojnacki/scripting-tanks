@@ -1,5 +1,4 @@
-using Backend.Contracts.Messages.Client;
-using Backend.Contracts.Messages.Server;
+using Backend.Contracts.Messages;
 
 namespace Backend.Services;
 

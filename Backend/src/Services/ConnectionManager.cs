@@ -1,8 +1,9 @@
 using System.Net.WebSockets;
 using Backend.Domain;
-using Backend.Domain.Identifiers;
-using Backend.Contracts.Messages.Client;
+using Backend.Identifiers;
+using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
+using Backend.Contracts.Messages.Client;
 using Backend.Utils.Mappers;
 
 namespace Backend.Services;

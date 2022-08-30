@@ -1,6 +1,6 @@
 using Backend.Contracts.Data;
 using Backend.Domain;
-using Backend.Domain.Identifiers;
+using Backend.Identifiers;
 
 namespace Backend.Utils.Mappers;
 
