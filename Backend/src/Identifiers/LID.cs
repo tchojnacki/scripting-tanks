@@ -2,11 +2,11 @@ using ValueOf;
 
 namespace Backend.Identifiers;
 
-public class CID : ValueOf<string, CID>
+public class LID : ValueOf<string, LID>
 {
     protected override void Validate()
     {
-        if (!Value.StartsWith("CID$"))
+        if (!Value.StartsWith("LID$"))
             throw new ArgumentException(Value);
     }
 }

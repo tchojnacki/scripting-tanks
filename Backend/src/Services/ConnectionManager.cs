@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using Backend.Domain;
+using Backend.Rooms;
 using Backend.Identifiers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
@@ -15,10 +16,14 @@ public class ConnectionManager : IConnectionManager
     private readonly ICustomizationProvider _customizationProvider;
     private readonly IMessageSerializer _messageSerializer;
 
+    private readonly RoomManager _roomManager;
+
     public ConnectionManager(ICustomizationProvider customizationProvider, IMessageSerializer messageSerializer)
     {
         _customizationProvider = customizationProvider;
         _messageSerializer = messageSerializer;
+
+        _roomManager = new(this);
     }
 
     private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
@@ -32,33 +37,32 @@ public class ConnectionManager : IConnectionManager
 
         _activeConnections[cid] = connection;
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = connection.ToDto(cid) });
+        await _roomManager.HandleOnConnectAsync(cid);
     }
 
-    private Task HandleOnDisconnectAsync(CID cid)
+    private async Task HandleOnDisconnectAsync(CID cid)
     {
         _activeConnections.Remove(cid);
-        return Task.CompletedTask;
+        await _roomManager.HandleOnDisconnectAsync(cid);
     }
 
-    private async Task ReceiveMessageAsync(CID cid, IClientMessage<object?> message)
+    private async Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
     {
+        var con = _activeConnections[cid];
         switch (message)
         {
-            case RerollNameClientMessage:
-                _activeConnections[cid].DisplayName = _customizationProvider.AssignDisplayName();
-                await SendToSingleAsync(cid, new AssignIdentityServerMessage
-                {
-                    Data = _activeConnections[cid].ToDto(cid)
-                });
+            case RerollNameClientMessage when _roomManager.PlayerCanCustomize(cid):
+                con.DisplayName = _customizationProvider.AssignDisplayName();
+                await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto(cid) });
                 break;
-            case CustomizeColorsClientMessage { Data: var dto }:
-                _activeConnections[cid].Colors = dto.Colors.ToDomain();
-                await SendToSingleAsync(cid, new AssignIdentityServerMessage
-                {
-                    Data = _activeConnections[cid].ToDto(cid)
-                });
+
+            case CustomizeColorsClientMessage { Data: var dto } when _roomManager.PlayerCanCustomize(cid):
+                con.Colors = dto.Colors.ToDomain();
+                await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto(cid) });
                 break;
+
             default:
+                await _roomManager.HandleOnMessageAsync(cid, message);
                 break;
         }
     }
@@ -90,7 +94,7 @@ public class ConnectionManager : IConnectionManager
 
                 var message = _messageSerializer.DeserializeClientMessage(buffer);
                 if (message != null)
-                    await ReceiveMessageAsync(cid, message);
+                    await HandleOnMessageAsync(cid, message);
             }
         }
         catch
