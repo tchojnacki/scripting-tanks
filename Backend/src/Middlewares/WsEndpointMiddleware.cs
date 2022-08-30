@@ -28,7 +28,7 @@ public class WsEndpointMiddleware
             if (context.WebSockets.IsWebSocketRequest)
             {
                 using var socket = await context.WebSockets.AcceptWebSocketAsync();
-                await _connectionManager.HandleConnectionAsync(
+                await _connectionManager.AcceptConnectionAsync(
                     CID.From("CID$" + context.Connection.Id),
                     socket,
                     _lifetime.ApplicationStopping);

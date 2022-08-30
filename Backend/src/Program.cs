@@ -8,6 +8,7 @@ builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?
 
 builder.Services.AddDirectoryBrowser();
 
+builder.Services.AddSingleton<IMessageSerializer, MessageSerializer>();
 builder.Services.AddSingleton<ICustomizationProvider, CustomizationProvider>();
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 

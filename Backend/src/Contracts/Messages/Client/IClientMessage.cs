@@ -1,6 +1,6 @@
 namespace Backend.Contracts.Messages.Client;
 
-public interface IClientMessage<T>
+public interface IClientMessage<out T>
 {
     string Tag { get; }
     T Data { get; }

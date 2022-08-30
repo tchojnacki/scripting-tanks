@@ -1,6 +1,4 @@
 using System.Net.WebSockets;
-using System.Text;
-using System.Text.Json;
 using Backend.Domain;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages.Client;
@@ -11,17 +9,16 @@ namespace Backend.Services;
 
 public class ConnectionManager : IConnectionManager
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
     private readonly Dictionary<CID, ConnectionData> _activeConnections = new();
 
     private readonly ICustomizationProvider _customizationProvider;
+    private readonly IMessageSerializer _messageSerializer;
 
-    public ConnectionManager(ICustomizationProvider customizationProvider)
-        => _customizationProvider = customizationProvider;
+    public ConnectionManager(ICustomizationProvider customizationProvider, IMessageSerializer messageSerializer)
+    {
+        _customizationProvider = customizationProvider;
+        _messageSerializer = messageSerializer;
+    }
 
     private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
     {
@@ -42,12 +39,8 @@ public class ConnectionManager : IConnectionManager
         return Task.CompletedTask;
     }
 
-    private async Task HandleMessageAsync(CID cid, string content)
+    private async Task ReceiveMessageAsync(CID cid, IClientMessage<object?> message)
     {
-        var tag = JsonDocument.Parse(content).RootElement.GetProperty("tag").GetString()!;
-        var type = ClientMessageFactory.TagToType(tag)!;
-        var message = JsonSerializer.Deserialize(content, type, SerializerOptions);
-
         switch (message)
         {
             case RerollNameClientMessage:
@@ -71,7 +64,7 @@ public class ConnectionManager : IConnectionManager
 
     public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
     {
-        var buffer = JsonSerializer.SerializeToUtf8Bytes(message, SerializerOptions);
+        var buffer = _messageSerializer.SerializeServerMessage(message);
 
         await _activeConnections[cid].Socket.SendAsync(
             new ArraySegment<byte>(buffer),
@@ -80,7 +73,7 @@ public class ConnectionManager : IConnectionManager
             CancellationToken.None);
     }
 
-    public async Task HandleConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken)
+    public async Task AcceptConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken)
     {
         await HandleOnConnectAsync(cid, socket);
 
@@ -94,7 +87,9 @@ public class ConnectionManager : IConnectionManager
                 var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
                 if (result.CloseStatus.HasValue) break;
 
-                await HandleMessageAsync(cid, Encoding.UTF8.GetString(buffer).TrimEnd('\0'));
+                var message = _messageSerializer.DeserializeClientMessage(buffer);
+                if (message != null)
+                    await ReceiveMessageAsync(cid, message);
             }
         }
         catch
