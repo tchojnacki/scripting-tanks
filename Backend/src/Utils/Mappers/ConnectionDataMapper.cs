@@ -1,14 +1,13 @@
 using Backend.Contracts.Data;
 using Backend.Domain;
-using Backend.Identifiers;
 
 namespace Backend.Utils.Mappers;
 
 public static class ConnectionDataMapper
 {
-    public static PlayerDto ToDto(this ConnectionData model, CID cid) => new()
+    public static PlayerDto ToDto(this ConnectionData model) => new()
     {
-        Cid = cid.Value,
+        Cid = model.Cid.Value,
         Name = model.DisplayName,
         Colors = model.Colors.ToDto(),
         Bot = false

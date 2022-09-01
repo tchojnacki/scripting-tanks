@@ -1,5 +1,6 @@
-using Backend.Contracts.Data;
 using Backend.Services;
+using Backend.Contracts.Data;
+using Backend.Utils.Mappers;
 
 namespace Backend.Rooms;
 
@@ -8,8 +9,8 @@ public class MenuRoom : ConnectionRoom
     public MenuRoom(IConnectionManager connectionManager, RoomManager roomManager)
         : base(connectionManager, roomManager) { }
 
-    public override AbstractRoomStateDto RoomState => new MenuStateDto
+    public override MenuStateDto RoomState => new()
     {
-        Lobbies = _roomManager.LobbyEntries
+        Lobbies = _roomManager.Lobbies.Select(l => l.ToDto()).ToList()
     };
 }

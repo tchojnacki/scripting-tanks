@@ -1,6 +1,6 @@
 using Backend.Services;
 using Backend.Identifiers;
-using Backend.Contracts.Data;
+using Backend.Utils.Mappers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
@@ -22,7 +22,7 @@ public class RoomManager
         _gameRooms = new();
     }
 
-    public IReadOnlyList<LobbyDto> LobbyEntries => _gameRooms.Values.Select(r => r.LobbyData).ToList();
+    public IEnumerable<GameRoom> Lobbies => _gameRooms.Values;
 
     public async Task CloseLobbyAsync(GameRoom gameRoom)
     {
@@ -31,49 +31,8 @@ public class RoomManager
             _gameRooms.Remove(gameRoom.Lid);
             await _menuRoom.BroadcastMessageAsync(new LobbyRemovedServerMessage { Data = gameRoom.Lid.Value });
         }
-        await Task.WhenAll(gameRoom.Players.Select(p => _menuRoom.HandleOnJoinAsync(CID.From(p.Cid))));
+        await Task.WhenAll(gameRoom.Players.Select(p => _menuRoom.HandleOnJoinAsync(p.Cid)));
     }
-
-    private ConnectionRoom? RoomContaining(CID cid)
-        => new ConnectionRoom[] { _menuRoom }
-            .Concat(_gameRooms.Values.AsEnumerable())
-            .FirstOrDefault(r => r.HasPlayer(cid));
-
-    private Task UpsertLobbyAsync(GameRoom gameRoom) => _menuRoom.BroadcastMessageAsync(
-        new UpsertLobbyServerMessage { Data = gameRoom.LobbyData }
-    );
-
-    private async Task SwitchRoomAsync(CID cid, ConnectionRoom? newRoom)
-    {
-        var previousRoom = RoomContaining(cid);
-
-        if (previousRoom is not null)
-        {
-            await previousRoom.HandleOnLeaveAsync(cid);
-            if (previousRoom is GameRoom gr && gr.RealPlayerCount > 0)
-                await UpsertLobbyAsync(gr);
-        }
-
-        if (newRoom is not null)
-        {
-            await newRoom.HandleOnJoinAsync(cid);
-            if (newRoom is GameRoom gr)
-                await UpsertLobbyAsync(gr);
-        }
-    }
-
-    private async Task CreateLobbyAsync(CID cid)
-    {
-        var lid = LID.From("LID$" + Guid.NewGuid().ToString());
-        var name = $"{_connectionManager.PlayerData(cid).Name}'s Game";
-        _gameRooms[lid] = new(_connectionManager, this, cid, lid, name);
-        await UpsertLobbyAsync(_gameRooms[lid]);
-        await JoinGameRoomAsync(cid, lid);
-    }
-
-    private Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
-
-    private Task KickPlayerAsync(CID cid) => SwitchRoomAsync(cid, null);
 
     public bool CanPlayerCustomize(CID cid) => RoomContaining(cid) == _menuRoom;
 
@@ -102,4 +61,45 @@ public class RoomManager
                 break;
         }
     }
+
+    private ConnectionRoom? RoomContaining(CID cid)
+        => new ConnectionRoom[] { _menuRoom }
+            .Concat(_gameRooms.Values.AsEnumerable())
+            .FirstOrDefault(r => r.HasPlayer(cid));
+
+    private Task UpsertLobbyAsync(GameRoom gameRoom) => _menuRoom.BroadcastMessageAsync(
+        new UpsertLobbyServerMessage { Data = gameRoom.ToDto() }
+    );
+
+    private async Task SwitchRoomAsync(CID cid, ConnectionRoom? newRoom)
+    {
+        var previousRoom = RoomContaining(cid);
+
+        if (previousRoom is not null)
+        {
+            await previousRoom.HandleOnLeaveAsync(cid);
+            if (previousRoom is GameRoom gr && gr.RealPlayerCount > 0)
+                await UpsertLobbyAsync(gr);
+        }
+
+        if (newRoom is not null)
+        {
+            await newRoom.HandleOnJoinAsync(cid);
+            if (newRoom is GameRoom gr)
+                await UpsertLobbyAsync(gr);
+        }
+    }
+
+    private async Task CreateLobbyAsync(CID cid)
+    {
+        var lid = LID.From("LID$" + Guid.NewGuid().ToString());
+        var name = $"{_connectionManager.PlayerData(cid).DisplayName}'s Game";
+        _gameRooms[lid] = new(_connectionManager, this, cid, lid, name);
+        await UpsertLobbyAsync(_gameRooms[lid]);
+        await JoinGameRoomAsync(cid, lid);
+    }
+
+    private Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
+
+    private Task KickPlayerAsync(CID cid) => SwitchRoomAsync(cid, null);
 }

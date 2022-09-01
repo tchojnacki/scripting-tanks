@@ -1,5 +1,6 @@
 using Backend.Services;
 using Backend.Identifiers;
+using Backend.Domain;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages.Server;
 using Backend.Rooms.States;
@@ -8,6 +9,8 @@ namespace Backend.Rooms;
 
 public class GameRoom : ConnectionRoom
 {
+    private static readonly Random Rand = new();
+
     private readonly GameState _gameState;
 
     public GameRoom(
@@ -27,8 +30,11 @@ public class GameRoom : ConnectionRoom
     public LID Lid { get; }
     public string Name { get; }
     public CID Owner { get; private set; }
-    public int RealPlayerCount => _playerIds.Count; // TODO
-    public IReadOnlyList<PlayerDto> Players => _playerIds.Select(cid => _connectionManager.PlayerData(cid)).ToList();
+
+    public int RealPlayerCount => _playerIds.Count;
+    public IEnumerable<ConnectionData> Players
+        => _playerIds.Select(cid => _connectionManager.PlayerData(cid));
+    public string Location => _gameState.RoomState.Location;
 
     public override AbstractGameStateDto RoomState => _gameState.RoomState;
 
@@ -46,7 +52,7 @@ public class GameRoom : ConnectionRoom
         {
             if (RealPlayerCount > 0)
             {
-                Owner = _playerIds.First(); // TODO
+                Owner = _playerIds.ElementAt(Rand.Next(_playerIds.Count));
                 await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = Owner.Value });
             }
             else
@@ -55,12 +61,4 @@ public class GameRoom : ConnectionRoom
             }
         }
     }
-
-    public LobbyDto LobbyData => new()
-    {
-        Lid = Lid.Value,
-        Name = Name,
-        Players = _playerIds.Count,
-        Location = _gameState.RoomState.Location,
-    };
 }

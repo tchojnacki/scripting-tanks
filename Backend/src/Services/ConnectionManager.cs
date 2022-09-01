@@ -37,13 +37,14 @@ public class ConnectionManager : IConnectionManager
         _logger.LogInformation("Connected: {cid}", cid);
         var connection = new ConnectionData
         {
+            Cid = cid,
             Socket = socket,
             DisplayName = _customizationProvider.AssignDisplayName(),
             Colors = _customizationProvider.AssignTankColors()
         };
 
         _activeConnections[cid] = connection;
-        await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = connection.ToDto(cid) });
+        await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = connection.ToDto() });
         await _roomManager.HandleOnConnectAsync(cid);
     }
 
@@ -62,12 +63,12 @@ public class ConnectionManager : IConnectionManager
         {
             case RerollNameClientMessage when _roomManager.CanPlayerCustomize(cid):
                 con.DisplayName = _customizationProvider.AssignDisplayName();
-                await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto(cid) });
+                await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
                 break;
 
             case CustomizeColorsClientMessage { Data: var dto } when _roomManager.CanPlayerCustomize(cid):
                 con.Colors = dto.Colors.ToDomain();
-                await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto(cid) });
+                await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
                 break;
 
             default:
@@ -87,7 +88,7 @@ public class ConnectionManager : IConnectionManager
             CancellationToken.None);
     }
 
-    public PlayerDto PlayerData(CID cid) => _activeConnections[cid].ToDto(cid);
+    public ConnectionData PlayerData(CID cid) => _activeConnections[cid];
 
     public async Task AcceptConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken)
     {

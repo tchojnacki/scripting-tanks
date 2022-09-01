@@ -1,3 +1,4 @@
+using Backend.Utils.Mappers;
 using Backend.Contracts.Data;
 
 namespace Backend.Rooms.States;
@@ -10,6 +11,6 @@ public class WaitingGameState : GameState
     {
         Name = _gameRoom.Name,
         Owner = _gameRoom.Owner.Value,
-        Players = _gameRoom.Players,
+        Players = _gameRoom.Players.Select(p => p.ToDto()).ToList(),
     };
 }
