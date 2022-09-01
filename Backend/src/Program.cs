@@ -4,6 +4,12 @@ using Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.ConfigureLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+});
+
 builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "3000"}");
 
 builder.Services.AddDirectoryBrowser();

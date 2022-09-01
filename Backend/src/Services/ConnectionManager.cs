@@ -16,19 +16,25 @@ public class ConnectionManager : IConnectionManager
 
     private readonly ICustomizationProvider _customizationProvider;
     private readonly IMessageSerializer _messageSerializer;
+    private readonly ILogger<ConnectionManager> _logger;
 
     private readonly RoomManager _roomManager;
 
-    public ConnectionManager(ICustomizationProvider customizationProvider, IMessageSerializer messageSerializer)
+    public ConnectionManager(
+        ICustomizationProvider customizationProvider,
+        IMessageSerializer messageSerializer,
+        ILogger<ConnectionManager> logger)
     {
         _customizationProvider = customizationProvider;
         _messageSerializer = messageSerializer;
+        _logger = logger;
 
         _roomManager = new(this);
     }
 
     private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
     {
+        _logger.LogInformation("Connected: {cid}", cid);
         var connection = new ConnectionData
         {
             Socket = socket,
@@ -43,12 +49,14 @@ public class ConnectionManager : IConnectionManager
 
     private async Task HandleOnDisconnectAsync(CID cid)
     {
+        _logger.LogInformation("Disconnected: {cid}", cid);
         _activeConnections.Remove(cid);
         await _roomManager.HandleOnDisconnectAsync(cid);
     }
 
     private async Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
     {
+        _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
         var con = _activeConnections[cid];
         switch (message)
         {
@@ -70,6 +78,7 @@ public class ConnectionManager : IConnectionManager
 
     public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
     {
+        _logger.LogDebug("Outbound message for {cid}:\n{message}", cid, message);
         var buffer = _messageSerializer.SerializeServerMessage(message);
         await _activeConnections[cid].Socket.SendAsync(
             new ArraySegment<byte>(buffer),
@@ -99,9 +108,10 @@ public class ConnectionManager : IConnectionManager
                     await HandleOnMessageAsync(cid, message);
             }
         }
-        catch
+        catch (Exception exception)
         {
-            Console.WriteLine("Socket connection ended abruptly.");
+            _logger.LogWarning("Socket connection ended abruptly.");
+            _logger.LogDebug("{exception}", exception);
         }
         finally
         {
