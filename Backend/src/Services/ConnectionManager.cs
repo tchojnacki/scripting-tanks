@@ -2,6 +2,7 @@ using System.Net.WebSockets;
 using Backend.Domain;
 using Backend.Rooms;
 using Backend.Identifiers;
+using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
@@ -51,12 +52,12 @@ public class ConnectionManager : IConnectionManager
         var con = _activeConnections[cid];
         switch (message)
         {
-            case RerollNameClientMessage when _roomManager.PlayerCanCustomize(cid):
+            case RerollNameClientMessage when _roomManager.CanPlayerCustomize(cid):
                 con.DisplayName = _customizationProvider.AssignDisplayName();
                 await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto(cid) });
                 break;
 
-            case CustomizeColorsClientMessage { Data: var dto } when _roomManager.PlayerCanCustomize(cid):
+            case CustomizeColorsClientMessage { Data: var dto } when _roomManager.CanPlayerCustomize(cid):
                 con.Colors = dto.Colors.ToDomain();
                 await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto(cid) });
                 break;
@@ -70,13 +71,14 @@ public class ConnectionManager : IConnectionManager
     public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
     {
         var buffer = _messageSerializer.SerializeServerMessage(message);
-
         await _activeConnections[cid].Socket.SendAsync(
             new ArraySegment<byte>(buffer),
             WebSocketMessageType.Text,
             true,
             CancellationToken.None);
     }
+
+    public PlayerDto PlayerData(CID cid) => _activeConnections[cid].ToDto(cid);
 
     public async Task AcceptConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken)
     {

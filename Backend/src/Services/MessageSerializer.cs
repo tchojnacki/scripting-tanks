@@ -42,5 +42,9 @@ public class MessageSerializer : IMessageSerializer
     }
 
     public byte[] SerializeServerMessage<T>(IServerMessage<T> message)
-        => JsonSerializer.SerializeToUtf8Bytes(message, SerializerOptions);
+        => JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            message.Tag,
+            Data = (object?)message.Data
+        }, SerializerOptions);
 }
