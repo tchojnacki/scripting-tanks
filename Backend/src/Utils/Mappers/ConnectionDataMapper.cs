@@ -10,6 +10,6 @@ public static class ConnectionDataMapper
         Cid = model.Cid.Value,
         Name = model.DisplayName,
         Colors = model.Colors.ToDto(),
-        Bot = false
+        Bot = model.IsBot
     };
 }

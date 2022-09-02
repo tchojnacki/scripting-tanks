@@ -17,12 +17,12 @@ import { nameAbbr } from "../utils/nameAbbr"
 import { useSocketContext } from "../utils/socketContext"
 import { Tank } from "./Tank"
 import { sample, isEqual } from "lodash"
-import { TankColors } from "../utils/dtos"
+import { TankColorsDto } from "../utils/dtos"
 
 const TANK_ROT_SPEED = 0.5
 const BARREL_ROT_SPEED = 0.6
 
-function DisplayTank({ colors }: { colors: TankColors }) {
+function DisplayTank({ colors }: { colors: TankColorsDto }) {
   const [pitch, setPitch] = useState(0)
   const [barrel, setBarrel] = useState(0)
 
@@ -60,8 +60,8 @@ export function PlayerInfo({ compact, unmutable }: PlayerInfoProps) {
   const { sendMessage } = useSocketContext()
   const { name, colors } = useIdentity()
 
-  const setColors = (newColors: TankColors) => {
-    if (!isEqual(colors, newColors)) sendMessage("c-customize-colors", { colors: newColors })
+  const setColors = (newColors: TankColorsDto) => {
+    if (!isEqual(colors, newColors)) sendMessage("c-customize-colors", newColors)
   }
   const setTankColor = (color: string) => setColors([color, colors[1]])
   const setTurretColor = (color: string) => setColors([colors[0], color])

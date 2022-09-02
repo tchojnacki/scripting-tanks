@@ -10,9 +10,9 @@ public class CustomizationProvider : ICustomizationProvider
     public string AssignDisplayName()
         => $"{AnimalAdjectives[Rand.Next(AnimalAdjectives.Count)]} {AnimalNames[Rand.Next(AnimalNames.Count)]}";
 
-    public TankColors AssignTankColors()
+    private static TankColors TankColorHelper(Random random)
     {
-        var hue = Rand.NextDouble() * 360;
+        var hue = random.NextDouble() * 360;
         var (r, g, b) = ColorUtils.HslToRgb(hue, 0.75, 0.5);
         var color = ColorUtils.RgbToString(r, g, b);
 
@@ -22,6 +22,12 @@ public class CustomizationProvider : ICustomizationProvider
             TurretColor = color
         };
     }
+
+    public TankColors AssignTankColors()
+        => TankColorHelper(Rand);
+
+    public TankColors AssignTankColors(int seed)
+        => TankColorHelper(new Random(seed));
 
     private static readonly IReadOnlyList<string> AnimalNames = new List<string>()
     {

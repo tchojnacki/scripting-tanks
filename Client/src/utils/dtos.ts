@@ -1,14 +1,10 @@
-export type TankColors = [string, string]
+export type TankColorsDto = [string, string]
 
 export interface PlayerDataDto {
   cid: string
   name: string
-  colors: TankColors
+  colors: TankColorsDto
   bot: boolean
-}
-
-export interface CustomColorsDto {
-  colors: TankColors
 }
 
 export interface TankDataDto {
@@ -16,7 +12,7 @@ export interface TankDataDto {
   eid: string
   cid: string
   name?: string
-  colors: TankColors
+  colors: TankColorsDto
   pos: [number, number, number]
   pitch: number
   barrel: number

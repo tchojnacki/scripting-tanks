@@ -1,10 +1,4 @@
-import {
-  CustomColorsDto,
-  FullRoomStateDto,
-  InputAxesDto,
-  LobbyDataDto,
-  PlayerDataDto,
-} from "./dtos"
+import { FullRoomStateDto, InputAxesDto, LobbyDataDto, PlayerDataDto, TankColorsDto } from "./dtos"
 
 export type ServerMessageDataMap = {
   "s-assign-identity": PlayerDataDto
@@ -18,7 +12,7 @@ export type ServerMessageDataMap = {
 
 export type ClientMessageDataMap = {
   "c-reroll-name": null
-  "c-customize-colors": CustomColorsDto
+  "c-customize-colors": TankColorsDto
   "c-create-lobby": null
   "c-enter-lobby": string
   "c-leave-lobby": null

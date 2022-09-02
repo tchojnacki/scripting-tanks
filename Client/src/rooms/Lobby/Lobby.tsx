@@ -41,7 +41,7 @@ export function Lobby() {
     <StandardLayout
       title={roomState.name}
       headerRight={
-        roomState.players.length > 1 && (
+        roomState.players.filter(p => !p.bot).length > 1 && (
           <Button
             color="orange"
             leftIcon={<DoorExit size={16} />}

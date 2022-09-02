@@ -2,7 +2,6 @@ using System.Net.WebSockets;
 using Backend.Domain;
 using Backend.Rooms;
 using Backend.Identifiers;
-using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
@@ -13,6 +12,7 @@ namespace Backend.Services;
 public class ConnectionManager : IConnectionManager
 {
     private readonly Dictionary<CID, ConnectionData> _activeConnections = new();
+    private readonly HashSet<CID> _bots = new();
 
     private readonly ICustomizationProvider _customizationProvider;
     private readonly IMessageSerializer _messageSerializer;
@@ -55,47 +55,74 @@ public class ConnectionManager : IConnectionManager
         await _roomManager.HandleOnDisconnectAsync(cid);
     }
 
+    private async Task RerollClientName(CID cid)
+    {
+        var con = _activeConnections[cid];
+        con.DisplayName = _customizationProvider.AssignDisplayName();
+        await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
+    }
+
+    private async Task CustomizeColors(CID cid, TankColors colors)
+    {
+        var con = _activeConnections[cid];
+        con.Colors = colors;
+        await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
+    }
+
     private async Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
     {
         _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
-        var con = _activeConnections[cid];
-        switch (message)
+        await (message switch
         {
-            case RerollNameClientMessage when _roomManager.CanPlayerCustomize(cid):
-                con.DisplayName = _customizationProvider.AssignDisplayName();
-                await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
-                break;
+            RerollNameClientMessage when _roomManager.CanPlayerCustomize(cid)
+                => RerollClientName(cid),
+            CustomizeColorsClientMessage { Data: var dto } when _roomManager.CanPlayerCustomize(cid)
+                => CustomizeColors(cid, dto.ToDomain()),
+            _ => _roomManager.HandleOnMessageAsync(cid, message)
+        });
+    }
 
-            case CustomizeColorsClientMessage { Data: var dto } when _roomManager.CanPlayerCustomize(cid):
-                con.Colors = dto.Colors.ToDomain();
-                await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
-                break;
-
-            default:
-                await _roomManager.HandleOnMessageAsync(cid, message);
-                break;
-        }
+    public async Task<CID> AddBotAsync()
+    {
+        var cid = CID.From("CID$" + Guid.NewGuid());
+        _bots.Add(cid);
+        await _roomManager.HandleOnConnectAsync(cid);
+        return cid;
     }
 
     public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
     {
+        if (!_activeConnections.ContainsKey(cid)) return;
         _logger.LogDebug("Outbound message for {cid}:\n{message}", cid, message);
         var buffer = _messageSerializer.SerializeServerMessage(message);
-        await _activeConnections[cid].Socket.SendAsync(
+        await _activeConnections[cid].Socket!.SendAsync(
             new ArraySegment<byte>(buffer),
             WebSocketMessageType.Text,
             true,
             CancellationToken.None);
     }
 
-    public ConnectionData PlayerData(CID cid) => _activeConnections[cid];
+    public ConnectionData PlayerData(CID cid)
+    {
+        if (_bots.Contains(cid))
+        {
+            return new()
+            {
+                Cid = cid,
+                Socket = null,
+                DisplayName = "BOT",
+                Colors = _customizationProvider.AssignTankColors(cid.Value.GetHashCode())
+            };
+        }
+
+        return _activeConnections[cid];
+    }
 
     public async Task AcceptConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken)
     {
         await HandleOnConnectAsync(cid, socket);
 
         var buffer = new byte[4096];
-
         try
         {
             while (true)

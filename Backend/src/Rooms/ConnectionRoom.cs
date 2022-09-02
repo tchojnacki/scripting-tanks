@@ -35,6 +35,8 @@ public abstract class ConnectionRoom
         return Task.CompletedTask;
     }
 
+    public virtual Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message) => Task.CompletedTask;
+
     public Task BroadcastMessageAsync<T>(IServerMessage<T> message)
         => Task.WhenAll(_playerIds.Select(cid => _connectionManager.SendToSingleAsync(cid, message)));
 }

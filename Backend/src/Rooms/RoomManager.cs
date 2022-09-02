@@ -42,25 +42,24 @@ public class RoomManager
 
     public async Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
     {
-        var room = RoomContaining(cid);
-        switch (message)
+        var room = RoomContaining(cid)!;
+
+        await (message switch
         {
-            case CreateLobbyClientMessage when room == _menuRoom:
-                await CreateLobbyAsync(cid);
-                break;
-
-            case EnterLobbyClientMessage { Data: var lidString } when room == _menuRoom:
-                await JoinGameRoomAsync(cid, LID.From(lidString));
-                break;
-
-            case LeaveLobbyClientMessage when room != _menuRoom:
-                await KickPlayerAsync(cid);
-                break;
-
-            default:
-                break;
-        }
+            CreateLobbyClientMessage when room == _menuRoom
+                => CreateLobbyAsync(cid),
+            EnterLobbyClientMessage { Data: var lidString } when room == _menuRoom
+                => JoinGameRoomAsync(cid, LID.From(lidString)),
+            LeaveLobbyClientMessage when room != _menuRoom
+                => KickPlayerAsync(cid),
+            _ => room.HandleOnMessageAsync(cid, message)
+        });
     }
+
+    public Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
+
+    public Task KickPlayerAsync(CID cid)
+        => SwitchRoomAsync(cid, _connectionManager.PlayerData(cid).IsBot ? null : _menuRoom);
 
     private ConnectionRoom? RoomContaining(CID cid)
         => new ConnectionRoom[] { _menuRoom }
@@ -78,7 +77,7 @@ public class RoomManager
         if (previousRoom is not null)
         {
             await previousRoom.HandleOnLeaveAsync(cid);
-            if (previousRoom is GameRoom gr && gr.RealPlayerCount > 0)
+            if (previousRoom is GameRoom gr && gr.RealPlayers.Any())
                 await UpsertLobbyAsync(gr);
         }
 
@@ -92,14 +91,10 @@ public class RoomManager
 
     private async Task CreateLobbyAsync(CID cid)
     {
-        var lid = LID.From("LID$" + Guid.NewGuid().ToString());
+        var lid = LID.From("LID$" + Guid.NewGuid());
         var name = $"{_connectionManager.PlayerData(cid).DisplayName}'s Game";
         _gameRooms[lid] = new(_connectionManager, this, cid, lid, name);
         await UpsertLobbyAsync(_gameRooms[lid]);
         await JoinGameRoomAsync(cid, lid);
     }
-
-    private Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
-
-    private Task KickPlayerAsync(CID cid) => SwitchRoomAsync(cid, null);
 }

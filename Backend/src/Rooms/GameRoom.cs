@@ -2,6 +2,7 @@ using Backend.Services;
 using Backend.Identifiers;
 using Backend.Domain;
 using Backend.Contracts.Data;
+using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Rooms.States;
 
@@ -31,12 +32,40 @@ public class GameRoom : ConnectionRoom
     public string Name { get; }
     public CID Owner { get; private set; }
 
-    public int RealPlayerCount => _playerIds.Count;
     public IEnumerable<ConnectionData> Players
         => _playerIds.Select(cid => _connectionManager.PlayerData(cid));
+    public IEnumerable<ConnectionData> RealPlayers
+        => Players.Where(p => !p.IsBot);
     public string Location => _gameState.RoomState.Location;
 
     public override AbstractGameStateDto RoomState => _gameState.RoomState;
+
+    public ConnectionData PlayerData(CID cid) => _connectionManager.PlayerData(cid);
+
+    public Task StartGameAsync() => Task.CompletedTask;
+
+    public Task CloseLobbyAsync() => _roomManager.CloseLobbyAsync(this);
+
+    public async Task PromoteAsync(CID cid)
+    {
+        if (HasPlayer(cid) && !_connectionManager.PlayerData(cid).IsBot)
+        {
+            Owner = cid;
+            await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = Owner.Value });
+        }
+    }
+
+    public async Task KickAsync(CID cid)
+    {
+        if (HasPlayer(cid))
+            await _roomManager.KickPlayerAsync(cid);
+    }
+
+    public async Task AddBotAsync()
+    {
+        var cid = await _connectionManager.AddBotAsync();
+        await _roomManager.JoinGameRoomAsync(cid, Lid);
+    }
 
     public override async Task HandleOnJoinAsync(CID cid)
     {
@@ -50,9 +79,10 @@ public class GameRoom : ConnectionRoom
         await _gameState.HandleOnLeaveAsync(cid);
         if (cid == Owner)
         {
-            if (RealPlayerCount > 0)
+            var ownerCandidates = RealPlayers.Select(p => p.Cid).ToList();
+            if (ownerCandidates.Any())
             {
-                Owner = _playerIds.ElementAt(Rand.Next(_playerIds.Count));
+                Owner = ownerCandidates.ElementAt(Rand.Next(ownerCandidates.Count));
                 await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = Owner.Value });
             }
             else
@@ -61,4 +91,7 @@ public class GameRoom : ConnectionRoom
             }
         }
     }
+
+    public override Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
+        => _gameState.HandleOnMessageAsync(cid, message);
 }

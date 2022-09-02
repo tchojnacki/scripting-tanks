@@ -2,8 +2,8 @@ using Backend.Contracts.Data;
 
 namespace Backend.Contracts.Messages.Client;
 
-public record CustomizeColorsClientMessage : IClientMessage<ColorCustomizationDto>
+public record CustomizeColorsClientMessage : IClientMessage<TankColorsDto>
 {
     public string Tag => "c-customize-colors";
-    public ColorCustomizationDto Data { get; init; } = default!;
+    public TankColorsDto Data { get; init; } = default!;
 }
