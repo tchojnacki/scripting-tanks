@@ -4,6 +4,7 @@ using Backend.Utils.Mappings;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
+using Backend.Utils.Common;
 
 namespace Backend.Rooms;
 
@@ -90,7 +91,7 @@ public class RoomManager
 
     private async Task CreateLobbyAsync(CID cid)
     {
-        var lid = LID.From("LID$" + Guid.NewGuid());
+        var lid = LID.From("LID$" + HashUtils.RandomHash());
         var name = $"{_connectionManager.DataFor(cid).Name}'s Game";
         _gameRooms[lid] = new(_connectionManager, this, cid, lid, name);
         await UpsertLobbyAsync(_gameRooms[lid]);

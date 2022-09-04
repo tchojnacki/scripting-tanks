@@ -6,6 +6,7 @@ using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
 using Backend.Utils.Mappings;
+using Backend.Utils.Common;
 
 namespace Backend.Services;
 
@@ -84,7 +85,7 @@ public class ConnectionManager : IConnectionManager
 
     public async Task<CID> AddBotAsync()
     {
-        var cid = CID.From("CID$" + Guid.NewGuid());
+        var cid = CID.From("CID$" + HashUtils.RandomHash());
         _bots.Add(cid);
         await _roomManager.HandleOnConnectAsync(cid);
         return cid;

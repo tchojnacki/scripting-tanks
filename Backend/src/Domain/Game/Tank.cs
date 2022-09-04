@@ -1,6 +1,7 @@
 using Backend.Identifiers;
 using Backend.Rooms.States;
 using Backend.Domain.Game.AI;
+using Backend.Utils.Common;
 
 namespace Backend.Domain.Game;
 
@@ -19,7 +20,7 @@ public class Tank : Entity
         Vector pos,
         double pitch) : base(
             world: world,
-            eid: EID.From("EID$" + playerData.Cid),
+            eid: EID.From("EID$" + HashUtils.Hash(playerData.Cid.Value)),
             pos: pos,
             radius: TankRadius,
             mass: TankMass)

@@ -1,4 +1,4 @@
-namespace Backend.Utils;
+namespace Backend.Utils.Common;
 
 public static class ColorUtils
 {
