@@ -5,11 +5,11 @@ namespace Backend.Utils.Mappers;
 
 public static class GameRoomMapper
 {
-    public static LobbyDto ToDto(this GameRoom model) => new()
+    public static LobbyDto ToDto(this GameRoom room) => new()
     {
-        Lid = model.Lid.Value,
-        Name = model.Name,
-        Players = model.Players.Count(),
-        Location = model.Location,
+        Lid = room.Lid.Value,
+        Name = room.Name,
+        Players = room.Players.Count(),
+        Location = room.Location,
     };
 }

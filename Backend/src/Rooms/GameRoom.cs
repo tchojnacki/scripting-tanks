@@ -12,7 +12,7 @@ public class GameRoom : ConnectionRoom
 {
     private static readonly Random Rand = new();
 
-    private readonly GameState _gameState;
+    private GameState _gameState;
 
     public GameRoom(
         IConnectionManager connectionManager,
@@ -42,7 +42,18 @@ public class GameRoom : ConnectionRoom
 
     public ConnectionData PlayerData(CID cid) => _connectionManager.PlayerData(cid);
 
-    public Task StartGameAsync() => Task.CompletedTask;
+    private async Task SwitchStateAsync<TFrom>(GameState newState)
+        where TFrom : GameState
+    {
+        if (_gameState is TFrom)
+        {
+            _gameState = newState;
+            await BroadcastMessageAsync(new RoomStateServerMessage { Data = RoomState });
+            await _roomManager.UpsertLobbyAsync(this);
+        }
+    }
+
+    public Task StartGameAsync() => SwitchStateAsync<WaitingGameState>(new PlayingGameState(this));
 
     public Task CloseLobbyAsync() => _roomManager.CloseLobbyAsync(this);
 

@@ -5,10 +5,10 @@ namespace Backend.Utils.Mappers;
 
 public static class TankColorsMapper
 {
-    public static TankColorsDto ToDto(this TankColors model) => new()
+    public static TankColorsDto ToDto(this TankColors colors) => new()
     {
-        TankColor = model.TankColor,
-        TurretColor = model.TurretColor
+        TankColor = colors.TankColor,
+        TurretColor = colors.TurretColor
     };
 
     public static TankColors ToDomain(this TankColorsDto dto) => new()

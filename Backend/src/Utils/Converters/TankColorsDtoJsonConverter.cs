@@ -19,7 +19,7 @@ public class TankColorsDtoJsonConverter : JsonConverter<TankColorsDto>
         reader.Read();
         if (reader.TokenType != JsonTokenType.EndArray) throw new JsonException();
 
-        return new TankColorsDto
+        return new()
         {
             TankColor = tankColor,
             TurretColor = turretColor

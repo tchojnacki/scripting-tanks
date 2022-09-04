@@ -61,14 +61,13 @@ public class RoomManager
     public Task KickPlayerAsync(CID cid)
         => SwitchRoomAsync(cid, _connectionManager.PlayerData(cid).IsBot ? null : _menuRoom);
 
+    public Task UpsertLobbyAsync(GameRoom gameRoom) => _menuRoom.BroadcastMessageAsync(
+        new UpsertLobbyServerMessage { Data = gameRoom.ToDto() });
+
     private ConnectionRoom? RoomContaining(CID cid)
         => new ConnectionRoom[] { _menuRoom }
             .Concat(_gameRooms.Values.AsEnumerable())
             .FirstOrDefault(r => r.HasPlayer(cid));
-
-    private Task UpsertLobbyAsync(GameRoom gameRoom) => _menuRoom.BroadcastMessageAsync(
-        new UpsertLobbyServerMessage { Data = gameRoom.ToDto() }
-    );
 
     private async Task SwitchRoomAsync(CID cid, ConnectionRoom? newRoom)
     {
