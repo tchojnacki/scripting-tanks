@@ -1,6 +1,6 @@
 using Backend.Services;
 using Backend.Contracts.Data;
-using Backend.Utils.Mappers;
+using Backend.Utils.Mappings;
 
 namespace Backend.Rooms;
 

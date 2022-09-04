@@ -3,7 +3,7 @@ using Backend.Rooms.States;
 
 namespace Backend.Domain.Game.AI;
 
-public class SimpleAI : AbstractAI
+public class SimpleAI : TankAI
 {
     public SimpleAI(EID eid, PlayingGameState world) : base(eid, world) { }
 }

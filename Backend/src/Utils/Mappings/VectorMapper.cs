@@ -1,7 +1,7 @@
 using Backend.Contracts.Data;
 using Backend.Domain.Game;
 
-namespace Backend.Utils.Mappers;
+namespace Backend.Utils.Mappings;
 
 public static class VectorMapper
 {

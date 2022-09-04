@@ -1,7 +1,7 @@
 using Backend.Contracts.Data;
 using Backend.Rooms;
 
-namespace Backend.Utils.Mappers;
+namespace Backend.Utils.Mappings;
 
 public static class GameRoomMapper
 {

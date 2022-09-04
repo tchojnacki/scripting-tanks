@@ -1,7 +1,7 @@
 using Backend.Contracts.Data;
 using Backend.Domain.Game;
 
-namespace Backend.Utils.Mappers;
+namespace Backend.Utils.Mappings;
 
 public static class EntityMapper
 {
@@ -16,7 +16,7 @@ public static class EntityMapper
         Eid = tank.Eid.Value,
         Pos = tank.Pos.ToDto(),
         Cid = tank.PlayerData.Cid.Value,
-        Name = tank.PlayerData.DisplayName,
+        Name = tank.PlayerData.Name,
         Colors = tank.PlayerData.Colors.ToDto(),
         Pitch = tank.Pitch,
         Barrel = tank.BarrelTarget

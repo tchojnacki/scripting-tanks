@@ -32,15 +32,13 @@ public class GameRoom : ConnectionRoom
     public string Name { get; }
     public CID Owner { get; private set; }
 
-    public IEnumerable<ConnectionData> Players
-        => _playerIds.Select(cid => _connectionManager.PlayerData(cid));
-    public IEnumerable<ConnectionData> RealPlayers
-        => Players.Where(p => !p.IsBot);
+    public IEnumerable<PlayerData> Players => _playerIds.Select(cid => _connectionManager.DataFor(cid));
+    public IEnumerable<PlayerData> RealPlayers => Players.Where(p => !p.IsBot);
     public string Location => _gameState.RoomState.Location;
 
     public override AbstractRoomStateDto RoomState => _gameState.RoomState;
 
-    public ConnectionData PlayerData(CID cid) => _connectionManager.PlayerData(cid);
+    public PlayerData DataFor(CID cid) => _connectionManager.DataFor(cid);
 
     private async Task SwitchStateAsync<TFrom>(GameState newState)
         where TFrom : GameState
@@ -59,7 +57,7 @@ public class GameRoom : ConnectionRoom
 
     public async Task PromoteAsync(CID cid)
     {
-        if (HasPlayer(cid) && !_connectionManager.PlayerData(cid).IsBot)
+        if (HasPlayer(cid) && !_connectionManager.DataFor(cid).IsBot)
         {
             Owner = cid;
             await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = Owner.Value });

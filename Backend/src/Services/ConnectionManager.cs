@@ -5,13 +5,13 @@ using Backend.Identifiers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
-using Backend.Utils.Mappers;
+using Backend.Utils.Mappings;
 
 namespace Backend.Services;
 
 public class ConnectionManager : IConnectionManager
 {
-    private readonly Dictionary<CID, ConnectionData> _activeConnections = new();
+    private readonly Dictionary<CID, PlayerData> _activeConnections = new();
     private readonly HashSet<CID> _bots = new();
 
     private readonly ICustomizationProvider _customizationProvider;
@@ -35,11 +35,11 @@ public class ConnectionManager : IConnectionManager
     private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
     {
         _logger.LogInformation("Connected: {cid}", cid);
-        var connection = new ConnectionData
+        var connection = new PlayerData
         {
             Cid = cid,
             Socket = socket,
-            DisplayName = _customizationProvider.AssignDisplayName(),
+            Name = _customizationProvider.AssignDisplayName(),
             Colors = _customizationProvider.AssignTankColors()
         };
 
@@ -58,7 +58,7 @@ public class ConnectionManager : IConnectionManager
     private async Task RerollClientName(CID cid)
     {
         var con = _activeConnections[cid];
-        con.DisplayName = _customizationProvider.AssignDisplayName();
+        con.Name = _customizationProvider.AssignDisplayName();
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
     }
 
@@ -102,7 +102,7 @@ public class ConnectionManager : IConnectionManager
             CancellationToken.None);
     }
 
-    public ConnectionData PlayerData(CID cid)
+    public PlayerData DataFor(CID cid)
     {
         if (_bots.Contains(cid))
         {
@@ -110,7 +110,7 @@ public class ConnectionManager : IConnectionManager
             {
                 Cid = cid,
                 Socket = null,
-                DisplayName = "BOT",
+                Name = "BOT",
                 Colors = _customizationProvider.AssignTankColors(cid.Value.GetHashCode())
             };
         }

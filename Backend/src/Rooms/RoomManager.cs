@@ -1,6 +1,6 @@
 using Backend.Services;
 using Backend.Identifiers;
-using Backend.Utils.Mappers;
+using Backend.Utils.Mappings;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
@@ -59,7 +59,7 @@ public class RoomManager
     public Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
 
     public Task KickPlayerAsync(CID cid)
-        => SwitchRoomAsync(cid, _connectionManager.PlayerData(cid).IsBot ? null : _menuRoom);
+        => SwitchRoomAsync(cid, _connectionManager.DataFor(cid).IsBot ? null : _menuRoom);
 
     public Task UpsertLobbyAsync(GameRoom gameRoom) => _menuRoom.BroadcastMessageAsync(
         new UpsertLobbyServerMessage { Data = gameRoom.ToDto() });
@@ -91,7 +91,7 @@ public class RoomManager
     private async Task CreateLobbyAsync(CID cid)
     {
         var lid = LID.From("LID$" + Guid.NewGuid());
-        var name = $"{_connectionManager.PlayerData(cid).DisplayName}'s Game";
+        var name = $"{_connectionManager.DataFor(cid).Name}'s Game";
         _gameRooms[lid] = new(_connectionManager, this, cid, lid, name);
         await UpsertLobbyAsync(_gameRooms[lid]);
         await JoinGameRoomAsync(cid, lid);

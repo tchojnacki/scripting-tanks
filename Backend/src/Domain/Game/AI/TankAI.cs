@@ -3,12 +3,12 @@ using Backend.Rooms.States;
 
 namespace Backend.Domain.Game.AI;
 
-public abstract class AbstractAI
+public abstract class TankAI
 {
     protected readonly EID _eid;
     protected readonly PlayingGameState _world;
 
-    protected AbstractAI(EID eid, PlayingGameState world)
+    protected TankAI(EID eid, PlayingGameState world)
     {
         _eid = eid;
         _world = world;

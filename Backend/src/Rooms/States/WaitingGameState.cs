@@ -1,4 +1,4 @@
-using Backend.Utils.Mappers;
+using Backend.Utils.Mappings;
 using Backend.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
@@ -19,7 +19,7 @@ public class WaitingGameState : GameState
     };
 
     public override Task HandleOnJoinAsync(CID cid)
-        => _gameRoom.BroadcastMessageAsync(new NewPlayerServerMessage { Data = _gameRoom.PlayerData(cid).ToDto() });
+        => _gameRoom.BroadcastMessageAsync(new NewPlayerServerMessage { Data = _gameRoom.DataFor(cid).ToDto() });
 
     public override Task HandleOnLeaveAsync(CID cid)
         => _gameRoom.BroadcastMessageAsync(new PlayerLeftServerMessage { Data = cid.Value });

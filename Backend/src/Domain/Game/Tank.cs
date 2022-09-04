@@ -9,13 +9,13 @@ public class Tank : Entity
     private const double TankRadius = 64;
     private const double TankMass = 10_000;
 
-    private readonly AbstractAI? _ai;
+    private readonly TankAI? _ai;
     private double _barrelPitch;
     private long _lastShot;
 
     public Tank(
         PlayingGameState world,
-        ConnectionData playerData,
+        PlayerData playerData,
         Vector pos,
         double pitch) : base(
             world: world,
@@ -26,13 +26,13 @@ public class Tank : Entity
     {
         PlayerData = playerData;
         Pitch = pitch;
+        BarrelTarget = pitch;
         _barrelPitch = pitch;
         _lastShot = 0;
         _ai = playerData.IsBot ? new SimpleAI(Eid, world) : null;
-        BarrelTarget = pitch;
     }
 
-    public ConnectionData PlayerData { get; }
+    public PlayerData PlayerData { get; }
     public double Pitch { get; }
     public double BarrelTarget { get; }
     public InputAxes InputAxes { get; }

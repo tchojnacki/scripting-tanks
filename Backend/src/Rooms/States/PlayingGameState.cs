@@ -1,5 +1,5 @@
 using Backend.Identifiers;
-using Backend.Utils.Mappers;
+using Backend.Utils.Mappings;
 using Backend.Domain.Game;
 using Backend.Contracts.Data;
 
