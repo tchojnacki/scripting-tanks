@@ -4,9 +4,9 @@ using Backend.Utils.Converters;
 namespace Backend.Contracts.Data;
 
 [JsonConverter(typeof(VectorDtoJsonConverter))]
-public record VectorDto
+public readonly record struct VectorDto
 {
-    public double X { get; init; } = default!;
-    public double Y { get; init; } = default!;
-    public double Z { get; init; } = default!;
+    public readonly double X { get; init; }
+    public readonly double Y { get; init; }
+    public readonly double Z { get; init; }
 }

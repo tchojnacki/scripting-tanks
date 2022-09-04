@@ -1,7 +1,6 @@
 namespace Backend.Contracts.Messages.Client;
 
-public record RerollNameClientMessage : IClientMessage<object?>
+public record RerollNameClientMessage : IClientMessage
 {
     public string Tag => "c-reroll-name";
-    public object? Data { get; } = null;
 }

@@ -1,7 +1,6 @@
 namespace Backend.Contracts.Messages.Client;
 
-public record ShootClientMessage : IClientMessage<object?>
+public record ShootClientMessage : IClientMessage
 {
     public string Tag => "c-shoot";
-    public object? Data { get; } = null;
 }
