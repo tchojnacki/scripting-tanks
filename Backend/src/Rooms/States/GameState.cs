@@ -10,7 +10,7 @@ public abstract class GameState
 
     protected GameState(GameRoom gameRoom) => _gameRoom = gameRoom;
 
-    public abstract AbstractGameStateDto RoomState { get; }
+    public abstract AbstractRoomStateDto RoomState { get; }
 
     public virtual Task HandleOnJoinAsync(CID cid) => Task.CompletedTask;
 

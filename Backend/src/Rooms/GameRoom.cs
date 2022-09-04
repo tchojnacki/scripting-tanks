@@ -38,7 +38,7 @@ public class GameRoom : ConnectionRoom
         => Players.Where(p => !p.IsBot);
     public string Location => _gameState.RoomState.Location;
 
-    public override AbstractGameStateDto RoomState => _gameState.RoomState;
+    public override AbstractRoomStateDto RoomState => _gameState.RoomState;
 
     public ConnectionData PlayerData(CID cid) => _connectionManager.PlayerData(cid);
 
