@@ -24,7 +24,7 @@ public class WaitingGameState : GameState
     public override Task HandleOnLeaveAsync(CID cid)
         => _gameRoom.BroadcastMessageAsync(new PlayerLeftServerMessage { Data = cid.Value });
 
-    public override async Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
+    public override async Task HandleOnMessageAsync(CID cid, IClientMessage message)
     {
         if (cid != _gameRoom.Owner) return;
 

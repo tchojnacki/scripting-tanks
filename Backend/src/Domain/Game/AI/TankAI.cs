@@ -13,4 +13,6 @@ public abstract class TankAI
         _eid = eid;
         _world = world;
     }
+
+    public abstract (InputAxes inputAxes, double pitch, bool shouldShoot) ApplyInputs();
 }

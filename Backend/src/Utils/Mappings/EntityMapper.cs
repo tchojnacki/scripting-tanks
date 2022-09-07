@@ -19,6 +19,6 @@ public static class EntityMapper
         Name = tank.PlayerData.Name,
         Colors = tank.PlayerData.Colors.ToDto(),
         Pitch = tank.Pitch,
-        Barrel = tank.BarrelTarget
+        Barrel = tank.BarrelPitch
     };
 }

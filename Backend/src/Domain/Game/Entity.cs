@@ -6,9 +6,12 @@ namespace Backend.Domain.Game;
 
 public abstract class Entity
 {
-    private Vector _vel;
+    private const double SeaHeight = -100;
+
+    protected readonly PlayingGameState _world;
+    protected Vector _vel;
     private Vector _acc;
-    private double _mass;
+    protected readonly double _mass;
 
     protected Entity(
         PlayingGameState world,
@@ -18,7 +21,7 @@ public abstract class Entity
         double radius = 0,
         double mass = 1)
     {
-        World = world;
+        _world = world;
         Eid = eid ?? EID.From("EID$" + HashUtils.RandomHash());
         Pos = pos;
         _vel = vel;
@@ -26,8 +29,22 @@ public abstract class Entity
         _mass = mass;
     }
 
-    public PlayingGameState World { get; }
     public EID Eid { get; }
-    public Vector Pos { get; }
+    public Vector Pos { get; private set; }
     public double Radius { get; }
+
+    private double HighestPoint => Pos.Y + Radius;
+
+    public virtual void Update(TimeSpan deltaTime)
+    {
+        var forces = CalculateForces();
+        _acc = forces / _mass;
+        _vel += _acc * deltaTime.TotalSeconds;
+        Pos += _vel * deltaTime.TotalSeconds;
+
+        if (HighestPoint < SeaHeight)
+            _world.Destroy(this);
+    }
+
+    protected virtual Vector CalculateForces() => default;
 }

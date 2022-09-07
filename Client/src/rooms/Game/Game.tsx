@@ -48,7 +48,7 @@ export function Game() {
 
   useEffect(() => {
     sendMessage("c-set-input-axes", inputAxes)
-  }, [inputAxes, sendMessage])
+  }, [inputAxes.vertical, inputAxes.horizontal, sendMessage])
 
   useEffect(() => {
     sendMessage("c-set-barrel-target", aimPitch)

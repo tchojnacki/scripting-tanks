@@ -70,7 +70,7 @@ public class ConnectionManager : IConnectionManager
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
     }
 
-    private async Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
+    private async Task HandleOnMessageAsync(CID cid, IClientMessage message)
     {
         _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
         await (message switch

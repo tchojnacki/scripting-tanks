@@ -17,15 +17,13 @@ public class MessageSerializer : IMessageSerializer
     {
         var messageTypes = typeof(MessageSerializer).Assembly.ExportedTypes
             .Where(
-                t => t.GetInterfaces().Any(
-                    i => i.IsGenericType && i.GetGenericTypeDefinition().Equals(typeof(IClientMessage<>))
-                ) && !t.IsAbstract && !t.IsInterface
+                t => t.IsAssignableTo(typeof(IClientMessage)) && !t.IsAbstract && !t.IsInterface
             );
 
         _tagMap = messageTypes.ToDictionary(t => (string)((dynamic)Activator.CreateInstance(t)!).Tag);
     }
 
-    public IClientMessage<object?>? DeserializeClientMessage(byte[] buffer)
+    public IClientMessage? DeserializeClientMessage(byte[] buffer)
     {
         try
         {
@@ -33,7 +31,7 @@ public class MessageSerializer : IMessageSerializer
             var tag = JsonDocument.Parse(content).RootElement.GetProperty("tag").GetString()!;
             var type = _tagMap[tag]!;
             var message = JsonSerializer.Deserialize(content, type, SerializerOptions);
-            return message as IClientMessage<object?>;
+            return (IClientMessage?)message;
         }
         catch
         {

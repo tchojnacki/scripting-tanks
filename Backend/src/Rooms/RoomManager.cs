@@ -41,7 +41,7 @@ public class RoomManager
 
     public Task HandleOnDisconnectAsync(CID cid) => SwitchRoomAsync(cid, null);
 
-    public async Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
+    public async Task HandleOnMessageAsync(CID cid, IClientMessage message)
     {
         var room = RoomContaining(cid)!;
 

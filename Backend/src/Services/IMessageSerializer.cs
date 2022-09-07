@@ -4,6 +4,6 @@ namespace Backend.Services;
 
 public interface IMessageSerializer
 {
-    IClientMessage<object?>? DeserializeClientMessage(byte[] buffer);
+    IClientMessage? DeserializeClientMessage(byte[] buffer);
     byte[] SerializeServerMessage<T>(IServerMessage<T> message);
 }

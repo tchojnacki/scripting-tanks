@@ -101,6 +101,6 @@ public class GameRoom : ConnectionRoom
         }
     }
 
-    public override Task HandleOnMessageAsync(CID cid, IClientMessage<object?> message)
+    public override Task HandleOnMessageAsync(CID cid, IClientMessage message)
         => _gameState.HandleOnMessageAsync(cid, message);
 }
