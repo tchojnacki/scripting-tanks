@@ -14,5 +14,5 @@ public abstract class TankAI
         _world = world;
     }
 
-    public abstract (InputAxes inputAxes, double pitch, bool shouldShoot) ApplyInputs();
+    public abstract (InputAxes inputAxes, double barrelTarget, bool shouldShoot) ApplyInputs();
 }

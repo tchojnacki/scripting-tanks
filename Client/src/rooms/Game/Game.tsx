@@ -7,7 +7,6 @@ import { useInput } from "../../utils/useInput"
 import { useSocketContext } from "../../utils/socketContext"
 import { Tank, HUD, SceneLight, Scoreboard } from "../../components"
 import { useDocumentTitle } from "@mantine/hooks"
-import { MantineProvider, Table } from "@mantine/core"
 
 const CAMERA_OFFSET = 256
 
@@ -78,7 +77,7 @@ export function Game() {
             position={[0, -cameraPos[1] - 64, 0]}
             rotation={[-Math.PI / 2, 0, 0]}
           >
-            <MeshWobbleMaterial factor={0.001} color="#517cdb" />
+            <MeshWobbleMaterial factor={0.005} color="#517cdb" />
           </Plane>
         </PerspectiveCamera>
         <SceneLight radius={roomState.radius} />

@@ -77,6 +77,8 @@ public class PlayingGameState : GameState
         return Task.CompletedTask;
     }
 
+    public void Spawn(Entity entity) => _spawnQueue.Enqueue(entity);
+
     public void Destroy(Entity entity)
     {
         _destroyQueue.Enqueue(entity.Eid);

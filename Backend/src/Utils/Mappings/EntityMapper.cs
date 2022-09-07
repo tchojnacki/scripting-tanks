@@ -7,7 +7,8 @@ public static class EntityMapper
 {
     public static AbstractEntityDto ToDto(this Entity entity) => entity switch
     {
-        Tank t => t.ToDto(),
+        Tank tank => tank.ToDto(),
+        Bullet bullet => bullet.ToDto(),
         _ => throw new NotImplementedException(),
     };
 
@@ -19,6 +20,14 @@ public static class EntityMapper
         Name = tank.PlayerData.Name,
         Colors = tank.PlayerData.Colors.ToDto(),
         Pitch = tank.Pitch,
-        Barrel = tank.BarrelPitch
+        Barrel = tank.BarrelPitch,
+    };
+
+    public static BulletDto ToDto(this Bullet bullet) => new()
+    {
+        Eid = bullet.Eid.Value,
+        Pos = bullet.Pos.ToDto(),
+        Owner = bullet.Owner.Value,
+        Radius = bullet.Radius,
     };
 }

@@ -31,7 +31,7 @@ public abstract class Entity
 
     public EID Eid { get; }
     public Vector Pos { get; private set; }
-    public double Radius { get; }
+    public double Radius { get; protected set; }
 
     private double HighestPoint => Pos.Y + Radius;
 

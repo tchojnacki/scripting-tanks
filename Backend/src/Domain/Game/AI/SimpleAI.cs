@@ -9,7 +9,7 @@ public class SimpleAI : TankAI
 {
     public SimpleAI(EID eid, PlayingGameState world) : base(eid, world) { }
 
-    public override (InputAxes inputAxes, double pitch, bool shouldShoot) ApplyInputs()
+    public override (InputAxes inputAxes, double barrelTarget, bool shouldShoot) ApplyInputs()
     {
         var tanks = _world.Tanks.ToList();
         var myTank = tanks.Find(t => t.Eid == _eid)!;
@@ -22,9 +22,9 @@ public class SimpleAI : TankAI
             Vertical = Clamp(Vector.Dot(offset, facing), -1, 1),
             Horizontal = Clamp(Vector.Cross(offset, facing).Z, -1, 1)
         };
-        var pitch = Atan2(offset.X, offset.Z);
+        var barrelTarget = Atan2(offset.X, offset.Z);
         var shouldShoot = offset.Length < 512;
 
-        return (inputAxes, pitch, shouldShoot);
+        return (inputAxes, barrelTarget, shouldShoot);
     }
 }

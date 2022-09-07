@@ -20,7 +20,7 @@ public class Tank : Entity
     private const double TankRadius = 64;
     private const double TankMass = 10_000;
     private const double GravityOutwardPush = 2048;
-    private readonly Vector GravityAcceleration = new(0, -2048, 0);
+    private static readonly Vector GravityAcceleration = new(0, -2048, 0);
 
     private readonly TankAI? _ai;
     private long _lastShot;
@@ -54,9 +54,9 @@ public class Tank : Entity
     {
         if (_ai is not null)
         {
-            var (axes, pitch, shouldShoot) = _ai.ApplyInputs();
+            var (axes, barrelTarget, shouldShoot) = _ai.ApplyInputs();
             InputAxes = axes;
-            BarrelTarget = pitch;
+            BarrelTarget = barrelTarget;
             if (shouldShoot)
                 Shoot();
         }
@@ -113,7 +113,12 @@ public class Tank : Entity
         {
             _lastShot = now;
 
-            // TODO
+            _world.Spawn(new Bullet(
+                world: _world,
+                owner: PlayerData.Cid,
+                direction: BarrelPitch,
+                pos: Pos + new Vector(0, BarrelHeight, 0)
+            ));
         }
     }
 }
