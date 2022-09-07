@@ -137,6 +137,14 @@ public class PlayingGameState : GameState
     {
         Radius = Radius,
         Entities = _entities.Values.Select(e => e.ToDto()).ToList(),
-        Scoreboard = Array.Empty<ScoreboardEntryDto>()
+        Scoreboard = _scoreboard
+            .OrderByDescending(p => p.Value)
+            .Select(p => new ScoreboardEntryDto
+            {
+                Cid = p.Key.Value,
+                Name = Tanks.First(t => t.Eid == EID.From("EID$" + HashUtils.Hash(p.Key.Value))).PlayerData.Name,
+                Score = p.Value,
+            })
+            .ToList()
     };
 }
