@@ -58,19 +58,19 @@ public class PlayingGameState : GameState
     {
         var eid = EID.From("EID$" + HashUtils.Hash(cid.Value));
         if (!_entities.ContainsKey(eid)) return Task.CompletedTask;
-
+        var tank = (Tank)_entities[eid];
         switch (message)
         {
             case SetInputAxesClientMessage { Data: var dto }:
-                ((Tank)_entities[eid]).InputAxes = dto.ToDomain();
+                tank.InputAxes = dto.ToDomain();
                 break;
 
-            case SetBarrelTargetClientMessage { Data: var target }:
-                ((Tank)_entities[eid]).BarrelTarget = target;
+            case SetBarrelTargetClientMessage { Data: var barrelTarget }:
+                tank.BarrelTarget = barrelTarget;
                 break;
 
             case ShootClientMessage:
-                ((Tank)_entities[eid]).Shoot();
+                tank.Shoot();
                 break;
         }
 
@@ -95,6 +95,23 @@ public class PlayingGameState : GameState
         }
     }
 
+    private void ResolveCollisions()
+    {
+        foreach (var (eid1, ent1) in _entities)
+        {
+            foreach (var (eid2, ent2) in _entities)
+            {
+                if (eid2.Value.CompareTo(eid1.Value) > 0 &&
+                    ent1.Pos.Y >= 0 && ent2.Pos.Y >= 0 &&
+                    (ent2.Pos - ent1.Pos).Length < ent1.Radius + ent2.Radius)
+                {
+                    ent1.CollideWith(ent2);
+                    ent2.CollideWith(ent1);
+                }
+            }
+        }
+    }
+
     private async Task GameLoop()
     {
         while (Tanks.Count() >= 2)
@@ -103,18 +120,10 @@ public class PlayingGameState : GameState
             var deltaTime = TimeSpan.FromMilliseconds(now - _lastUpdate);
             _lastUpdate = now;
 
-            foreach (var entity in _entities.Values)
-            {
-                entity.Update(deltaTime);
-            }
-
-            // TODO: Collisions
-
-            while (_destroyQueue.TryDequeue(out var eid))
-                _entities.Remove(eid);
-
-            while (_spawnQueue.TryDequeue(out var entity))
-                _entities[entity.Eid] = entity;
+            while (_destroyQueue.TryDequeue(out var eid)) _entities.Remove(eid);
+            while (_spawnQueue.TryDequeue(out var entity)) _entities[entity.Eid] = entity;
+            foreach (var entity in _entities.Values) entity.Update(deltaTime);
+            ResolveCollisions();
 
             await _gameRoom.BroadcastMessageAsync(new RoomStateServerMessage { Data = RoomState });
 

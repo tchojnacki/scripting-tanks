@@ -77,6 +77,25 @@ public class Tank : Entity
         base.Update(deltaTime);
     }
 
+    public override void CollideWith(Entity other)
+    {
+        switch (other)
+        {
+            case Bullet bullet:
+                if (bullet.Owner != PlayerData.Cid)
+                {
+                    _world.Destroy(this);
+                    _world.Destroy(other);
+                }
+                break;
+
+            case Tank:
+                _world.Destroy(this);
+                _world.Destroy(other);
+                break;
+        }
+    }
+
     protected override Vector CalculateForces()
     {
         var u = new Vector(Sin(Pitch), 0, Cos(Pitch));

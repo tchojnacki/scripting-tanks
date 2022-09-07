@@ -46,5 +46,7 @@ public abstract class Entity
             _world.Destroy(this);
     }
 
+    public virtual void CollideWith(Entity other) { }
+
     protected virtual Vector CalculateForces() => default;
 }
