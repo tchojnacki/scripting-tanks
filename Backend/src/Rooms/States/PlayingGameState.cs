@@ -144,6 +144,13 @@ public class PlayingGameState : GameState
         await _gameRoom.ShowSummary(_scoreboard);
     }
 
+    public override Task HandleOnLeaveAsync(CID cid)
+    {
+        var eid = EID.From("EID$" + HashUtils.Hash(cid.Value));
+        _entities.Remove(eid);
+        return Task.CompletedTask;
+    }
+
     public override GamePlayingStateDto RoomState => new()
     {
         Radius = Radius,
