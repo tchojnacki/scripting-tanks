@@ -53,6 +53,11 @@ public class GameRoom : ConnectionRoom
 
     public Task StartGameAsync() => SwitchStateAsync<WaitingGameState>(new PlayingGameState(this));
 
+    public Task ShowSummary(Dictionary<CID, int> scoreboard)
+        => SwitchStateAsync<PlayingGameState>(new SummaryGameState(this, scoreboard));
+
+    public Task PlayAgain() => SwitchStateAsync<SummaryGameState>(new WaitingGameState(this));
+
     public Task CloseLobbyAsync() => _roomManager.CloseLobbyAsync(this);
 
     public async Task PromoteAsync(CID cid)

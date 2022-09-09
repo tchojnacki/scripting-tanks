@@ -19,6 +19,7 @@ public class PlayingGameState : GameState
 
     private long _lastUpdate;
     private readonly Dictionary<EID, Entity> _entities;
+    private readonly IReadOnlyDictionary<CID, string> _nameMap;
     private readonly Dictionary<CID, int> _scoreboard;
     private readonly Queue<Entity> _spawnQueue = new();
     private readonly Queue<EID> _destroyQueue = new();
@@ -44,6 +45,8 @@ public class PlayingGameState : GameState
                 Cos(step * i) * (Radius - IslandMargin)),
             pitch: step * i + PI
         )).ToDictionary(t => t.Eid);
+
+        _nameMap = _gameRoom.Players.ToDictionary(p => p.Cid, p => p.Name);
 
         _scoreboard = _gameRoom.Players.ToDictionary(p => p.Cid, _ => 0);
 
@@ -130,7 +133,7 @@ public class PlayingGameState : GameState
             await Task.Delay(TimeSpan.FromSeconds(1 / TickRate));
         }
 
-        // TODO: Summary
+        await _gameRoom.ShowSummary(_scoreboard);
     }
 
     public override GamePlayingStateDto RoomState => new()
@@ -142,7 +145,7 @@ public class PlayingGameState : GameState
             .Select(p => new ScoreboardEntryDto
             {
                 Cid = p.Key.Value,
-                Name = Tanks.First(t => t.Eid == EID.From("EID$" + HashUtils.Hash(p.Key.Value))).PlayerData.Name,
+                Name = _nameMap[p.Key],
                 Score = p.Value,
             })
             .ToList()
