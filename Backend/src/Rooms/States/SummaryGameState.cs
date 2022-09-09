@@ -1,13 +1,19 @@
 using Backend.Domain;
+using Backend.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages.Server;
+using Backend.Utils.Common;
 using Backend.Utils.Mappings;
+
+using static System.Math;
 
 namespace Backend.Rooms.States;
 
 public class SummaryGameState : GameState
 {
     private const int SummaryDuration = 10;
+    private const double PodiumRadius = 512;
+    private const double PodiumHeight = 32;
 
     private readonly IReadOnlyScoreboard _scoreboard;
     private int _remaining = SummaryDuration;
@@ -33,6 +39,24 @@ public class SummaryGameState : GameState
     {
         Remaining = _remaining,
         Scoreboard = _scoreboard.ToDto(),
-        Tanks = Array.Empty<TankDto>()
+        Tanks = _scoreboard.Entries.Take(3).Select((entry, index) =>
+        {
+            var angle = index * PI / 6 + 5 * PI / 6;
+            return new TankDto
+            {
+                Cid = entry.Cid.Value,
+                Eid = EID.From("EID$" + HashUtils.Hash(entry.Cid.Value)).Value,
+                Name = entry.PlayerData.Name,
+                Colors = entry.PlayerData.Colors.ToDto(),
+                Pos = new()
+                {
+                    X = PodiumRadius * Sin(angle),
+                    Y = PodiumHeight * (3 - index),
+                    Z = PodiumRadius * Cos(angle)
+                },
+                Pitch = PI + angle,
+                Barrel = PI + angle,
+            };
+        }).ToList()
     };
 }

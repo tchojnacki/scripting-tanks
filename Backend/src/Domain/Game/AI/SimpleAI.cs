@@ -13,7 +13,8 @@ public class SimpleAI : TankAI
     {
         var tanks = _world.Tanks.ToList();
         var myTank = tanks.Find(t => t.Eid == _eid)!;
-        var target = tanks.Where(t => t.Eid != _eid).MinBy(t => (myTank.Pos - t.Pos).Length)!;
+        var target = tanks.Where(t => t.Eid != _eid).MinBy(t => (myTank.Pos - t.Pos).Length);
+        if (target is null) return (default, myTank.Pitch, false);
         var offset = target.Pos - myTank.Pos;
         var facing = Vector.UnitWithPitch(myTank.Pitch);
 
