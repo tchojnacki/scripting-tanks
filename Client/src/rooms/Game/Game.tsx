@@ -80,7 +80,7 @@ export function Game() {
             <MeshWobbleMaterial factor={0.005} color="#517cdb" />
           </Plane>
         </PerspectiveCamera>
-        <SceneLight radius={roomState.radius} />
+        <SceneLight />
         <Cylinder
           args={[roomState.radius, roomState.radius, 64, 64]}
           position={[0, -32, 0]}
@@ -92,7 +92,13 @@ export function Game() {
           <Tank key={tank.eid} tank={{ ...tank, name: tank.cid === cid ? undefined : tank.name }} />
         ))}
         {bullets.map(bullet => (
-          <Sphere key={bullet.eid} position={bullet.pos} args={[bullet.radius, 8, 8]}>
+          <Sphere
+            key={bullet.eid}
+            position={bullet.pos}
+            args={[bullet.radius, 8, 8]}
+            castShadow
+            receiveShadow
+          >
             <meshLambertMaterial color={bullet.owner === cid ? "#060" : "#600"} />
           </Sphere>
         ))}

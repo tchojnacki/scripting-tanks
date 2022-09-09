@@ -14,11 +14,13 @@ function Catterpillar({ color, position }: { color: string; position: [number, n
           args={[12, 12, 16, 8, 1, false, 0, Math.PI]}
           rotation={[(front * Math.PI) / 2, 0, Math.PI / 2]}
           position={[0, 0, front * 48]}
+          castShadow
+          receiveShadow
         >
           <meshLambertMaterial color="#444" />
         </Cylinder>
       ))}
-      <Box args={[16, 8, 112]} position={[0, 16, 0]}>
+      <Box args={[16, 8, 112]} position={[0, 16, 0]} castShadow receiveShadow>
         <meshLambertMaterial color={color} />
       </Box>
     </group>
@@ -36,10 +38,16 @@ function Turret({
 }) {
   return (
     <group position={position} rotation={[0, rotation, 0]}>
-      <Cylinder args={[24, 32, 24, 16]}>
+      <Cylinder args={[24, 32, 24, 16]} castShadow receiveShadow>
         <meshLambertMaterial color={color} />
       </Cylinder>
-      <Cylinder args={[8, 8, 48, 8]} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 48]}>
+      <Cylinder
+        args={[8, 8, 48, 16]}
+        rotation={[Math.PI / 2, 0, 0]}
+        position={[0, 0, 48]}
+        castShadow
+        receiveShadow
+      >
         <meshLambertMaterial color={color} />
       </Cylinder>
     </group>
