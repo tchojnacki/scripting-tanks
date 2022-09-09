@@ -1,6 +1,7 @@
-using Backend.Identifiers;
+using Backend.Domain;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages.Server;
+using Backend.Utils.Mappings;
 
 namespace Backend.Rooms.States;
 
@@ -8,10 +9,10 @@ public class SummaryGameState : GameState
 {
     private const int SummaryDuration = 10;
 
-    private readonly Dictionary<CID, int> _scoreboard;
+    private readonly IReadOnlyScoreboard _scoreboard;
     private int _remaining = SummaryDuration;
 
-    public SummaryGameState(GameRoom room, Dictionary<CID, int> scoreboard) : base(room)
+    public SummaryGameState(GameRoom room, IReadOnlyScoreboard scoreboard) : base(room)
     {
         _scoreboard = scoreboard;
         Task.Run(async () => await WaitToPlayAgain());
@@ -31,7 +32,7 @@ public class SummaryGameState : GameState
     public override GameSummaryStateDto RoomState => new()
     {
         Remaining = _remaining,
-        Scoreboard = Array.Empty<ScoreboardEntryDto>(),
+        Scoreboard = _scoreboard.ToDto(),
         Tanks = Array.Empty<TankDto>()
     };
 }

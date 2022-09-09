@@ -1,13 +1,14 @@
 using Backend.Identifiers;
 using Backend.Utils.Mappings;
 using Backend.Utils.Common;
+using Backend.Domain;
 using Backend.Domain.Game;
 using Backend.Contracts.Data;
+using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
 
 using static System.Math;
-using Backend.Contracts.Messages;
 
 namespace Backend.Rooms.States;
 
@@ -19,8 +20,7 @@ public class PlayingGameState : GameState
 
     private long _lastUpdate;
     private readonly Dictionary<EID, Entity> _entities;
-    private readonly IReadOnlyDictionary<CID, string> _nameMap;
-    private readonly Dictionary<CID, int> _scoreboard;
+    private readonly Scoreboard _scoreboard;
     private readonly Queue<Entity> _spawnQueue = new();
     private readonly Queue<EID> _destroyQueue = new();
 
@@ -46,9 +46,7 @@ public class PlayingGameState : GameState
             pitch: step * i + PI
         )).ToDictionary(t => t.Eid);
 
-        _nameMap = _gameRoom.Players.ToDictionary(p => p.Cid, p => p.Name);
-
-        _scoreboard = _gameRoom.Players.ToDictionary(p => p.Cid, _ => 0);
+        _scoreboard = new(_gameRoom.Players);
 
         Task.Run(async () => await GameLoop());
     }
@@ -88,14 +86,25 @@ public class PlayingGameState : GameState
 
         if (entity is Tank)
         {
-            foreach (var cid in _scoreboard.Keys)
+            foreach (var cid in _scoreboard.Players)
             {
                 var eid = EID.From("EID$" + HashUtils.Hash(cid.Value));
 
                 if (eid != entity.Eid && _entities.ContainsKey(eid))
-                    _scoreboard[cid]++;
+                    _scoreboard.Increment(cid);
             }
         }
+    }
+
+    private void ResolveLifetimes()
+    {
+        while (_destroyQueue.TryDequeue(out var eid)) _entities.Remove(eid);
+        while (_spawnQueue.TryDequeue(out var entity)) _entities[entity.Eid] = entity;
+    }
+
+    private void ResolveUpdates(TimeSpan deltaTime)
+    {
+        foreach (var entity in _entities.Values) entity.Update(deltaTime);
     }
 
     private void ResolveCollisions()
@@ -123,9 +132,8 @@ public class PlayingGameState : GameState
             var deltaTime = TimeSpan.FromMilliseconds(now - _lastUpdate);
             _lastUpdate = now;
 
-            while (_destroyQueue.TryDequeue(out var eid)) _entities.Remove(eid);
-            while (_spawnQueue.TryDequeue(out var entity)) _entities[entity.Eid] = entity;
-            foreach (var entity in _entities.Values) entity.Update(deltaTime);
+            ResolveLifetimes();
+            ResolveUpdates(deltaTime);
             ResolveCollisions();
 
             await _gameRoom.BroadcastMessageAsync(new RoomStateServerMessage { Data = RoomState });
@@ -140,14 +148,6 @@ public class PlayingGameState : GameState
     {
         Radius = Radius,
         Entities = _entities.Values.Select(e => e.ToDto()).ToList(),
-        Scoreboard = _scoreboard
-            .OrderByDescending(p => p.Value)
-            .Select(p => new ScoreboardEntryDto
-            {
-                Cid = p.Key.Value,
-                Name = _nameMap[p.Key],
-                Score = p.Value,
-            })
-            .ToList()
+        Scoreboard = _scoreboard.ToDto(),
     };
 }

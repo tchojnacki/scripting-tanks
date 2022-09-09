@@ -53,7 +53,7 @@ public class GameRoom : ConnectionRoom
 
     public Task StartGameAsync() => SwitchStateAsync<WaitingGameState>(new PlayingGameState(this));
 
-    public Task ShowSummary(Dictionary<CID, int> scoreboard)
+    public Task ShowSummary(IReadOnlyScoreboard scoreboard)
         => SwitchStateAsync<PlayingGameState>(new SummaryGameState(this, scoreboard));
 
     public Task PlayAgain() => SwitchStateAsync<SummaryGameState>(new WaitingGameState(this));

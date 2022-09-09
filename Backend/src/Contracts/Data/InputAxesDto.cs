@@ -1,7 +1,7 @@
 namespace Backend.Contracts.Data;
 
-public readonly record struct InputAxesDto
+public record InputAxesDto
 {
-    public readonly double Vertical { get; init; }
-    public readonly double Horizontal { get; init; }
+    public double Vertical { get; init; }
+    public double Horizontal { get; init; }
 }
