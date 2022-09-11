@@ -1,24 +1,30 @@
-# == CLIENT ==
-FROM node:18.0-alpine AS client_build
+# == BUILD CLIENT ==
+FROM node:18.0-alpine AS build-client
 
 # Install dependencies
-WORKDIR /client
-COPY client/package.json client/package-lock.json ./
+WORKDIR /Client
+COPY Client/package.json Client/package-lock.json ./
 RUN npm ci
 
 # Build client
-COPY client .
+COPY Client .
 RUN npm run build
 
-# == SERVER ==
-FROM python:3.10-alpine AS production
-WORKDIR /app
+# == BUILD BACKEND ==
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-backend
 
 # Install dependencies
-COPY requirements.txt ./
-RUN pip install --no-cache-dir --requirement requirements.txt
+WORKDIR /Backend
+COPY Backend/*.csproj ./
+RUN dotnet restore
 
-# Run server
-COPY . .
-COPY --from=client_build /client/dist client/dist
-CMD python server/main.py
+# Build backend
+COPY Backend .
+RUN dotnet publish -c Release -o dist
+
+# == RUN ==
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS production
+COPY --from=build-client /Client/dist Client/dist
+COPY --from=build-backend /Backend/dist Backend/dist
+EXPOSE 3000
+CMD dotnet ./Backend/dist/Backend.dll

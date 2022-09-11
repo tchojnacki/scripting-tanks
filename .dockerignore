@@ -1,8 +1,6 @@
-.devcontainer
 .git
 .gitignore
 .dockerignore
-__pycache__
 node_modules
 dist
 *.sh
@@ -11,4 +9,5 @@ heroku.yml
 *.md
 tsconfig.json
 npm-debug.log*
-.pylintrc
+bin/
+obj/
