@@ -139,7 +139,7 @@ public class ConnectionManager : IConnectionManager
         catch (Exception exception)
         {
             _logger.LogWarning("Socket connection ended abruptly.");
-            _logger.LogDebug("{exception}", exception);
+            _logger.LogInformation("{exception}", exception);
         }
         finally
         {

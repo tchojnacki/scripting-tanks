@@ -4,9 +4,9 @@ public record EID : Identifier<EID>
 {
     private EID() { }
 
-    private EID(string source) : base(source) { }
+    private EID(string source, bool encode) : base(source, encode) { }
 
     public static EID GenerateUnique() => new();
 
-    public static EID FromCID(CID cid) => new(cid.ToString());
+    public static EID FromCID(CID cid) => new(cid.ToString(), true);
 }
