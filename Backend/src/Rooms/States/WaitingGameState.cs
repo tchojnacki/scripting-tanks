@@ -1,5 +1,5 @@
 using Backend.Utils.Mappings;
-using Backend.Identifiers;
+using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
@@ -14,7 +14,7 @@ public class WaitingGameState : GameState
     public override GameWaitingStateDto RoomState => new()
     {
         Name = _gameRoom.Name,
-        Owner = _gameRoom.Owner.Value,
+        Owner = _gameRoom.OwnerCID.ToString(),
         Players = _gameRoom.Players.Select(p => p.ToDto()).ToList(),
     };
 
@@ -22,11 +22,11 @@ public class WaitingGameState : GameState
         => _gameRoom.BroadcastMessageAsync(new NewPlayerServerMessage { Data = _gameRoom.DataFor(cid).ToDto() });
 
     public override Task HandleOnLeaveAsync(CID cid)
-        => _gameRoom.BroadcastMessageAsync(new PlayerLeftServerMessage { Data = cid.Value });
+        => _gameRoom.BroadcastMessageAsync(new PlayerLeftServerMessage { Data = cid.ToString() });
 
     public override async Task HandleOnMessageAsync(CID cid, IClientMessage message)
     {
-        if (cid != _gameRoom.Owner) return;
+        if (cid != _gameRoom.OwnerCID) return;
 
         await (message switch
         {
@@ -35,9 +35,9 @@ public class WaitingGameState : GameState
             CloseLobbyClientMessage
                 => _gameRoom.CloseLobbyAsync(),
             PromotePlayerClientMessage { Data: var targetString }
-                => _gameRoom.PromoteAsync(CID.From(targetString)),
+                => _gameRoom.PromoteAsync(CID.Deserialize(targetString)),
             KickPlayerClientMessage { Data: var targetString }
-                => _gameRoom.KickAsync(CID.From(targetString)),
+                => _gameRoom.KickAsync(CID.Deserialize(targetString)),
             AddBotClientMessage
                 => _gameRoom.AddBotAsync(),
             _ => Task.CompletedTask

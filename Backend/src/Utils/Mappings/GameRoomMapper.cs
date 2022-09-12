@@ -7,7 +7,7 @@ public static class GameRoomMapper
 {
     public static LobbyDto ToDto(this GameRoom room) => new()
     {
-        Lid = room.Lid.Value,
+        LID = room.LID.ToString(),
         Name = room.Name,
         Players = room.Players.Count(),
         Location = room.Location,

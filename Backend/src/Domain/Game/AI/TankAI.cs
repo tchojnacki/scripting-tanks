@@ -1,4 +1,4 @@
-using Backend.Identifiers;
+using Backend.Domain.Identifiers;
 using Backend.Rooms.States;
 
 namespace Backend.Domain.Game.AI;

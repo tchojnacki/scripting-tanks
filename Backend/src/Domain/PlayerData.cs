@@ -1,11 +1,11 @@
 using System.Net.WebSockets;
-using Backend.Identifiers;
+using Backend.Domain.Identifiers;
 
 namespace Backend.Domain;
 
 public class PlayerData
 {
-    public CID Cid { get; init; } = default!;
+    public CID CID { get; init; } = default!;
     public WebSocket? Socket { get; init; } = default!;
     public string Name { get; set; } = default!;
     public TankColors Colors { get; set; } = default!;

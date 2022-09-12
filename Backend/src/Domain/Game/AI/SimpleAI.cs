@@ -1,4 +1,4 @@
-using Backend.Identifiers;
+using Backend.Domain.Identifiers;
 using Backend.Rooms.States;
 
 using static System.Math;
@@ -12,8 +12,8 @@ public class SimpleAI : TankAI
     public override (InputAxes inputAxes, double barrelTarget, bool shouldShoot) ApplyInputs()
     {
         var tanks = _world.Tanks.ToList();
-        var myTank = tanks.Find(t => t.Eid == _eid)!;
-        var target = tanks.Where(t => t.Eid != _eid).MinBy(t => (myTank.Pos - t.Pos).Length);
+        var myTank = tanks.Find(t => t.EID == _eid)!;
+        var target = tanks.Where(t => t.EID != _eid).MinBy(t => (myTank.Pos - t.Pos).Length);
         if (target is null) return (default, myTank.Pitch, false);
         var offset = target.Pos - myTank.Pos;
         var facing = Vector.UnitWithPitch(myTank.Pitch);

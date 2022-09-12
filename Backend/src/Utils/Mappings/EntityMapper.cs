@@ -14,9 +14,9 @@ public static class EntityMapper
 
     public static TankDto ToDto(this Tank tank) => new()
     {
-        Eid = tank.Eid.Value,
+        EID = tank.EID.ToString(),
         Pos = tank.Pos.ToDto(),
-        Cid = tank.PlayerData.Cid.Value,
+        CID = tank.PlayerData.CID.ToString(),
         Name = tank.PlayerData.Name,
         Colors = tank.PlayerData.Colors.ToDto(),
         Pitch = tank.Pitch,
@@ -25,9 +25,9 @@ public static class EntityMapper
 
     public static BulletDto ToDto(this Bullet bullet) => new()
     {
-        Eid = bullet.Eid.Value,
+        EID = bullet.EID.ToString(),
         Pos = bullet.Pos.ToDto(),
-        Owner = bullet.Owner.Value,
+        Owner = bullet.OwnerCID.ToString(),
         Radius = bullet.Radius,
     };
 }

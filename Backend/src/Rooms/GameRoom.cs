@@ -1,6 +1,6 @@
 using Backend.Services;
-using Backend.Identifiers;
 using Backend.Domain;
+using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
@@ -22,15 +22,15 @@ public class GameRoom : ConnectionRoom
         string name)
         : base(connectionManager, roomManager)
     {
-        Lid = lid;
-        Owner = owner;
+        LID = lid;
+        OwnerCID = owner;
         Name = name;
         _gameState = new WaitingGameState(this);
     }
 
-    public LID Lid { get; }
+    public LID LID { get; }
     public string Name { get; }
-    public CID Owner { get; private set; }
+    public CID OwnerCID { get; private set; }
 
     public IEnumerable<PlayerData> Players => _playerIds.Select(cid => _connectionManager.DataFor(cid));
     public IEnumerable<PlayerData> RealPlayers => Players.Where(p => !p.IsBot);
@@ -64,8 +64,8 @@ public class GameRoom : ConnectionRoom
     {
         if (HasPlayer(cid) && !_connectionManager.DataFor(cid).IsBot)
         {
-            Owner = cid;
-            await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = Owner.Value });
+            OwnerCID = cid;
+            await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = OwnerCID.ToString() });
         }
     }
 
@@ -78,7 +78,7 @@ public class GameRoom : ConnectionRoom
     public async Task AddBotAsync()
     {
         var cid = await _connectionManager.AddBotAsync();
-        await _roomManager.JoinGameRoomAsync(cid, Lid);
+        await _roomManager.JoinGameRoomAsync(cid, LID);
     }
 
     public override async Task HandleOnJoinAsync(CID cid)
@@ -91,13 +91,13 @@ public class GameRoom : ConnectionRoom
     {
         await base.HandleOnLeaveAsync(cid);
         await _gameState.HandleOnLeaveAsync(cid);
-        if (cid == Owner)
+        if (cid == OwnerCID)
         {
-            var ownerCandidates = RealPlayers.Select(p => p.Cid).ToList();
+            var ownerCandidates = RealPlayers.Select(p => p.CID).ToList();
             if (ownerCandidates.Any())
             {
-                Owner = ownerCandidates.ElementAt(Rand.Next(ownerCandidates.Count));
-                await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = Owner.Value });
+                OwnerCID = ownerCandidates.ElementAt(Rand.Next(ownerCandidates.Count));
+                await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = OwnerCID.ToString() });
             }
             else
             {

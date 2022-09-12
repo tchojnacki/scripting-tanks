@@ -1,12 +1,11 @@
-using Backend.Identifiers;
-using Backend.Utils.Mappings;
-using Backend.Utils.Common;
 using Backend.Domain;
+using Backend.Domain.Identifiers;
 using Backend.Domain.Game;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
+using Backend.Utils.Mappings;
 
 using static System.Math;
 
@@ -44,7 +43,7 @@ public class PlayingGameState : GameState
                 0,
                 Cos(step * i) * (Radius - IslandMargin)),
             pitch: step * i + PI
-        )).ToDictionary(t => t.Eid);
+        )).ToDictionary(t => t.EID);
 
         _scoreboard = new(_gameRoom.Players);
 
@@ -57,8 +56,8 @@ public class PlayingGameState : GameState
 
     public override Task HandleOnMessageAsync(CID cid, IClientMessage message)
     {
-        var eid = EID.From("EID$" + HashUtils.Hash(cid.Value));
-        if (!_entities.ContainsKey(eid)) return Task.CompletedTask;
+        var eid = EID.FromCID(cid);
+        if (!_entities.ContainsKey(eid) || _entities[eid] is not Tank) return Task.CompletedTask;
         var tank = (Tank)_entities[eid];
         switch (message)
         {
@@ -82,15 +81,15 @@ public class PlayingGameState : GameState
 
     public void Destroy(Entity entity)
     {
-        _destroyQueue.Enqueue(entity.Eid);
+        _destroyQueue.Enqueue(entity.EID);
 
         if (entity is Tank)
         {
             foreach (var cid in _scoreboard.Players)
             {
-                var eid = EID.From("EID$" + HashUtils.Hash(cid.Value));
+                var eid = EID.FromCID(cid);
 
-                if (eid != entity.Eid && _entities.ContainsKey(eid))
+                if (eid != entity.EID && _entities.ContainsKey(eid))
                     _scoreboard.Increment(cid);
             }
         }
@@ -99,7 +98,7 @@ public class PlayingGameState : GameState
     private void ResolveLifetimes()
     {
         while (_destroyQueue.TryDequeue(out var eid)) _entities.Remove(eid);
-        while (_spawnQueue.TryDequeue(out var entity)) _entities[entity.Eid] = entity;
+        while (_spawnQueue.TryDequeue(out var entity)) _entities[entity.EID] = entity;
     }
 
     private void ResolveUpdates(TimeSpan deltaTime)
@@ -113,7 +112,7 @@ public class PlayingGameState : GameState
         {
             foreach (var (eid2, ent2) in _entities)
             {
-                if (eid2.Value.CompareTo(eid1.Value) > 0 &&
+                if (eid2.ToString().CompareTo(eid1.ToString()) > 0 &&
                     ent1.Pos.Y >= 0 && ent2.Pos.Y >= 0 &&
                     (ent2.Pos - ent1.Pos).Length < ent1.Radius + ent2.Radius)
                 {
@@ -146,8 +145,7 @@ public class PlayingGameState : GameState
 
     public override Task HandleOnLeaveAsync(CID cid)
     {
-        var eid = EID.From("EID$" + HashUtils.Hash(cid.Value));
-        _entities.Remove(eid);
+        _entities.Remove(EID.FromCID(cid));
         return Task.CompletedTask;
     }
 
