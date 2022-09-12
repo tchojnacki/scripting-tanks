@@ -4,9 +4,9 @@ public record LID : Identifier<LID>
 {
     private LID() { }
 
-    private LID(string source) : base(source) { }
+    private LID(string source, bool encode) : base(source, encode) { }
 
     public static LID GenerateUnique() => new();
 
-    public static LID Deserialize(string source) => new(source);
+    public static LID Deserialize(string source) => new(source, false);
 }
