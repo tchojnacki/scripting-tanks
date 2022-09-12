@@ -1,4 +1,4 @@
-using Backend.Identifiers;
+using Backend.Domain.Identifiers;
 
 namespace Backend.Domain;
 
@@ -15,8 +15,8 @@ public class Scoreboard : IReadOnlyScoreboard
 
     public Scoreboard(IEnumerable<PlayerData> players)
     {
-        _scores = players.ToDictionary(p => p.Cid, _ => 0);
-        _metadata = players.ToDictionary(p => p.Cid, p => p);
+        _scores = players.ToDictionary(p => p.CID, _ => 0);
+        _metadata = players.ToDictionary(p => p.CID, p => p);
     }
 
     public IEnumerable<CID> Players => _metadata.Keys;
@@ -25,7 +25,7 @@ public class Scoreboard : IReadOnlyScoreboard
         .OrderByDescending(s => s.Value)
         .Select(s => new Entry
         {
-            Cid = s.Key,
+            CID = s.Key,
             PlayerData = _metadata[s.Key],
             Score = s.Value
         });
@@ -37,7 +37,7 @@ public class Scoreboard : IReadOnlyScoreboard
 
     public record Entry
     {
-        public CID Cid { get; init; } = default!;
+        public CID CID { get; init; } = default!;
         public PlayerData PlayerData { get; init; } = default!;
         public int Score { get; init; } = default!;
     }

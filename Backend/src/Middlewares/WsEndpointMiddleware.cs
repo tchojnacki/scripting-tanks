@@ -1,6 +1,5 @@
 using Backend.Services;
-using Backend.Identifiers;
-using Backend.Utils.Common;
+using Backend.Domain.Identifiers;
 
 namespace Backend.Middlewares;
 
@@ -30,7 +29,7 @@ public class WsEndpointMiddleware
             {
                 using var socket = await context.WebSockets.AcceptWebSocketAsync();
                 await _connectionManager.AcceptConnectionAsync(
-                    CID.From("CID$" + HashUtils.Hash(context.Connection.Id)),
+                    CID.FromConnection(context.Connection),
                     socket,
                     _lifetime.ApplicationStopping);
             }

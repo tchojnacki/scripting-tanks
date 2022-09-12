@@ -1,5 +1,4 @@
-using Backend.Identifiers;
-using Backend.Utils.Common;
+using Backend.Domain.Identifiers;
 using Backend.Rooms.States;
 
 namespace Backend.Domain.Game;
@@ -22,14 +21,14 @@ public abstract class Entity
         double mass = 1)
     {
         _world = world;
-        Eid = eid ?? EID.From("EID$" + HashUtils.RandomHash());
+        EID = eid ?? EID.GenerateUnique();
         Pos = pos;
         _vel = vel;
         Radius = radius;
         _mass = mass;
     }
 
-    public EID Eid { get; }
+    public EID EID { get; }
     public Vector Pos { get; private set; }
     public double Radius { get; protected set; }
 

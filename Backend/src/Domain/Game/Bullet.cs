@@ -1,4 +1,4 @@
-using Backend.Identifiers;
+using Backend.Domain.Identifiers;
 using Backend.Rooms.States;
 
 namespace Backend.Domain.Game;
@@ -12,7 +12,7 @@ public class Bullet : Entity
 
     public Bullet(
         PlayingGameState world,
-        CID owner,
+        CID ownerCid,
         double direction,
         Vector pos) : base(
             world,
@@ -20,10 +20,10 @@ public class Bullet : Entity
             vel: Vector.UnitWithPitch(direction) * BulletSpeed,
             radius: 0)
     {
-        Owner = owner;
+        OwnerCID = ownerCid;
     }
 
-    public CID Owner { get; }
+    public CID OwnerCID { get; }
 
     protected override Vector CalculateForces()
         => GravityPull * _mass;

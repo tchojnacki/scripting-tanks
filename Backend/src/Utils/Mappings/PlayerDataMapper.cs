@@ -3,11 +3,11 @@ using Backend.Domain;
 
 namespace Backend.Utils.Mappings;
 
-public static class ConnectionDataMapper
+public static class PlayerDataMapper
 {
     public static PlayerDto ToDto(this PlayerData data) => new()
     {
-        Cid = data.Cid.Value,
+        CID = data.CID.ToString(),
         Name = data.Name,
         Colors = data.Colors.ToDto(),
         Bot = data.IsBot

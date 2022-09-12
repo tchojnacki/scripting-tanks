@@ -1,10 +1,9 @@
 using Backend.Services;
-using Backend.Identifiers;
+using Backend.Domain.Identifiers;
 using Backend.Utils.Mappings;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
-using Backend.Utils.Common;
 
 namespace Backend.Rooms;
 
@@ -27,12 +26,12 @@ public class RoomManager
 
     public async Task CloseLobbyAsync(GameRoom gameRoom)
     {
-        if (_gameRooms.ContainsKey(gameRoom.Lid))
+        if (_gameRooms.ContainsKey(gameRoom.LID))
         {
-            _gameRooms.Remove(gameRoom.Lid);
-            await _menuRoom.BroadcastMessageAsync(new LobbyRemovedServerMessage { Data = gameRoom.Lid.Value });
+            _gameRooms.Remove(gameRoom.LID);
+            await _menuRoom.BroadcastMessageAsync(new LobbyRemovedServerMessage { Data = gameRoom.LID.ToString() });
         }
-        await Task.WhenAll(gameRoom.Players.Select(p => _menuRoom.HandleOnJoinAsync(p.Cid)));
+        await Task.WhenAll(gameRoom.Players.Select(p => _menuRoom.HandleOnJoinAsync(p.CID)));
     }
 
     public bool CanPlayerCustomize(CID cid) => RoomContaining(cid) == _menuRoom;
@@ -50,7 +49,7 @@ public class RoomManager
             CreateLobbyClientMessage when room == _menuRoom
                 => CreateLobbyAsync(cid),
             EnterLobbyClientMessage { Data: var lidString } when room == _menuRoom
-                => JoinGameRoomAsync(cid, LID.From(lidString)),
+                => JoinGameRoomAsync(cid, LID.Deserialize(lidString)),
             LeaveLobbyClientMessage when room != _menuRoom
                 => KickPlayerAsync(cid),
             _ => room.HandleOnMessageAsync(cid, message)
@@ -91,7 +90,7 @@ public class RoomManager
 
     private async Task CreateLobbyAsync(CID cid)
     {
-        var lid = LID.From("LID$" + HashUtils.RandomHash());
+        var lid = LID.GenerateUnique();
         var name = $"{_connectionManager.DataFor(cid).Name}'s Game";
         _gameRooms[lid] = new(_connectionManager, this, cid, lid, name);
         await UpsertLobbyAsync(_gameRooms[lid]);

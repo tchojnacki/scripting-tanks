@@ -7,7 +7,7 @@ public static class ScoreboardMapper
 {
     public static ScoreboardEntryDto ToDto(this Scoreboard.Entry entry) => new()
     {
-        Cid = entry.Cid.Value,
+        CID = entry.CID.ToString(),
         Name = entry.PlayerData.Name,
         Score = entry.Score
     };

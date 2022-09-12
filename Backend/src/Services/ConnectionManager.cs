@@ -1,12 +1,11 @@
 using System.Net.WebSockets;
 using Backend.Domain;
+using Backend.Domain.Identifiers;
 using Backend.Rooms;
-using Backend.Identifiers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
 using Backend.Utils.Mappings;
-using Backend.Utils.Common;
 
 namespace Backend.Services;
 
@@ -38,7 +37,7 @@ public class ConnectionManager : IConnectionManager
         _logger.LogInformation("Connected: {cid}", cid);
         var connection = new PlayerData
         {
-            Cid = cid,
+            CID = cid,
             Socket = socket,
             Name = _customizationProvider.AssignDisplayName(),
             Colors = _customizationProvider.AssignTankColors()
@@ -85,7 +84,7 @@ public class ConnectionManager : IConnectionManager
 
     public async Task<CID> AddBotAsync()
     {
-        var cid = CID.From("CID$" + HashUtils.RandomHash());
+        var cid = CID.GenerateUnique();
         _bots.Add(cid);
         await _roomManager.HandleOnConnectAsync(cid);
         return cid;
@@ -109,10 +108,10 @@ public class ConnectionManager : IConnectionManager
         {
             return new()
             {
-                Cid = cid,
+                CID = cid,
                 Socket = null,
                 Name = "BOT",
-                Colors = _customizationProvider.AssignTankColors(cid.Value.GetHashCode())
+                Colors = _customizationProvider.AssignTankColors(cid.ToString().GetHashCode())
             };
         }
 

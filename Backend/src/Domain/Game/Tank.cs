@@ -1,7 +1,5 @@
-using Backend.Identifiers;
 using Backend.Rooms.States;
 using Backend.Domain.Game.AI;
-using Backend.Utils.Common;
 
 using static System.Math;
 
@@ -31,7 +29,7 @@ public class Tank : Entity
         Vector pos,
         double pitch) : base(
             world: world,
-            eid: EID.From("EID$" + HashUtils.Hash(playerData.Cid.Value)),
+            eid: Identifiers.EID.FromCID(playerData.CID),
             pos: pos,
             radius: TankRadius,
             mass: TankMass)
@@ -41,7 +39,7 @@ public class Tank : Entity
         BarrelTarget = pitch;
         BarrelPitch = pitch;
         _lastShot = 0;
-        _ai = playerData.IsBot ? new SimpleAI(Eid, world) : null;
+        _ai = playerData.IsBot ? new SimpleAI(EID, world) : null;
     }
 
     public PlayerData PlayerData { get; }
@@ -82,7 +80,7 @@ public class Tank : Entity
         switch (other)
         {
             case Bullet bullet:
-                if (bullet.Owner != PlayerData.Cid)
+                if (bullet.OwnerCID != PlayerData.CID)
                 {
                     _world.Destroy(this);
                     _world.Destroy(other);
@@ -134,7 +132,7 @@ public class Tank : Entity
 
             _world.Spawn(new Bullet(
                 world: _world,
-                owner: PlayerData.Cid,
+                ownerCid: PlayerData.CID,
                 direction: BarrelPitch,
                 pos: Pos + new Vector(0, BarrelHeight, 0)
             ));

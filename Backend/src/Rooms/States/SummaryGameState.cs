@@ -1,8 +1,7 @@
 using Backend.Domain;
-using Backend.Identifiers;
+using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages.Server;
-using Backend.Utils.Common;
 using Backend.Utils.Mappings;
 
 using static System.Math;
@@ -44,8 +43,8 @@ public class SummaryGameState : GameState
             var angle = index * PI / 6 + 5 * PI / 6;
             return new TankDto
             {
-                Cid = entry.Cid.Value,
-                Eid = EID.From("EID$" + HashUtils.Hash(entry.Cid.Value)).Value,
+                CID = entry.CID.ToString(),
+                EID = EID.FromCID(entry.CID).ToString(),
                 Name = entry.PlayerData.Name,
                 Colors = entry.PlayerData.Colors.ToDto(),
                 Pos = new()
