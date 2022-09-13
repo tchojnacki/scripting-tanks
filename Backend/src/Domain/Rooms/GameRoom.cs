@@ -17,11 +17,10 @@ public class GameRoom : ConnectionRoom
 
     public GameRoom(
         IMediator mediator,
-        IRoomManager roomManager,
         CID owner,
         LID lid,
         string name)
-        : base(mediator, roomManager)
+        : base(mediator)
     {
         LID = lid;
         OwnerCID = owner;
@@ -55,8 +54,6 @@ public class GameRoom : ConnectionRoom
 
     public Task PlayAgain() => SwitchStateAsync<SummaryGameState>(new WaitingGameState(_mediator, this));
 
-    public Task CloseLobbyAsync() => _roomManager.CloseLobbyAsync(this);
-
     public async Task PromoteAsync(CID cid)
     {
         var data = await _mediator.Send(new PlayerDataRequest(cid));
@@ -65,12 +62,6 @@ public class GameRoom : ConnectionRoom
             OwnerCID = cid;
             await _mediator.Send(new BroadcastOwnerChangeRequest(LID, OwnerCID));
         }
-    }
-
-    public async Task KickAsync(CID cid)
-    {
-        if (HasPlayer(cid))
-            await _roomManager.KickPlayerAsync(cid);
     }
 
     public override async Task HandleOnJoinAsync(CID cid)
@@ -94,7 +85,7 @@ public class GameRoom : ConnectionRoom
             }
             else
             {
-                await _roomManager.CloseLobbyAsync(this);
+                await _mediator.Send(new CloseLobbyRequest(LID));
             }
         }
 

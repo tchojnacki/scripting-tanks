@@ -12,10 +12,10 @@ public interface IRoomManager
     GameRoom GetRoom(LID lid);
     MenuRoom MenuRoom { get; }
     IEnumerable<GameRoom> Lobbies { get; }
+    Task KickPlayerAsync(CID cid);
+    Task JoinGameRoomAsync(CID cid, LID lid);
+    Task CloseLobbyAsync(LID lid);
 
     // TODO
     bool CanPlayerCustomize(CID cid);
-    Task CloseLobbyAsync(GameRoom gameRoom);
-    Task KickPlayerAsync(CID cid);
-    Task JoinGameRoomAsync(CID cid, LID lid);
 }

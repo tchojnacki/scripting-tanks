@@ -34,11 +34,11 @@ public class WaitingGameState : GameState
             StartGameClientMessage when _gameRoom.AllPlayers.Count() >= 2
                 => _gameRoom.StartGameAsync(),
             CloseLobbyClientMessage
-                => _gameRoom.CloseLobbyAsync(),
+                => _mediator.Send(new CloseLobbyRequest(_gameRoom.LID)),
             PromotePlayerClientMessage { Data: var targetString }
                 => _gameRoom.PromoteAsync(CID.Deserialize(targetString)),
             KickPlayerClientMessage { Data: var targetString }
-                => _gameRoom.KickAsync(CID.Deserialize(targetString)),
+                => _mediator.Send(new KickRequest(CID.Deserialize(targetString))),
             AddBotClientMessage
                 => _mediator.Send(new AddBotRequest(_gameRoom.LID)),
             _ => Task.CompletedTask

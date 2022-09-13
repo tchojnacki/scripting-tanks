@@ -7,8 +7,8 @@ namespace Backend.Domain.Rooms;
 
 public class MenuRoom : ConnectionRoom
 {
-    public MenuRoom(IMediator mediator, IRoomManager roomManager)
-        : base(mediator, roomManager) { }
+    private readonly IRoomManager _roomManager;
+    public MenuRoom(IMediator mediator, IRoomManager roomManager) : base(mediator) => _roomManager = roomManager;
 
     public override MenuStateDto RoomState => new()
     {

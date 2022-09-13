@@ -1,5 +1,4 @@
 using MediatR;
-using Backend.Services;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
@@ -12,13 +11,8 @@ public abstract class ConnectionRoom
     protected readonly HashSet<CID> _playerIds = new();
 
     protected readonly IMediator _mediator;
-    protected readonly IRoomManager _roomManager;
 
-    protected ConnectionRoom(IMediator mediator, IRoomManager roomManager)
-    {
-        _mediator = mediator;
-        _roomManager = roomManager;
-    }
+    protected ConnectionRoom(IMediator mediator) => _mediator = mediator;
 
     public abstract AbstractRoomStateDto RoomState { get; }
 

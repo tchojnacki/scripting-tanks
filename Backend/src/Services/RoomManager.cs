@@ -27,9 +27,9 @@ public class RoomManager : IRoomManager
 
     public MenuRoom MenuRoom { get; }
 
-    public async Task CloseLobbyAsync(GameRoom gameRoom)
+    public async Task CloseLobbyAsync(LID lid)
     {
-        if (_gameRooms.ContainsKey(gameRoom.LID))
+        if (_gameRooms.TryGetValue(lid, out var gameRoom))
         {
             await _mediator.Send(new BroadcastLobbyRemovedRequest(gameRoom.LID));
             _gameRooms.Remove(gameRoom.LID);
@@ -85,7 +85,7 @@ public class RoomManager : IRoomManager
         var data = await _mediator.Send(new PlayerDataRequest(cid));
         var lid = LID.GenerateUnique();
         var name = $"{data.Name}'s Game";
-        _gameRooms[lid] = new(_mediator, this, cid, lid, name);
+        _gameRooms[lid] = new(_mediator, cid, lid, name);
         await _mediator.Send(new BroadcastUpsertLobbyRequest(lid));
         await JoinGameRoomAsync(cid, lid);
     }
