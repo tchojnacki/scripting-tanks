@@ -1,12 +1,11 @@
 using Backend.Services;
-using Backend.Domain;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
-using Backend.Rooms.States;
+using Backend.Domain.Rooms.States;
 
-namespace Backend.Rooms;
+namespace Backend.Domain.Rooms;
 
 public class GameRoom : ConnectionRoom
 {
@@ -15,8 +14,8 @@ public class GameRoom : ConnectionRoom
     private GameState _gameState;
 
     public GameRoom(
-        IConnectionManager connectionManager,
-        RoomManager roomManager,
+        Func<IConnectionManager> connectionManager,
+        IRoomManager roomManager,
         CID owner,
         LID lid,
         string name)
@@ -32,13 +31,13 @@ public class GameRoom : ConnectionRoom
     public string Name { get; }
     public CID OwnerCID { get; private set; }
 
-    public IEnumerable<PlayerData> Players => _playerIds.Select(cid => _connectionManager.DataFor(cid));
+    public IEnumerable<PlayerData> Players => _playerIds.Select(cid => _connectionManager().DataFor(cid));
     public IEnumerable<PlayerData> RealPlayers => Players.Where(p => !p.IsBot);
     public string Location => _gameState.RoomState.Location;
 
     public override AbstractRoomStateDto RoomState => _gameState.RoomState;
 
-    public PlayerData DataFor(CID cid) => _connectionManager.DataFor(cid);
+    public PlayerData DataFor(CID cid) => _connectionManager().DataFor(cid);
 
     private async Task SwitchStateAsync<TFrom>(GameState newState)
         where TFrom : GameState
@@ -62,7 +61,7 @@ public class GameRoom : ConnectionRoom
 
     public async Task PromoteAsync(CID cid)
     {
-        if (HasPlayer(cid) && !_connectionManager.DataFor(cid).IsBot)
+        if (HasPlayer(cid) && !_connectionManager().DataFor(cid).IsBot)
         {
             OwnerCID = cid;
             await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = OwnerCID.ToString() });
@@ -77,7 +76,7 @@ public class GameRoom : ConnectionRoom
 
     public async Task AddBotAsync()
     {
-        var cid = await _connectionManager.AddBotAsync();
+        var cid = await _connectionManager().AddBotAsync();
         await _roomManager.JoinGameRoomAsync(cid, LID);
     }
 

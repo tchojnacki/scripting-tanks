@@ -5,7 +5,7 @@ using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
 
-namespace Backend.Rooms.States;
+namespace Backend.Domain.Rooms.States;
 
 public class WaitingGameState : GameState
 {

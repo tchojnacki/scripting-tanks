@@ -2,7 +2,7 @@ using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Data;
 
-namespace Backend.Rooms.States;
+namespace Backend.Domain.Rooms.States;
 
 public abstract class GameState
 {

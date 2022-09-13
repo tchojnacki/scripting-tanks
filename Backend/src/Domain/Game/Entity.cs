@@ -1,5 +1,5 @@
 using Backend.Domain.Identifiers;
-using Backend.Rooms.States;
+using Backend.Domain.Rooms.States;
 
 namespace Backend.Domain.Game;
 

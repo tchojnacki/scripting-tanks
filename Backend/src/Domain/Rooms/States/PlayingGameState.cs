@@ -1,4 +1,3 @@
-using Backend.Domain;
 using Backend.Domain.Identifiers;
 using Backend.Domain.Game;
 using Backend.Contracts.Data;
@@ -9,7 +8,7 @@ using Backend.Utils.Mappings;
 
 using static System.Math;
 
-namespace Backend.Rooms.States;
+namespace Backend.Domain.Rooms.States;
 
 public class PlayingGameState : GameState
 {

@@ -2,11 +2,11 @@ using Backend.Services;
 using Backend.Contracts.Data;
 using Backend.Utils.Mappings;
 
-namespace Backend.Rooms;
+namespace Backend.Domain.Rooms;
 
 public class MenuRoom : ConnectionRoom
 {
-    public MenuRoom(IConnectionManager connectionManager, RoomManager roomManager)
+    public MenuRoom(Func<IConnectionManager> connectionManager, IRoomManager roomManager)
         : base(connectionManager, roomManager) { }
 
     public override MenuStateDto RoomState => new()

@@ -1,7 +1,6 @@
 using System.Net.WebSockets;
 using Backend.Domain;
 using Backend.Domain.Identifiers;
-using Backend.Rooms;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
@@ -14,22 +13,21 @@ public class ConnectionManager : IConnectionManager
     private readonly Dictionary<CID, PlayerData> _activeConnections = new();
     private readonly HashSet<CID> _bots = new();
 
+    private readonly IRoomManager _roomManager;
     private readonly ICustomizationProvider _customizationProvider;
     private readonly IMessageSerializer _messageSerializer;
     private readonly ILogger<ConnectionManager> _logger;
 
-    private readonly RoomManager _roomManager;
-
     public ConnectionManager(
+        IRoomManager roomManager,
         ICustomizationProvider customizationProvider,
         IMessageSerializer messageSerializer,
         ILogger<ConnectionManager> logger)
     {
+        _roomManager = roomManager;
         _customizationProvider = customizationProvider;
         _messageSerializer = messageSerializer;
         _logger = logger;
-
-        _roomManager = new(this);
     }
 
     private async Task HandleOnConnectAsync(CID cid, WebSocket socket)

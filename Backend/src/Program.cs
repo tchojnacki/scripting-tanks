@@ -19,7 +19,11 @@ builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
 builder.Services.AddSingleton<IMessageSerializer, MessageSerializer>();
 builder.Services.AddSingleton<ICustomizationProvider, CustomizationProvider>();
+builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
+
+// TODO
+builder.Services.AddSingleton(provider => new Func<IConnectionManager>(() => provider.GetService<IConnectionManager>()!));
 
 var app = builder.Build();
 

@@ -1,5 +1,5 @@
 using Backend.Contracts.Data;
-using Backend.Rooms;
+using Backend.Domain.Rooms;
 
 namespace Backend.Utils.Mappings;
 

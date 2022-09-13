@@ -1,20 +1,20 @@
-using Backend.Services;
+using Backend.Domain.Rooms;
 using Backend.Domain.Identifiers;
 using Backend.Utils.Mappings;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Contracts.Messages.Server;
 
-namespace Backend.Rooms;
+namespace Backend.Services;
 
-public class RoomManager
+public class RoomManager : IRoomManager
 {
     private readonly MenuRoom _menuRoom;
     private readonly Dictionary<LID, GameRoom> _gameRooms;
 
-    private readonly IConnectionManager _connectionManager;
+    private readonly Func<IConnectionManager> _connectionManager;
 
-    public RoomManager(IConnectionManager connectionManager)
+    public RoomManager(Func<IConnectionManager> connectionManager)
     {
         _connectionManager = connectionManager;
 
@@ -59,7 +59,7 @@ public class RoomManager
     public Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
 
     public Task KickPlayerAsync(CID cid)
-        => SwitchRoomAsync(cid, _connectionManager.DataFor(cid).IsBot ? null : _menuRoom);
+        => SwitchRoomAsync(cid, _connectionManager().DataFor(cid).IsBot ? null : _menuRoom);
 
     public Task UpsertLobbyAsync(GameRoom gameRoom) => _menuRoom.BroadcastMessageAsync(
         new UpsertLobbyServerMessage { Data = gameRoom.ToDto() });
@@ -91,7 +91,7 @@ public class RoomManager
     private async Task CreateLobbyAsync(CID cid)
     {
         var lid = LID.GenerateUnique();
-        var name = $"{_connectionManager.DataFor(cid).Name}'s Game";
+        var name = $"{_connectionManager().DataFor(cid).Name}'s Game";
         _gameRooms[lid] = new(_connectionManager, this, cid, lid, name);
         await UpsertLobbyAsync(_gameRooms[lid]);
         await JoinGameRoomAsync(cid, lid);
