@@ -1,9 +1,11 @@
+using MediatR;
 using Backend.Services;
 using Backend.Domain.Identifiers;
+using Backend.Domain.Rooms.States;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
-using Backend.Domain.Rooms.States;
+using Backend.Mediation.Requests;
 
 namespace Backend.Domain.Rooms;
 
@@ -14,30 +16,26 @@ public class GameRoom : ConnectionRoom
     private GameState _gameState;
 
     public GameRoom(
-        Func<IConnectionManager> connectionManager,
+        IMediator mediator,
         IRoomManager roomManager,
         CID owner,
         LID lid,
         string name)
-        : base(connectionManager, roomManager)
+        : base(mediator, roomManager)
     {
         LID = lid;
         OwnerCID = owner;
         Name = name;
-        _gameState = new WaitingGameState(this);
+        _gameState = new WaitingGameState(mediator, this);
     }
 
     public LID LID { get; }
     public string Name { get; }
     public CID OwnerCID { get; private set; }
 
-    public IEnumerable<PlayerData> Players => _playerIds.Select(cid => _connectionManager().DataFor(cid));
-    public IEnumerable<PlayerData> RealPlayers => Players.Where(p => !p.IsBot);
     public string Location => _gameState.RoomState.Location;
 
     public override AbstractRoomStateDto RoomState => _gameState.RoomState;
-
-    public PlayerData DataFor(CID cid) => _connectionManager().DataFor(cid);
 
     private async Task SwitchStateAsync<TFrom>(GameState newState)
         where TFrom : GameState
@@ -45,26 +43,27 @@ public class GameRoom : ConnectionRoom
         if (_gameState is TFrom)
         {
             _gameState = newState;
-            await BroadcastMessageAsync(new RoomStateServerMessage { Data = RoomState });
-            await _roomManager.UpsertLobbyAsync(this);
+            await _mediator.Send(new BroadcastRoomStateRequest(LID));
+            await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
         }
     }
 
-    public Task StartGameAsync() => SwitchStateAsync<WaitingGameState>(new PlayingGameState(this));
+    public Task StartGameAsync() => SwitchStateAsync<WaitingGameState>(new PlayingGameState(_mediator, this));
 
     public Task ShowSummary(IReadOnlyScoreboard scoreboard)
-        => SwitchStateAsync<PlayingGameState>(new SummaryGameState(this, scoreboard));
+        => SwitchStateAsync<PlayingGameState>(new SummaryGameState(_mediator, this, scoreboard));
 
-    public Task PlayAgain() => SwitchStateAsync<SummaryGameState>(new WaitingGameState(this));
+    public Task PlayAgain() => SwitchStateAsync<SummaryGameState>(new WaitingGameState(_mediator, this));
 
     public Task CloseLobbyAsync() => _roomManager.CloseLobbyAsync(this);
 
     public async Task PromoteAsync(CID cid)
     {
-        if (HasPlayer(cid) && !_connectionManager().DataFor(cid).IsBot)
+        var data = await _mediator.Send(new PlayerDataRequest(cid));
+        if (HasPlayer(cid) && !data.IsBot)
         {
             OwnerCID = cid;
-            await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = OwnerCID.ToString() });
+            await _mediator.Send(new BroadcastOwnerChangeRequest(LID, OwnerCID));
         }
     }
 
@@ -74,16 +73,11 @@ public class GameRoom : ConnectionRoom
             await _roomManager.KickPlayerAsync(cid);
     }
 
-    public async Task AddBotAsync()
-    {
-        var cid = await _connectionManager().AddBotAsync();
-        await _roomManager.JoinGameRoomAsync(cid, LID);
-    }
-
     public override async Task HandleOnJoinAsync(CID cid)
     {
         await _gameState.HandleOnJoinAsync(cid);
         await base.HandleOnJoinAsync(cid);
+        await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
     }
 
     public override async Task HandleOnLeaveAsync(CID cid)
@@ -96,13 +90,16 @@ public class GameRoom : ConnectionRoom
             if (ownerCandidates.Any())
             {
                 OwnerCID = ownerCandidates.ElementAt(Rand.Next(ownerCandidates.Count));
-                await BroadcastMessageAsync(new OwnerChangeServerMessage() { Data = OwnerCID.ToString() });
+                await _mediator.Send(new BroadcastOwnerChangeRequest(LID, OwnerCID));
             }
             else
             {
                 await _roomManager.CloseLobbyAsync(this);
             }
         }
+
+        if (RealPlayers.Any())
+            await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
     }
 
     public override Task HandleOnMessageAsync(CID cid, IClientMessage message)

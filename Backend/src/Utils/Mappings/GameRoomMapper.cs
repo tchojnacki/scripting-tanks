@@ -9,7 +9,7 @@ public static class GameRoomMapper
     {
         LID = room.LID.ToString(),
         Name = room.Name,
-        Players = room.Players.Count(),
+        Players = room.AllPlayers.Count(),
         Location = room.Location,
     };
 }

@@ -1,10 +1,11 @@
+using MediatR;
 using Backend.Domain.Identifiers;
 using Backend.Domain.Game;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
-using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
 using Backend.Utils.Mappings;
+using Backend.Mediation.Requests;
 
 using static System.Math;
 
@@ -22,11 +23,11 @@ public class PlayingGameState : GameState
     private readonly Queue<Entity> _spawnQueue = new();
     private readonly Queue<EID> _destroyQueue = new();
 
-    public PlayingGameState(GameRoom gameRoom) : base(gameRoom)
+    public PlayingGameState(IMediator mediator, GameRoom gameRoom) : base(mediator, gameRoom)
     {
         _lastUpdate = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        var playerCount = _gameRoom.Players.Count();
+        var playerCount = _gameRoom.AllPlayers.Count();
         var step = 2 * PI / playerCount;
         Radius = Floor(
             playerCount == 1
@@ -34,7 +35,7 @@ public class PlayingGameState : GameState
                 : PlayerDistance / Sqrt(2 - 2 * Cos(2 * PI / playerCount))
         ) + IslandMargin;
 
-        _entities = _gameRoom.Players.Select((player, i) => (Entity)new Tank(
+        _entities = _gameRoom.AllPlayers.Select((player, i) => (Entity)new Tank(
             world: this,
             playerData: player,
             pos: new Vector(
@@ -44,7 +45,7 @@ public class PlayingGameState : GameState
             pitch: step * i + PI
         )).ToDictionary(t => t.EID);
 
-        _scoreboard = new(_gameRoom.Players);
+        _scoreboard = new(_gameRoom.AllPlayers);
 
         Task.Run(async () => await GameLoop());
     }
@@ -134,7 +135,7 @@ public class PlayingGameState : GameState
             ResolveUpdates(deltaTime);
             ResolveCollisions();
 
-            await _gameRoom.BroadcastMessageAsync(new RoomStateServerMessage { Data = RoomState });
+            await _mediator.Send(new BroadcastRoomStateRequest(_gameRoom.LID));
 
             await Task.Delay(TimeSpan.FromSeconds(1 / TickRate));
         }

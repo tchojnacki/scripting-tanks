@@ -80,12 +80,12 @@ public class ConnectionManager : IConnectionManager
         });
     }
 
-    public async Task<CID> AddBotAsync()
+    public async Task AddBotAsync(LID lid)
     {
         var cid = CID.GenerateUnique();
         _bots.Add(cid);
         await _roomManager.HandleOnConnectAsync(cid);
-        return cid;
+        await _roomManager.JoinGameRoomAsync(cid, lid);
     }
 
     public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)

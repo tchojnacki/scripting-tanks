@@ -1,42 +1,45 @@
+using MediatR;
 using Backend.Domain.Rooms;
 using Backend.Domain.Identifiers;
-using Backend.Utils.Mappings;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
-using Backend.Contracts.Messages.Server;
+using Backend.Mediation.Requests;
 
 namespace Backend.Services;
 
 public class RoomManager : IRoomManager
 {
-    private readonly MenuRoom _menuRoom;
     private readonly Dictionary<LID, GameRoom> _gameRooms;
 
-    private readonly Func<IConnectionManager> _connectionManager;
+    private readonly IMediator _mediator;
 
-    public RoomManager(Func<IConnectionManager> connectionManager)
+    public RoomManager(IMediator mediator)
     {
-        _connectionManager = connectionManager;
+        _mediator = mediator;
 
-        _menuRoom = new MenuRoom(connectionManager, this);
+        MenuRoom = new MenuRoom(mediator, this);
         _gameRooms = new();
     }
 
     public IEnumerable<GameRoom> Lobbies => _gameRooms.Values;
 
+    public GameRoom GetRoom(LID lid) => _gameRooms[lid];
+
+    public MenuRoom MenuRoom { get; }
+
     public async Task CloseLobbyAsync(GameRoom gameRoom)
     {
         if (_gameRooms.ContainsKey(gameRoom.LID))
         {
+            await _mediator.Send(new BroadcastLobbyRemovedRequest(gameRoom.LID));
             _gameRooms.Remove(gameRoom.LID);
-            await _menuRoom.BroadcastMessageAsync(new LobbyRemovedServerMessage { Data = gameRoom.LID.ToString() });
+            await Task.WhenAll(gameRoom.AllPlayers.Select(p => MenuRoom.HandleOnJoinAsync(p.CID)));
         }
-        await Task.WhenAll(gameRoom.Players.Select(p => _menuRoom.HandleOnJoinAsync(p.CID)));
     }
 
-    public bool CanPlayerCustomize(CID cid) => RoomContaining(cid) == _menuRoom;
+    public bool CanPlayerCustomize(CID cid) => RoomContaining(cid) == MenuRoom;
 
-    public Task HandleOnConnectAsync(CID cid) => SwitchRoomAsync(cid, _menuRoom);
+    public Task HandleOnConnectAsync(CID cid) => SwitchRoomAsync(cid, MenuRoom);
 
     public Task HandleOnDisconnectAsync(CID cid) => SwitchRoomAsync(cid, null);
 
@@ -46,11 +49,11 @@ public class RoomManager : IRoomManager
 
         await (message switch
         {
-            CreateLobbyClientMessage when room == _menuRoom
+            CreateLobbyClientMessage when room == MenuRoom
                 => CreateLobbyAsync(cid),
-            EnterLobbyClientMessage { Data: var lidString } when room == _menuRoom
+            EnterLobbyClientMessage { Data: var lidString } when room == MenuRoom
                 => JoinGameRoomAsync(cid, LID.Deserialize(lidString)),
-            LeaveLobbyClientMessage when room != _menuRoom
+            LeaveLobbyClientMessage when room != MenuRoom
                 => KickPlayerAsync(cid),
             _ => room.HandleOnMessageAsync(cid, message)
         });
@@ -58,14 +61,11 @@ public class RoomManager : IRoomManager
 
     public Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
 
-    public Task KickPlayerAsync(CID cid)
-        => SwitchRoomAsync(cid, _connectionManager().DataFor(cid).IsBot ? null : _menuRoom);
-
-    public Task UpsertLobbyAsync(GameRoom gameRoom) => _menuRoom.BroadcastMessageAsync(
-        new UpsertLobbyServerMessage { Data = gameRoom.ToDto() });
+    public async Task KickPlayerAsync(CID cid)
+        => await SwitchRoomAsync(cid, (await _mediator.Send(new PlayerDataRequest(cid))).IsBot ? null : MenuRoom);
 
     private ConnectionRoom? RoomContaining(CID cid)
-        => new ConnectionRoom[] { _menuRoom }
+        => new ConnectionRoom[] { MenuRoom }
             .Concat(_gameRooms.Values.AsEnumerable())
             .FirstOrDefault(r => r.HasPlayer(cid));
 
@@ -74,26 +74,19 @@ public class RoomManager : IRoomManager
         var previousRoom = RoomContaining(cid);
 
         if (previousRoom is not null)
-        {
             await previousRoom.HandleOnLeaveAsync(cid);
-            if (previousRoom is GameRoom gr && gr.RealPlayers.Any())
-                await UpsertLobbyAsync(gr);
-        }
 
         if (newRoom is not null)
-        {
             await newRoom.HandleOnJoinAsync(cid);
-            if (newRoom is GameRoom gr)
-                await UpsertLobbyAsync(gr);
-        }
     }
 
     private async Task CreateLobbyAsync(CID cid)
     {
+        var data = await _mediator.Send(new PlayerDataRequest(cid));
         var lid = LID.GenerateUnique();
-        var name = $"{_connectionManager().DataFor(cid).Name}'s Game";
-        _gameRooms[lid] = new(_connectionManager, this, cid, lid, name);
-        await UpsertLobbyAsync(_gameRooms[lid]);
+        var name = $"{data.Name}'s Game";
+        _gameRooms[lid] = new(_mediator, this, cid, lid, name);
+        await _mediator.Send(new BroadcastUpsertLobbyRequest(lid));
         await JoinGameRoomAsync(cid, lid);
     }
 }

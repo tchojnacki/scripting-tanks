@@ -1,28 +1,29 @@
+using MediatR;
 using Backend.Utils.Mappings;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
-using Backend.Contracts.Messages.Server;
+using Backend.Mediation.Requests;
 
 namespace Backend.Domain.Rooms.States;
 
 public class WaitingGameState : GameState
 {
-    public WaitingGameState(GameRoom gameRoom) : base(gameRoom) { }
+    public WaitingGameState(IMediator mediator, GameRoom gameRoom) : base(mediator, gameRoom) { }
 
     public override GameWaitingStateDto RoomState => new()
     {
         Name = _gameRoom.Name,
         Owner = _gameRoom.OwnerCID.ToString(),
-        Players = _gameRoom.Players.Select(p => p.ToDto()).ToList(),
+        Players = _gameRoom.AllPlayers.Select(p => p.ToDto()).ToList(),
     };
 
-    public override Task HandleOnJoinAsync(CID cid)
-        => _gameRoom.BroadcastMessageAsync(new NewPlayerServerMessage { Data = _gameRoom.DataFor(cid).ToDto() });
+    public override async Task HandleOnJoinAsync(CID cid)
+        => await _mediator.Send(new BroadcastNewPlayerRequest(_gameRoom.LID, cid));
 
     public override Task HandleOnLeaveAsync(CID cid)
-        => _gameRoom.BroadcastMessageAsync(new PlayerLeftServerMessage { Data = cid.ToString() });
+        => _mediator.Send(new BroadcastPlayerLeftRequest(_gameRoom.LID, cid));
 
     public override async Task HandleOnMessageAsync(CID cid, IClientMessage message)
     {
@@ -30,7 +31,7 @@ public class WaitingGameState : GameState
 
         await (message switch
         {
-            StartGameClientMessage when _gameRoom.Players.Count() >= 2
+            StartGameClientMessage when _gameRoom.AllPlayers.Count() >= 2
                 => _gameRoom.StartGameAsync(),
             CloseLobbyClientMessage
                 => _gameRoom.CloseLobbyAsync(),
@@ -39,7 +40,7 @@ public class WaitingGameState : GameState
             KickPlayerClientMessage { Data: var targetString }
                 => _gameRoom.KickAsync(CID.Deserialize(targetString)),
             AddBotClientMessage
-                => _gameRoom.AddBotAsync(),
+                => _mediator.Send(new AddBotRequest(_gameRoom.LID)),
             _ => Task.CompletedTask
         });
     }
