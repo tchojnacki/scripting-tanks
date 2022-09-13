@@ -1,4 +1,6 @@
+using System.Reflection;
 using Microsoft.Extensions.FileProviders;
+using MediatR;
 using Backend.Middlewares;
 using Backend.Services;
 
@@ -13,6 +15,7 @@ builder.Host.ConfigureLogging(logging =>
 builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "3000"}");
 
 builder.Services.AddDirectoryBrowser();
+builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
 builder.Services.AddSingleton<IMessageSerializer, MessageSerializer>();
 builder.Services.AddSingleton<ICustomizationProvider, CustomizationProvider>();
