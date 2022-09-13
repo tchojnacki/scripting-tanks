@@ -21,6 +21,7 @@ builder.Services.AddSingleton<IMessageSerializer, MessageSerializer>();
 builder.Services.AddSingleton<ICustomizationProvider, CustomizationProvider>();
 builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
+builder.Services.AddSingleton<IBroadcastHelper, BroadcastHelper>();
 
 // TODO
 builder.Services.AddSingleton(provider => new Func<IConnectionManager>(() => provider.GetService<IConnectionManager>()!));

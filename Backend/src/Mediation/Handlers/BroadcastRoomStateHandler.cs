@@ -7,22 +7,17 @@ namespace Backend.Mediation.Handlers;
 
 public class BroadcastRoomStateHandler : AsyncRequestHandler<BroadcastRoomStateRequest>
 {
-    private readonly IConnectionManager _connectionManager;
+    private readonly IBroadcastHelper _broadcastHelper;
     private readonly IRoomManager _roomManager;
 
-    public BroadcastRoomStateHandler(IConnectionManager connectionManager, IRoomManager roomManager)
+    public BroadcastRoomStateHandler(IBroadcastHelper broadcastHelper, IRoomManager roomManager)
     {
-        _connectionManager = connectionManager;
+        _broadcastHelper = broadcastHelper;
         _roomManager = roomManager;
     }
 
-    protected override async Task Handle(BroadcastRoomStateRequest request, CancellationToken cancellationToken)
-    {
-        var room = _roomManager.GetRoom(request.LID);
-
-        await Task.WhenAll(
-            room.AllPlayers.Select(player => _connectionManager.SendToSingleAsync(
-                player.CID,
-                new RoomStateServerMessage { Data = room.RoomState })));
-    }
+    protected override Task Handle(BroadcastRoomStateRequest request, CancellationToken cancellationToken)
+        => _broadcastHelper.BroadcastToRoom(
+            request.LID,
+            new RoomStateServerMessage { Data = _roomManager.GetRoom(request.LID).RoomState });
 }

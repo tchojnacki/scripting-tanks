@@ -8,20 +8,16 @@ namespace Backend.Mediation.Handlers;
 
 public class BroadcastUpsertLobbyHandler : AsyncRequestHandler<BroadcastUpsertLobbyRequest>
 {
-    private readonly IConnectionManager _connectionManager;
+    private readonly IBroadcastHelper _broadcastHelper;
     private readonly IRoomManager _roomManager;
 
-    public BroadcastUpsertLobbyHandler(IConnectionManager connectionManager, IRoomManager roomManager)
+    public BroadcastUpsertLobbyHandler(IBroadcastHelper broadcastHelper, IRoomManager roomManager)
     {
-        _connectionManager = connectionManager;
+        _broadcastHelper = broadcastHelper;
         _roomManager = roomManager;
     }
 
-    protected override async Task Handle(BroadcastUpsertLobbyRequest request, CancellationToken cancellationToken)
-    {
-        await Task.WhenAll(
-            _roomManager.MenuRoom.AllPlayers.Select(player => _connectionManager.SendToSingleAsync(
-                player.CID,
-                new UpsertLobbyServerMessage { Data = _roomManager.GetRoom(request.LID).ToDto() })));
-    }
+    protected override Task Handle(BroadcastUpsertLobbyRequest request, CancellationToken cancellationToken)
+        => _broadcastHelper.BroadcastToMenu(
+            new UpsertLobbyServerMessage { Data = _roomManager.GetRoom(request.LID).ToDto() });
 }

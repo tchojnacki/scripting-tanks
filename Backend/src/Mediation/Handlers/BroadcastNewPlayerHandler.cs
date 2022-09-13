@@ -8,23 +8,17 @@ namespace Backend.Mediation.Handlers;
 
 public class BroadcastNewPlayerHandler : AsyncRequestHandler<BroadcastNewPlayerRequest>
 {
+    private readonly IBroadcastHelper _broadcastHelper;
     private readonly IConnectionManager _connectionManager;
-    private readonly IRoomManager _roomManager;
 
-    public BroadcastNewPlayerHandler(IConnectionManager connectionManager, IRoomManager roomManager)
+    public BroadcastNewPlayerHandler(IBroadcastHelper broadcastHelper, IConnectionManager connectionManager)
     {
+        _broadcastHelper = broadcastHelper;
         _connectionManager = connectionManager;
-        _roomManager = roomManager;
     }
 
-    protected override async Task Handle(BroadcastNewPlayerRequest request, CancellationToken cancellationToken)
-    {
-        var room = _roomManager.GetRoom(request.LID);
-        var dto = _connectionManager.DataFor(request.CID).ToDto();
-
-        await Task.WhenAll(
-            room.AllPlayers.Select(player => _connectionManager.SendToSingleAsync(
-                player.CID,
-                new NewPlayerServerMessage { Data = dto })));
-    }
+    protected override Task Handle(BroadcastNewPlayerRequest request, CancellationToken cancellationToken)
+        => _broadcastHelper.BroadcastToRoom(
+            request.LID,
+            new NewPlayerServerMessage { Data = _connectionManager.DataFor(request.CID).ToDto() });
 }
