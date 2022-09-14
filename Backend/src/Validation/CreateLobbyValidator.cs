@@ -5,9 +5,9 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class RerollNameValidator : AbstractValidator<MessageContext<RerollNameClientMessage>>
+public class CreateLobbyValidator : AbstractValidator<MessageContext<CreateLobbyClientMessage>>
 {
-    public RerollNameValidator(IRoomManager roomManager)
+    public CreateLobbyValidator(IRoomManager roomManager)
     {
         RuleFor(x => x.Sender).MustBeInMenu(roomManager);
     }

@@ -17,14 +17,14 @@ builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?
 
 builder.Services.AddDirectoryBrowser();
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
-builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), ServiceLifetime.Singleton);
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient);
 
-builder.Services.AddSingleton<IMessageSerializer, MessageSerializer>();
-builder.Services.AddSingleton<IMessageValidator, MessageValidator>();
-builder.Services.AddSingleton<ICustomizationProvider, CustomizationProvider>();
 builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
-builder.Services.AddSingleton<IBroadcastHelper, BroadcastHelper>();
+builder.Services.AddSingleton<IMessageSerializer, MessageSerializer>();
+builder.Services.AddTransient<IMessageValidator, MessageValidator>();
+builder.Services.AddTransient<IBroadcastHelper, BroadcastHelper>();
+builder.Services.AddTransient<ICustomizationProvider, CustomizationProvider>();
 
 var app = builder.Build();
 

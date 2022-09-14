@@ -70,18 +70,12 @@ public class ConnectionManager : IConnectionManager
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
     }
 
-    private async Task HandleOnMessageAsync(CID cid, IClientMessage message)
+    private Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
     {
-        _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
-        await (message switch
-        {
-            RerollNameClientMessage when _roomManager.RoomContaining(cid) == _roomManager.MenuRoom
-                => RerollClientName(cid),
-            CustomizeColorsClientMessage { Data: var dto } when _roomManager.RoomContaining(cid) == _roomManager.MenuRoom
-                => CustomizeColors(cid, dto.ToDomain()),
-            _ => _roomManager.HandleOnMessageAsync(cid, message)
-        });
-    }
+        RerollNameClientMessage => RerollClientName(cid),
+        CustomizeColorsClientMessage { Data: var dto } => CustomizeColors(cid, dto.ToDomain()),
+        _ => _roomManager.HandleOnMessageAsync(cid, message)
+    };
 
     public async Task AddBotAsync(LID lid)
     {
@@ -134,13 +128,22 @@ public class ConnectionManager : IConnectionManager
 
                 if (_messageSerializer.TryDeserialize(buffer, out var message) &&
                     _messageValidator.Validate(cid, message))
-                    await HandleOnMessageAsync(cid, message);
+                {
+                    try
+                    {
+                        _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
+                        await HandleOnMessageAsync(cid, message);
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.LogWarning("Error when processing message:\n{message}\n{exception}", message, exception);
+                    }
+                }
             }
         }
         catch (Exception exception)
         {
-            _logger.LogWarning("Socket connection ended abruptly.");
-            _logger.LogInformation("{exception}", exception);
+            _logger.LogWarning("Socket connection ended abruptly with error:\n{exception}", exception);
         }
         finally
         {

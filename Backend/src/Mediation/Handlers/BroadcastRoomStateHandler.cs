@@ -19,5 +19,5 @@ public class BroadcastRoomStateHandler : AsyncRequestHandler<BroadcastRoomStateR
     protected override Task Handle(BroadcastRoomStateRequest request, CancellationToken cancellationToken)
         => _broadcastHelper.BroadcastToRoom(
             request.LID,
-            new RoomStateServerMessage { Data = _roomManager.GetRoom(request.LID).RoomState });
+            new RoomStateServerMessage { Data = _roomManager.GetGameRoom(request.LID).RoomState });
 }

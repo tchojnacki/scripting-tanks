@@ -3,4 +3,4 @@ using Backend.Contracts.Messages;
 
 namespace Backend.Domain;
 
-public record MessageContext<TMessage>(CID CID, TMessage Message) where TMessage : IClientMessage;
+public record MessageContext<TMessage>(CID Sender, TMessage Message) where TMessage : IClientMessage;

@@ -9,8 +9,9 @@ public interface IRoomManager
     Task HandleOnConnectAsync(CID cid);
     Task HandleOnDisconnectAsync(CID cid);
     Task HandleOnMessageAsync(CID cid, IClientMessage message);
-    GameRoom GetRoom(LID lid);
-    ConnectionRoom? RoomContaining(CID cid);
+    GameRoom GetGameRoom(LID lid);
+    bool ContainsGameRoom(LID lid);
+    ConnectionRoom RoomContaining(CID cid);
     MenuRoom MenuRoom { get; }
     IEnumerable<GameRoom> Lobbies { get; }
     Task KickPlayerAsync(CID cid);

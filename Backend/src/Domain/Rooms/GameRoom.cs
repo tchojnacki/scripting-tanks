@@ -13,8 +13,6 @@ public class GameRoom : ConnectionRoom
 {
     private static readonly Random Rand = new();
 
-    private GameState _gameState;
-
     public GameRoom(
         IMediator mediator,
         CID owner,
@@ -25,23 +23,24 @@ public class GameRoom : ConnectionRoom
         LID = lid;
         OwnerCID = owner;
         Name = name;
-        _gameState = new WaitingGameState(mediator, this);
+        State = new WaitingGameState(mediator, this);
     }
 
     public LID LID { get; }
     public string Name { get; }
     public CID OwnerCID { get; private set; }
+    public GameState State { get; private set; }
 
-    public string Location => _gameState.RoomState.Location;
+    public string Location => State.RoomState.Location;
 
-    public override AbstractRoomStateDto RoomState => _gameState.RoomState;
+    public override AbstractRoomStateDto RoomState => State.RoomState;
 
     private async Task SwitchStateAsync<TFrom>(GameState newState)
         where TFrom : GameState
     {
-        if (_gameState is TFrom)
+        if (State is TFrom)
         {
-            _gameState = newState;
+            State = newState;
             await _mediator.Send(new BroadcastRoomStateRequest(LID));
             await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
         }
@@ -56,17 +55,13 @@ public class GameRoom : ConnectionRoom
 
     public async Task PromoteAsync(CID cid)
     {
-        var data = await _mediator.Send(new PlayerDataRequest(cid));
-        if (HasPlayer(cid) && !data.IsBot)
-        {
-            OwnerCID = cid;
-            await _mediator.Send(new BroadcastOwnerChangeRequest(LID, OwnerCID));
-        }
+        OwnerCID = cid;
+        await _mediator.Send(new BroadcastOwnerChangeRequest(LID, OwnerCID));
     }
 
     public override async Task HandleOnJoinAsync(CID cid)
     {
-        await _gameState.HandleOnJoinAsync(cid);
+        await State.HandleOnJoinAsync(cid);
         await base.HandleOnJoinAsync(cid);
         await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
     }
@@ -74,7 +69,7 @@ public class GameRoom : ConnectionRoom
     public override async Task HandleOnLeaveAsync(CID cid)
     {
         await base.HandleOnLeaveAsync(cid);
-        await _gameState.HandleOnLeaveAsync(cid);
+        await State.HandleOnLeaveAsync(cid);
         if (cid == OwnerCID)
         {
             var ownerCandidates = RealPlayers.Select(p => p.CID).ToList();
@@ -94,5 +89,5 @@ public class GameRoom : ConnectionRoom
     }
 
     public override Task HandleOnMessageAsync(CID cid, IClientMessage message)
-        => _gameState.HandleOnMessageAsync(cid, message);
+        => State.HandleOnMessageAsync(cid, message);
 }

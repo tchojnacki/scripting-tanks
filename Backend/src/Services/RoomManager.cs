@@ -23,44 +23,36 @@ public class RoomManager : IRoomManager
 
     public IEnumerable<GameRoom> Lobbies => _gameRooms.Values;
 
-    public GameRoom GetRoom(LID lid) => _gameRooms[lid];
+    public GameRoom GetGameRoom(LID lid) => _gameRooms[lid];
 
-    public ConnectionRoom? RoomContaining(CID cid)
+    public bool ContainsGameRoom(LID lid) => _gameRooms.ContainsKey(lid);
+
+    public ConnectionRoom RoomContaining(CID cid)
         => new ConnectionRoom[] { MenuRoom }
             .Concat(_gameRooms.Values.AsEnumerable())
-            .FirstOrDefault(r => r.HasPlayer(cid));
+            .Single(r => r.HasPlayer(cid));
 
     public MenuRoom MenuRoom { get; }
 
     public async Task CloseLobbyAsync(LID lid)
     {
-        if (_gameRooms.TryGetValue(lid, out var gameRoom))
-        {
-            await _mediator.Send(new BroadcastLobbyRemovedRequest(gameRoom.LID));
-            _gameRooms.Remove(gameRoom.LID);
-            await Task.WhenAll(gameRoom.AllPlayers.Select(p => MenuRoom.HandleOnJoinAsync(p.CID)));
-        }
+        var gameRoom = _gameRooms[lid];
+        await _mediator.Send(new BroadcastLobbyRemovedRequest(gameRoom.LID));
+        _gameRooms.Remove(gameRoom.LID);
+        await Task.WhenAll(gameRoom.AllPlayers.Select(p => MenuRoom.HandleOnJoinAsync(p.CID)));
     }
 
-    public Task HandleOnConnectAsync(CID cid) => SwitchRoomAsync(cid, MenuRoom);
+    public Task HandleOnConnectAsync(CID cid) => MenuRoom.HandleOnJoinAsync(cid);
 
     public Task HandleOnDisconnectAsync(CID cid) => SwitchRoomAsync(cid, null);
 
-    public async Task HandleOnMessageAsync(CID cid, IClientMessage message)
+    public Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
     {
-        var room = RoomContaining(cid)!;
-
-        await (message switch
-        {
-            CreateLobbyClientMessage when room == MenuRoom
-                => CreateLobbyAsync(cid),
-            EnterLobbyClientMessage { Data: var lidString } when room == MenuRoom
-                => JoinGameRoomAsync(cid, LID.Deserialize(lidString)),
-            LeaveLobbyClientMessage when room != MenuRoom
-                => KickPlayerAsync(cid),
-            _ => room.HandleOnMessageAsync(cid, message)
-        });
-    }
+        CreateLobbyClientMessage => CreateLobbyAsync(cid),
+        EnterLobbyClientMessage { Data: var target } => JoinGameRoomAsync(cid, LID.Deserialize(target)),
+        LeaveLobbyClientMessage => KickPlayerAsync(cid),
+        _ => RoomContaining(cid).HandleOnMessageAsync(cid, message)
+    };
 
     public Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
 
@@ -69,10 +61,7 @@ public class RoomManager : IRoomManager
 
     private async Task SwitchRoomAsync(CID cid, ConnectionRoom? newRoom)
     {
-        var previousRoom = RoomContaining(cid);
-
-        if (previousRoom is not null)
-            await previousRoom.HandleOnLeaveAsync(cid);
+        await RoomContaining(cid).HandleOnLeaveAsync(cid);
 
         if (newRoom is not null)
             await newRoom.HandleOnJoinAsync(cid);

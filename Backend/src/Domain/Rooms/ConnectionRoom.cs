@@ -27,7 +27,7 @@ public abstract class ConnectionRoom
     public virtual async Task HandleOnJoinAsync(CID cid)
     {
         _playerIds.Add(cid);
-        await _mediator.Send(new SendRoomStateRequest(cid, this is GameRoom gr ? gr.LID : null));
+        await _mediator.Send(new SendRoomStateRequest(cid, (this as GameRoom)?.LID));
     }
 
     public virtual Task HandleOnLeaveAsync(CID cid)

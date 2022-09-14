@@ -22,7 +22,7 @@ public class BroadcastHelper : IBroadcastHelper
                 message)));
 
     public Task BroadcastToRoom<T>(LID lid, IServerMessage<T> message)
-        => Broadcast(_roomManager.GetRoom(lid), message);
+        => Broadcast(_roomManager.GetGameRoom(lid), message);
 
     public Task BroadcastToMenu<T>(IServerMessage<T> message)
         => Broadcast(_roomManager.MenuRoom, message);

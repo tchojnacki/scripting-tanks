@@ -19,7 +19,7 @@ public class SendRoomStateHandler : AsyncRequestHandler<SendRoomStateRequest>
 
     protected override async Task Handle(SendRoomStateRequest request, CancellationToken cancellationToken)
     {
-        ConnectionRoom room = request.LID is not null ? _roomManager.GetRoom(request.LID) : _roomManager.MenuRoom;
+        ConnectionRoom room = request.LID is not null ? _roomManager.GetGameRoom(request.LID) : _roomManager.MenuRoom;
         await _connectionManager.SendToSingleAsync(
             request.CID,
             new RoomStateServerMessage { Data = room.RoomState });

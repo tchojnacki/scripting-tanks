@@ -25,23 +25,13 @@ public class WaitingGameState : GameState
     public override Task HandleOnLeaveAsync(CID cid)
         => _mediator.Send(new BroadcastPlayerLeftRequest(_gameRoom.LID, cid));
 
-    public override async Task HandleOnMessageAsync(CID cid, IClientMessage message)
+    public override Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
     {
-        if (cid != _gameRoom.OwnerCID) return;
-
-        await (message switch
-        {
-            StartGameClientMessage when _gameRoom.AllPlayers.Count() >= 2
-                => _gameRoom.StartGameAsync(),
-            CloseLobbyClientMessage
-                => _mediator.Send(new CloseLobbyRequest(_gameRoom.LID)),
-            PromotePlayerClientMessage { Data: var targetString }
-                => _gameRoom.PromoteAsync(CID.Deserialize(targetString)),
-            KickPlayerClientMessage { Data: var targetString }
-                => _mediator.Send(new KickRequest(CID.Deserialize(targetString))),
-            AddBotClientMessage
-                => _mediator.Send(new AddBotRequest(_gameRoom.LID)),
-            _ => Task.CompletedTask
-        });
-    }
+        StartGameClientMessage => _gameRoom.StartGameAsync(),
+        CloseLobbyClientMessage => _mediator.Send(new CloseLobbyRequest(_gameRoom.LID)),
+        PromotePlayerClientMessage { Data: var target } => _gameRoom.PromoteAsync(CID.Deserialize(target)),
+        KickPlayerClientMessage { Data: var target } => _mediator.Send(new KickRequest(CID.Deserialize(target))),
+        AddBotClientMessage => _mediator.Send(new AddBotRequest(_gameRoom.LID)),
+        _ => Task.CompletedTask
+    };
 }
