@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using MediatR;
+using FluentValidation;
 using Backend.Middlewares;
 using Backend.Services;
 
@@ -16,8 +17,10 @@ builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?
 
 builder.Services.AddDirectoryBrowser();
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), ServiceLifetime.Singleton);
 
 builder.Services.AddSingleton<IMessageSerializer, MessageSerializer>();
+builder.Services.AddSingleton<IMessageValidator, MessageValidator>();
 builder.Services.AddSingleton<ICustomizationProvider, CustomizationProvider>();
 builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();

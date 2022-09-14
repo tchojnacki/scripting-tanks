@@ -16,17 +16,20 @@ public class ConnectionManager : IConnectionManager
     private readonly IRoomManager _roomManager;
     private readonly ICustomizationProvider _customizationProvider;
     private readonly IMessageSerializer _messageSerializer;
+    private readonly IMessageValidator _messageValidator;
     private readonly ILogger<ConnectionManager> _logger;
 
     public ConnectionManager(
         IRoomManager roomManager,
         ICustomizationProvider customizationProvider,
         IMessageSerializer messageSerializer,
+        IMessageValidator messageValidator,
         ILogger<ConnectionManager> logger)
     {
         _roomManager = roomManager;
         _customizationProvider = customizationProvider;
         _messageSerializer = messageSerializer;
+        _messageValidator = messageValidator;
         _logger = logger;
     }
 
@@ -130,8 +133,9 @@ public class ConnectionManager : IConnectionManager
                 if (result.CloseStatus.HasValue) break;
 
                 var message = _messageSerializer.DeserializeClientMessage(buffer);
-                if (message != null)
-                    await HandleOnMessageAsync(cid, message);
+                if (message == null || !_messageValidator.Validate(cid, message)) continue;
+
+                await HandleOnMessageAsync(cid, message);
             }
         }
         catch (Exception exception)
