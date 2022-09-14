@@ -25,6 +25,11 @@ public class RoomManager : IRoomManager
 
     public GameRoom GetRoom(LID lid) => _gameRooms[lid];
 
+    public ConnectionRoom? RoomContaining(CID cid)
+        => new ConnectionRoom[] { MenuRoom }
+            .Concat(_gameRooms.Values.AsEnumerable())
+            .FirstOrDefault(r => r.HasPlayer(cid));
+
     public MenuRoom MenuRoom { get; }
 
     public async Task CloseLobbyAsync(LID lid)
@@ -36,8 +41,6 @@ public class RoomManager : IRoomManager
             await Task.WhenAll(gameRoom.AllPlayers.Select(p => MenuRoom.HandleOnJoinAsync(p.CID)));
         }
     }
-
-    public bool CanPlayerCustomize(CID cid) => RoomContaining(cid) == MenuRoom;
 
     public Task HandleOnConnectAsync(CID cid) => SwitchRoomAsync(cid, MenuRoom);
 
@@ -63,11 +66,6 @@ public class RoomManager : IRoomManager
 
     public async Task KickPlayerAsync(CID cid)
         => await SwitchRoomAsync(cid, (await _mediator.Send(new PlayerDataRequest(cid))).IsBot ? null : MenuRoom);
-
-    private ConnectionRoom? RoomContaining(CID cid)
-        => new ConnectionRoom[] { MenuRoom }
-            .Concat(_gameRooms.Values.AsEnumerable())
-            .FirstOrDefault(r => r.HasPlayer(cid));
 
     private async Task SwitchRoomAsync(CID cid, ConnectionRoom? newRoom)
     {

@@ -10,12 +10,10 @@ public interface IRoomManager
     Task HandleOnDisconnectAsync(CID cid);
     Task HandleOnMessageAsync(CID cid, IClientMessage message);
     GameRoom GetRoom(LID lid);
+    ConnectionRoom? RoomContaining(CID cid);
     MenuRoom MenuRoom { get; }
     IEnumerable<GameRoom> Lobbies { get; }
     Task KickPlayerAsync(CID cid);
     Task JoinGameRoomAsync(CID cid, LID lid);
     Task CloseLobbyAsync(LID lid);
-
-    // TODO
-    bool CanPlayerCustomize(CID cid);
 }

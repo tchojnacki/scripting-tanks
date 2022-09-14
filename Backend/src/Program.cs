@@ -23,9 +23,6 @@ builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 builder.Services.AddSingleton<IBroadcastHelper, BroadcastHelper>();
 
-// TODO
-builder.Services.AddSingleton(provider => new Func<IConnectionManager>(() => provider.GetService<IConnectionManager>()!));
-
 var app = builder.Build();
 
 app.UseHsts();

@@ -72,9 +72,9 @@ public class ConnectionManager : IConnectionManager
         _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
         await (message switch
         {
-            RerollNameClientMessage when _roomManager.CanPlayerCustomize(cid)
+            RerollNameClientMessage when _roomManager.RoomContaining(cid) == _roomManager.MenuRoom
                 => RerollClientName(cid),
-            CustomizeColorsClientMessage { Data: var dto } when _roomManager.CanPlayerCustomize(cid)
+            CustomizeColorsClientMessage { Data: var dto } when _roomManager.RoomContaining(cid) == _roomManager.MenuRoom
                 => CustomizeColors(cid, dto.ToDomain()),
             _ => _roomManager.HandleOnMessageAsync(cid, message)
         });
