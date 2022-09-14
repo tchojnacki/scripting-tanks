@@ -95,7 +95,7 @@ public class ConnectionManager : IConnectionManager
     {
         if (!_activeConnections.ContainsKey(cid)) return;
         _logger.LogDebug("Outbound message for {cid}:\n{message}", cid, message);
-        var buffer = _messageSerializer.SerializeServerMessage(message);
+        var buffer = _messageSerializer.Serialize(message);
         await _activeConnections[cid].Socket!.SendAsync(
             new ArraySegment<byte>(buffer),
             WebSocketMessageType.Text,
@@ -132,10 +132,9 @@ public class ConnectionManager : IConnectionManager
                 var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
                 if (result.CloseStatus.HasValue) break;
 
-                var message = _messageSerializer.DeserializeClientMessage(buffer);
-                if (message == null || !_messageValidator.Validate(cid, message)) continue;
-
-                await HandleOnMessageAsync(cid, message);
+                if (_messageSerializer.TryDeserialize(buffer, out var message) &&
+                    _messageValidator.Validate(cid, message))
+                    await HandleOnMessageAsync(cid, message);
             }
         }
         catch (Exception exception)
