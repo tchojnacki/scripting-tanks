@@ -9,6 +9,5 @@ public interface IConnectionManager
 {
     Task AcceptConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken);
     Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message);
-    Task AddBotAsync(LID lid);
     PlayerData DataFor(CID cid);
 }

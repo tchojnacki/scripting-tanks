@@ -48,15 +48,17 @@ public class RoomManager : IRoomManager
 
     public Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
     {
-        CreateLobbyClientMessage => CreateLobbyAsync(cid),
         EnterLobbyClientMessage { Data: var target } => JoinGameRoomAsync(cid, LID.Deserialize(target)),
+        CreateLobbyClientMessage => CreateLobbyAsync(cid),
         LeaveLobbyClientMessage => KickPlayerAsync(cid),
+        KickPlayerClientMessage { Data: var target } => KickPlayerAsync(CID.Deserialize(target)),
+        CloseLobbyClientMessage => CloseLobbyAsync(((GameRoom)RoomContaining(cid)).LID),
         _ => RoomContaining(cid).HandleOnMessageAsync(cid, message)
     };
 
     public Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
 
-    public async Task KickPlayerAsync(CID cid)
+    private async Task KickPlayerAsync(CID cid)
         => await SwitchRoomAsync(cid, (await _mediator.Send(new PlayerDataRequest(cid))).IsBot ? null : MenuRoom);
 
     private async Task SwitchRoomAsync(CID cid, ConnectionRoom? newRoom)

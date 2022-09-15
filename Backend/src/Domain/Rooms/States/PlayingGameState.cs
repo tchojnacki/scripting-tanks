@@ -74,8 +74,8 @@ public class PlayingGameState : GameState
 
     public override Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
     {
-        SetInputAxesClientMessage { Data: var dto } => SetInputAxes(cid, dto.ToDomain()),
         SetBarrelTargetClientMessage { Data: var barrelTarget } => SetBarrelTarget(cid, barrelTarget),
+        SetInputAxesClientMessage { Data: var dto } => SetInputAxes(cid, dto.ToDomain()),
         ShootClientMessage => Shoot(cid),
         _ => Task.CompletedTask
     };

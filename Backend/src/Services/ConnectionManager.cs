@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using Backend.Domain;
+using Backend.Domain.Rooms;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
@@ -74,10 +75,11 @@ public class ConnectionManager : IConnectionManager
     {
         RerollNameClientMessage => RerollClientName(cid),
         CustomizeColorsClientMessage { Data: var dto } => CustomizeColors(cid, dto.ToDomain()),
+        AddBotClientMessage => AddBotAsync(((GameRoom)_roomManager.RoomContaining(cid)).LID),
         _ => _roomManager.HandleOnMessageAsync(cid, message)
     };
 
-    public async Task AddBotAsync(LID lid)
+    private async Task AddBotAsync(LID lid)
     {
         var cid = CID.GenerateUnique();
         _bots.Add(cid);

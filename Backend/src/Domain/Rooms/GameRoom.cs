@@ -1,10 +1,9 @@
 using MediatR;
-using Backend.Services;
 using Backend.Domain.Identifiers;
 using Backend.Domain.Rooms.States;
 using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
-using Backend.Contracts.Messages.Server;
+using Backend.Contracts.Messages.Client;
 using Backend.Mediation.Requests;
 
 namespace Backend.Domain.Rooms;
@@ -46,14 +45,14 @@ public class GameRoom : ConnectionRoom
         }
     }
 
-    public Task StartGameAsync() => SwitchStateAsync<WaitingGameState>(new PlayingGameState(_mediator, this));
+    private Task StartGameAsync() => SwitchStateAsync<WaitingGameState>(new PlayingGameState(_mediator, this));
 
     public Task ShowSummary(IReadOnlyScoreboard scoreboard)
         => SwitchStateAsync<PlayingGameState>(new SummaryGameState(_mediator, this, scoreboard));
 
     public Task PlayAgain() => SwitchStateAsync<SummaryGameState>(new WaitingGameState(_mediator, this));
 
-    public async Task PromoteAsync(CID cid)
+    private async Task PromoteAsync(CID cid)
     {
         OwnerCID = cid;
         await _mediator.Send(new BroadcastOwnerChangeRequest(LID, OwnerCID));
@@ -88,6 +87,10 @@ public class GameRoom : ConnectionRoom
             await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
     }
 
-    public override Task HandleOnMessageAsync(CID cid, IClientMessage message)
-        => State.HandleOnMessageAsync(cid, message);
+    public override Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
+    {
+        StartGameClientMessage => StartGameAsync(),
+        PromotePlayerClientMessage { Data: var target } => PromoteAsync(CID.Deserialize(target)),
+        _ => State.HandleOnMessageAsync(cid, message)
+    };
 }

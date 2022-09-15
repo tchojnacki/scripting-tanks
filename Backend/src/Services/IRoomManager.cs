@@ -14,7 +14,6 @@ public interface IRoomManager
     ConnectionRoom RoomContaining(CID cid);
     MenuRoom MenuRoom { get; }
     IEnumerable<GameRoom> Lobbies { get; }
-    Task KickPlayerAsync(CID cid);
     Task JoinGameRoomAsync(CID cid, LID lid);
     Task CloseLobbyAsync(LID lid);
 }
