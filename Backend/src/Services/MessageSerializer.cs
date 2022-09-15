@@ -23,22 +23,24 @@ public class MessageSerializer : IMessageSerializer
         _tagMap = messageTypes.ToDictionary(t => (string)((dynamic)Activator.CreateInstance(t)!).Tag);
     }
 
-    public IClientMessage? DeserializeClientMessage(byte[] buffer)
+    public bool TryDeserialize(byte[] buffer, out IClientMessage message)
     {
+        message = default!;
         try
         {
             var content = Encoding.UTF8.GetString(buffer).TrimEnd('\0');
             var tag = JsonDocument.Parse(content).RootElement.GetProperty("tag").GetString()!;
             var type = _tagMap[tag]!;
-            var message = JsonSerializer.Deserialize(content, type, SerializerOptions);
-            return (IClientMessage?)message;
+
+            message = (IClientMessage)JsonSerializer.Deserialize(content, type, SerializerOptions)!;
+            return true;
         }
         catch
         {
-            return null;
+            return false;
         }
     }
 
-    public byte[] SerializeServerMessage<T>(IServerMessage<T> message)
+    public byte[] Serialize<T>(IServerMessage<T> message)
         => JsonSerializer.SerializeToUtf8Bytes(message, SerializerOptions);
 }

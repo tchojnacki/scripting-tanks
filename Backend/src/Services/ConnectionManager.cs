@@ -1,7 +1,7 @@
 using System.Net.WebSockets;
 using Backend.Domain;
+using Backend.Domain.Rooms;
 using Backend.Domain.Identifiers;
-using Backend.Rooms;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
@@ -14,22 +14,24 @@ public class ConnectionManager : IConnectionManager
     private readonly Dictionary<CID, PlayerData> _activeConnections = new();
     private readonly HashSet<CID> _bots = new();
 
+    private readonly IRoomManager _roomManager;
     private readonly ICustomizationProvider _customizationProvider;
     private readonly IMessageSerializer _messageSerializer;
+    private readonly IMessageValidator _messageValidator;
     private readonly ILogger<ConnectionManager> _logger;
 
-    private readonly RoomManager _roomManager;
-
     public ConnectionManager(
+        IRoomManager roomManager,
         ICustomizationProvider customizationProvider,
         IMessageSerializer messageSerializer,
+        IMessageValidator messageValidator,
         ILogger<ConnectionManager> logger)
     {
+        _roomManager = roomManager;
         _customizationProvider = customizationProvider;
         _messageSerializer = messageSerializer;
+        _messageValidator = messageValidator;
         _logger = logger;
-
-        _roomManager = new(this);
     }
 
     private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
@@ -69,32 +71,27 @@ public class ConnectionManager : IConnectionManager
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
     }
 
-    private async Task HandleOnMessageAsync(CID cid, IClientMessage message)
+    private Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
     {
-        _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
-        await (message switch
-        {
-            RerollNameClientMessage when _roomManager.CanPlayerCustomize(cid)
-                => RerollClientName(cid),
-            CustomizeColorsClientMessage { Data: var dto } when _roomManager.CanPlayerCustomize(cid)
-                => CustomizeColors(cid, dto.ToDomain()),
-            _ => _roomManager.HandleOnMessageAsync(cid, message)
-        });
-    }
+        RerollNameClientMessage => RerollClientName(cid),
+        CustomizeColorsClientMessage { Data: var dto } => CustomizeColors(cid, dto.ToDomain()),
+        AddBotClientMessage => AddBotAsync(((GameRoom)_roomManager.RoomContaining(cid)).LID),
+        _ => _roomManager.HandleOnMessageAsync(cid, message)
+    };
 
-    public async Task<CID> AddBotAsync()
+    private async Task AddBotAsync(LID lid)
     {
         var cid = CID.GenerateUnique();
         _bots.Add(cid);
         await _roomManager.HandleOnConnectAsync(cid);
-        return cid;
+        await _roomManager.JoinGameRoomAsync(cid, lid);
     }
 
     public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
     {
         if (!_activeConnections.ContainsKey(cid)) return;
         _logger.LogDebug("Outbound message for {cid}:\n{message}", cid, message);
-        var buffer = _messageSerializer.SerializeServerMessage(message);
+        var buffer = _messageSerializer.Serialize(message);
         await _activeConnections[cid].Socket!.SendAsync(
             new ArraySegment<byte>(buffer),
             WebSocketMessageType.Text,
@@ -131,15 +128,24 @@ public class ConnectionManager : IConnectionManager
                 var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
                 if (result.CloseStatus.HasValue) break;
 
-                var message = _messageSerializer.DeserializeClientMessage(buffer);
-                if (message != null)
-                    await HandleOnMessageAsync(cid, message);
+                if (_messageSerializer.TryDeserialize(buffer, out var message) &&
+                    _messageValidator.Validate(cid, message))
+                {
+                    try
+                    {
+                        _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
+                        await HandleOnMessageAsync(cid, message);
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.LogWarning("Error when processing message:\n{message}\n{exception}", message, exception);
+                    }
+                }
             }
         }
         catch (Exception exception)
         {
-            _logger.LogWarning("Socket connection ended abruptly.");
-            _logger.LogInformation("{exception}", exception);
+            _logger.LogWarning("Socket connection ended abruptly with error:\n{exception}", exception);
         }
         finally
         {

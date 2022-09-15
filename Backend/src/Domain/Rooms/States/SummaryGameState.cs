@@ -1,12 +1,12 @@
-using Backend.Domain;
+using MediatR;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
-using Backend.Contracts.Messages.Server;
 using Backend.Utils.Mappings;
+using Backend.Mediation.Requests;
 
 using static System.Math;
 
-namespace Backend.Rooms.States;
+namespace Backend.Domain.Rooms.States;
 
 public class SummaryGameState : GameState
 {
@@ -17,7 +17,7 @@ public class SummaryGameState : GameState
     private readonly IReadOnlyScoreboard _scoreboard;
     private int _remaining = SummaryDuration;
 
-    public SummaryGameState(GameRoom room, IReadOnlyScoreboard scoreboard) : base(room)
+    public SummaryGameState(IMediator mediator, GameRoom room, IReadOnlyScoreboard scoreboard) : base(mediator, room)
     {
         _scoreboard = scoreboard;
         Task.Run(async () => await WaitToPlayAgain());
@@ -29,7 +29,7 @@ public class SummaryGameState : GameState
         {
             await Task.Delay(TimeSpan.FromSeconds(1));
             _remaining--;
-            await _gameRoom.BroadcastMessageAsync(new RoomStateServerMessage { Data = RoomState });
+            await _mediator.Send(new BroadcastRoomStateRequest(_gameRoom.LID));
         }
         await _gameRoom.PlayAgain();
     }

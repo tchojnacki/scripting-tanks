@@ -1,13 +1,14 @@
+using MediatR;
 using Backend.Services;
 using Backend.Contracts.Data;
 using Backend.Utils.Mappings;
 
-namespace Backend.Rooms;
+namespace Backend.Domain.Rooms;
 
 public class MenuRoom : ConnectionRoom
 {
-    public MenuRoom(IConnectionManager connectionManager, RoomManager roomManager)
-        : base(connectionManager, roomManager) { }
+    private readonly IRoomManager _roomManager;
+    public MenuRoom(IMediator mediator, IRoomManager roomManager) : base(mediator) => _roomManager = roomManager;
 
     public override MenuStateDto RoomState => new()
     {
