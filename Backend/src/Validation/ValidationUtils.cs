@@ -2,6 +2,7 @@ using FluentValidation;
 using Backend.Services;
 using Backend.Domain;
 using Backend.Domain.Rooms;
+using Backend.Domain.Rooms.States;
 using Backend.Domain.Identifiers;
 
 namespace Backend.Validation;
@@ -40,4 +41,12 @@ public static class ValidationUtils
         this IRuleBuilder<T, LID> ruleBuilder,
         IRoomManager roomManager)
         => ruleBuilder.Must(lid => roomManager.ContainsGameRoom(lid));
+
+    public static IRuleBuilderOptions<T, CID> MustHaveAliveTank<T>(
+        this IRuleBuilder<T, CID> ruleBuilder,
+        IRoomManager roomManager)
+        => ruleBuilder.Must(cid =>
+            roomManager.RoomContaining(cid) is GameRoom gr &&
+            gr.State is PlayingGameState pgs &&
+            pgs.Tanks.Any(t => t.EID == EID.FromCID(cid)));
 }

@@ -54,28 +54,31 @@ public class PlayingGameState : GameState
 
     public IEnumerable<Tank> Tanks => _entities.Values.OfType<Tank>();
 
-    public override Task HandleOnMessageAsync(CID cid, IClientMessage message)
+    private Task SetInputAxes(CID cid, InputAxes inputAxes)
     {
-        var eid = EID.FromCID(cid);
-        if (!_entities.ContainsKey(eid) || _entities[eid] is not Tank) return Task.CompletedTask;
-        var tank = (Tank)_entities[eid];
-        switch (message)
-        {
-            case SetInputAxesClientMessage { Data: var dto }:
-                tank.InputAxes = dto.ToDomain();
-                break;
-
-            case SetBarrelTargetClientMessage { Data: var barrelTarget }:
-                tank.BarrelTarget = barrelTarget;
-                break;
-
-            case ShootClientMessage:
-                tank.Shoot();
-                break;
-        }
-
+        ((Tank)_entities[EID.FromCID(cid)]).InputAxes = inputAxes;
         return Task.CompletedTask;
     }
+
+    private Task SetBarrelTarget(CID cid, double barrelTarget)
+    {
+        ((Tank)_entities[EID.FromCID(cid)]).BarrelTarget = barrelTarget;
+        return Task.CompletedTask;
+    }
+
+    private Task Shoot(CID cid)
+    {
+        ((Tank)_entities[EID.FromCID(cid)]).Shoot();
+        return Task.CompletedTask;
+    }
+
+    public override Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
+    {
+        SetInputAxesClientMessage { Data: var dto } => SetInputAxes(cid, dto.ToDomain()),
+        SetBarrelTargetClientMessage { Data: var barrelTarget } => SetBarrelTarget(cid, barrelTarget),
+        ShootClientMessage => Shoot(cid),
+        _ => Task.CompletedTask
+    };
 
     public void Spawn(Entity entity) => _spawnQueue.Enqueue(entity);
 
