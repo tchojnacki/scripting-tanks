@@ -1,5 +1,6 @@
 using MediatR;
 using Backend.Domain.Rooms;
+using Backend.Domain.Rooms.States;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
@@ -53,6 +54,7 @@ public class RoomManager : IRoomManager
         LeaveLobbyClientMessage => KickPlayerAsync(cid),
         KickPlayerClientMessage { Data: var target } => KickPlayerAsync(CID.Deserialize(target)),
         CloseLobbyClientMessage => CloseLobbyAsync(((GameRoom)RoomContaining(cid)).LID),
+        StartGameClientMessage => StartGameAsync(((GameRoom)RoomContaining(cid)).LID),
         _ => RoomContaining(cid).HandleOnMessageAsync(cid, message)
     };
 
@@ -74,8 +76,28 @@ public class RoomManager : IRoomManager
         var data = await _mediator.Send(new PlayerDataRequest(cid));
         var lid = LID.GenerateUnique();
         var name = $"{data.Name}'s Game";
-        _gameRooms[lid] = new(_mediator, cid, lid, name);
+        _gameRooms[lid] = WaitingGameState.CreateNew(_mediator, cid, lid, name);
         await _mediator.Send(new BroadcastUpsertLobbyRequest(lid));
         await JoinGameRoomAsync(cid, lid);
     }
+
+    private async Task ChangeGameStateAsync<TFrom, TTo>(LID lid, Func<TFrom, TTo> converter)
+        where TFrom : GameRoom where TTo : GameRoom
+    {
+        if (_gameRooms.TryGetValue(lid, out var gr) && gr is TFrom previous)
+        {
+            _gameRooms[lid] = converter(previous);
+            await _mediator.Send(new BroadcastRoomStateRequest(lid));
+            await _mediator.Send(new BroadcastUpsertLobbyRequest(lid));
+        }
+    }
+
+    private Task StartGameAsync(LID lid)
+        => ChangeGameStateAsync<WaitingGameState, PlayingGameState>(lid, PlayingGameState.AfterWaiting);
+
+    public Task ShowSummaryAsync(LID lid)
+        => ChangeGameStateAsync<PlayingGameState, SummaryGameState>(lid, SummaryGameState.AfterPlaying);
+
+    public Task PlayAgainAsync(LID lid)
+        => ChangeGameStateAsync<SummaryGameState, WaitingGameState>(lid, WaitingGameState.AfterSummary);
 }

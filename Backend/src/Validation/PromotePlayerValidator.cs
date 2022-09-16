@@ -13,6 +13,6 @@ public class PromotePlayerValidator : AbstractValidator<MessageContext<PromotePl
     {
         Transform(from: x => x.Message.Data, to: CID.Deserialize)
             .MustBePlayer(p => !p.IsBot, connectionManager)
-            .MustBeInGameRoom((gr, _, x) => gr.State is WaitingGameState && x.Sender == gr.OwnerCID, roomManager);
+            .MustBeInGameRoom((gr, _, x) => gr is WaitingGameState && x.Sender == gr.OwnerCID, roomManager);
     }
 }

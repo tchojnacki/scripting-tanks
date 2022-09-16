@@ -8,11 +8,14 @@ namespace Backend.Domain.Rooms;
 
 public abstract class ConnectionRoom
 {
-    protected readonly HashSet<CID> _playerIds = new();
-
     protected readonly IMediator _mediator;
+    protected readonly HashSet<CID> _playerIds;
 
-    protected ConnectionRoom(IMediator mediator) => _mediator = mediator;
+    protected ConnectionRoom(IMediator mediator, HashSet<CID> playerIds)
+    {
+        _mediator = mediator;
+        _playerIds = playerIds;
+    }
 
     public abstract AbstractRoomStateDto RoomState { get; }
 
@@ -36,5 +39,5 @@ public abstract class ConnectionRoom
         return Task.CompletedTask;
     }
 
-    public virtual Task HandleOnMessageAsync(CID cid, IClientMessage message) => Task.CompletedTask;
+    public abstract Task HandleOnMessageAsync(CID cid, IClientMessage message);
 }

@@ -16,4 +16,6 @@ public interface IRoomManager
     IEnumerable<GameRoom> Lobbies { get; }
     Task JoinGameRoomAsync(CID cid, LID lid);
     Task CloseLobbyAsync(LID lid);
+    Task ShowSummaryAsync(LID lid);
+    Task PlayAgainAsync(LID lid);
 }

@@ -6,20 +6,34 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Domain.Rooms.States;
 
-public class WaitingGameState : GameState
+public class WaitingGameState : GameRoom
 {
-    public WaitingGameState(IMediator mediator, GameRoom gameRoom) : base(mediator, gameRoom) { }
+    private WaitingGameState(IMediator mediator, CID owner, LID lid, string name)
+        : base(mediator, new(), owner, lid, name) { }
+
+    private WaitingGameState(SummaryGameState previous) : base(previous) { }
+
+    public static WaitingGameState CreateNew(IMediator mediator, CID owner, LID lid, string name)
+        => new(mediator, owner, lid, name);
+
+    public static WaitingGameState AfterSummary(SummaryGameState previous) => new(previous);
 
     public override GameWaitingStateDto RoomState => new()
     {
-        Name = _gameRoom.Name,
-        Owner = _gameRoom.OwnerCID.ToString(),
-        Players = _gameRoom.AllPlayers.Select(p => p.ToDto()).ToList(),
+        Name = Name,
+        Owner = OwnerCID.ToString(),
+        Players = AllPlayers.Select(p => p.ToDto()).ToList(),
     };
 
     public override async Task HandleOnJoinAsync(CID cid)
-        => await _mediator.Send(new BroadcastNewPlayerRequest(_gameRoom.LID, cid));
+    {
+        await _mediator.Send(new BroadcastNewPlayerRequest(LID, cid));
+        await base.HandleOnJoinAsync(cid);
+    }
 
-    public override Task HandleOnLeaveAsync(CID cid)
-        => _mediator.Send(new BroadcastPlayerLeftRequest(_gameRoom.LID, cid));
+    public override async Task HandleOnLeaveAsync(CID cid)
+    {
+        await base.HandleOnLeaveAsync(cid);
+        await _mediator.Send(new BroadcastPlayerLeftRequest(LID, cid));
+    }
 }

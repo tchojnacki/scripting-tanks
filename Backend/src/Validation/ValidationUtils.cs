@@ -47,6 +47,6 @@ public static class ValidationUtils
         IRoomManager roomManager)
         => ruleBuilder.Must(cid =>
             roomManager.RoomContaining(cid) is GameRoom gr &&
-            gr.State is PlayingGameState pgs &&
+            gr is PlayingGameState pgs &&
             pgs.Tanks.Any(t => t.EID == EID.FromCID(cid)));
 }

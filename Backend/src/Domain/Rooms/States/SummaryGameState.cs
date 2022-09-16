@@ -8,7 +8,7 @@ using static System.Math;
 
 namespace Backend.Domain.Rooms.States;
 
-public class SummaryGameState : GameState
+public class SummaryGameState : GameRoom
 {
     private const int SummaryDuration = 10;
     private const double PodiumRadius = 512;
@@ -17,11 +17,13 @@ public class SummaryGameState : GameState
     private readonly IReadOnlyScoreboard _scoreboard;
     private int _remaining = SummaryDuration;
 
-    public SummaryGameState(IMediator mediator, GameRoom room, IReadOnlyScoreboard scoreboard) : base(mediator, room)
+    private SummaryGameState(PlayingGameState previous) : base(previous)
     {
-        _scoreboard = scoreboard;
+        _scoreboard = previous.Scoreboard;
         Task.Run(async () => await WaitToPlayAgain());
     }
+
+    public static SummaryGameState AfterPlaying(PlayingGameState previous) => new(previous);
 
     private async Task WaitToPlayAgain()
     {
@@ -29,9 +31,9 @@ public class SummaryGameState : GameState
         {
             await Task.Delay(TimeSpan.FromSeconds(1));
             _remaining--;
-            await _mediator.Send(new BroadcastRoomStateRequest(_gameRoom.LID));
+            await _mediator.Send(new BroadcastRoomStateRequest(LID));
         }
-        await _gameRoom.PlayAgain();
+        await _mediator.Send(new PlayAgainRequest(LID));
     }
 
     public override GameSummaryStateDto RoomState => new()

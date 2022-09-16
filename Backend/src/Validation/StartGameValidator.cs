@@ -11,6 +11,6 @@ public class StartGameValidator : AbstractValidator<MessageContext<StartGameClie
     public StartGameValidator(IRoomManager roomManager)
     {
         RuleFor(x => x.Sender)
-            .MustBeRoomOwner(gr => gr.State is WaitingGameState, roomManager);
+            .MustBeRoomOwner(gr => gr is WaitingGameState, roomManager);
     }
 }

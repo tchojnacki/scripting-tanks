@@ -10,6 +10,6 @@ public class CloseLobbyValidator : AbstractValidator<MessageContext<CloseLobbyCl
 {
     public CloseLobbyValidator(IRoomManager roomManager)
     {
-        RuleFor(x => x.Sender).MustBeRoomOwner(gr => gr.State is WaitingGameState, roomManager);
+        RuleFor(x => x.Sender).MustBeRoomOwner(gr => gr is WaitingGameState, roomManager);
     }
 }

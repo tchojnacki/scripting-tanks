@@ -12,6 +12,6 @@ public class KickPlayerValidator : AbstractValidator<MessageContext<KickPlayerCl
     public KickPlayerValidator(IRoomManager roomManager)
     {
         Transform(from: x => x.Message.Data, to: CID.Deserialize)
-            .MustBeInGameRoom((gr, _, x) => gr.State is WaitingGameState && x.Sender == gr.OwnerCID, roomManager);
+            .MustBeInGameRoom((gr, _, x) => gr is WaitingGameState && x.Sender == gr.OwnerCID, roomManager);
     }
 }
