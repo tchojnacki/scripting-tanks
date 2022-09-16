@@ -19,6 +19,8 @@ public abstract class ConnectionRoom
     public IEnumerable<PlayerData> AllPlayers
         => _playerIds.Select(cid => _mediator.Send(new PlayerDataRequest(cid)).Result);
 
+    public bool HasPlayer(CID cid) => _playerIds.Contains(cid);
+
     public virtual async Task HandleOnJoinAsync(CID cid)
     {
         _playerIds.Add(cid);

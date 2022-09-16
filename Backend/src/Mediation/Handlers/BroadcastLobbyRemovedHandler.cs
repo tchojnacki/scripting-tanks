@@ -12,7 +12,5 @@ public class BroadcastLobbyRemovedHandler : AsyncRequestHandler<BroadcastLobbyRe
     public BroadcastLobbyRemovedHandler(IBroadcastHelper broadcastHelper) => _broadcastHelper = broadcastHelper;
 
     protected override Task Handle(BroadcastLobbyRemovedRequest request, CancellationToken cancellationToken)
-        => _broadcastHelper.BroadcastToRoom(
-            request.LID,
-            new LobbyRemovedServerMessage { Data = request.LID.ToString() });
+        => _broadcastHelper.BroadcastToMenu(new LobbyRemovedServerMessage { Data = request.LID.ToString() });
 }
