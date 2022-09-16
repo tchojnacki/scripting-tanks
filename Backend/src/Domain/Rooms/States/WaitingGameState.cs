@@ -2,7 +2,6 @@ using MediatR;
 using Backend.Utils.Mappings;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
-using Backend.Mediation.Requests;
 
 namespace Backend.Domain.Rooms.States;
 
@@ -24,16 +23,4 @@ public class WaitingGameState : GameRoom
         Owner = OwnerCID.ToString(),
         Players = AllPlayers.Select(p => p.ToDto()).ToList(),
     };
-
-    public override async Task HandleOnJoinAsync(CID cid)
-    {
-        await _mediator.Send(new BroadcastNewPlayerRequest(LID, cid));
-        await base.HandleOnJoinAsync(cid);
-    }
-
-    public override async Task HandleOnLeaveAsync(CID cid)
-    {
-        await base.HandleOnLeaveAsync(cid);
-        await _mediator.Send(new BroadcastPlayerLeftRequest(LID, cid));
-    }
 }

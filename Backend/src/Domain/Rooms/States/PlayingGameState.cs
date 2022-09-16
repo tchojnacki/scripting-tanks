@@ -1,4 +1,3 @@
-using MediatR;
 using Backend.Domain.Identifiers;
 using Backend.Domain.Game;
 using Backend.Contracts.Data;

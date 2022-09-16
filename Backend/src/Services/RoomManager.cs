@@ -31,7 +31,7 @@ public class RoomManager : IRoomManager
     public ConnectionRoom RoomContaining(CID cid)
         => new ConnectionRoom[] { MenuRoom }
             .Concat(_gameRooms.Values.AsEnumerable())
-            .Single(r => r.HasPlayer(cid));
+            .Single(r => r.AllPlayers.Any(p => p.CID == cid));
 
     public MenuRoom MenuRoom { get; }
 

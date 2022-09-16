@@ -22,11 +22,6 @@ public abstract class ConnectionRoom
     public IEnumerable<PlayerData> AllPlayers
         => _playerIds.Select(cid => _mediator.Send(new PlayerDataRequest(cid)).Result);
 
-    public IEnumerable<PlayerData> RealPlayers
-        => AllPlayers.Where(p => !p.IsBot);
-
-    public bool HasPlayer(CID cid) => _playerIds.Contains(cid);
-
     public virtual async Task HandleOnJoinAsync(CID cid)
     {
         _playerIds.Add(cid);
@@ -39,5 +34,5 @@ public abstract class ConnectionRoom
         return Task.CompletedTask;
     }
 
-    public abstract Task HandleOnMessageAsync(CID cid, IClientMessage message);
+    public virtual Task HandleOnMessageAsync(CID cid, IClientMessage message) => Task.CompletedTask;
 }

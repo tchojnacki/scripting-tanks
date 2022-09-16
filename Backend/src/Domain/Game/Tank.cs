@@ -79,14 +79,7 @@ public class Tank : Entity
     {
         switch (other)
         {
-            case Bullet bullet:
-                if (bullet.OwnerCID != PlayerData.CID)
-                {
-                    _world.Destroy(this);
-                    _world.Destroy(other);
-                }
-                break;
-
+            case Bullet bullet when bullet.OwnerCID != PlayerData.CID:
             case Tank:
                 _world.Destroy(this);
                 _world.Destroy(other);

@@ -1,4 +1,3 @@
-using MediatR;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
 using Backend.Utils.Mappings;

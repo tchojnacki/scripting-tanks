@@ -10,6 +10,6 @@ public static class GameRoomMapper
         LID = room.LID.ToString(),
         Name = room.Name,
         Players = room.AllPlayers.Count(),
-        Location = room.Location,
+        Location = room.RoomState.Location,
     };
 }
