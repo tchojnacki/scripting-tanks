@@ -1,4 +1,4 @@
-namespace Backend.Domain;
+namespace Backend.Domain.Game;
 
 public readonly record struct InputAxes
 {

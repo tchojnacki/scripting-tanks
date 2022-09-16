@@ -3,6 +3,7 @@ using Backend.Services;
 using Backend.Domain.Rooms;
 using Backend.Contracts.Messages.Server;
 using Backend.Mediation.Requests;
+using Backend.Utils.Mappings;
 
 namespace Backend.Mediation.Handlers;
 
@@ -22,6 +23,6 @@ public class SendRoomStateHandler : AsyncRequestHandler<SendRoomStateRequest>
         ConnectionRoom room = request.LID is not null ? _roomManager.GetGameRoom(request.LID) : _roomManager.MenuRoom;
         await _connectionManager.SendToSingleAsync(
             request.CID,
-            new RoomStateServerMessage { Data = room.RoomState });
+            new RoomStateServerMessage { Data = room.ToDto() });
     }
 }

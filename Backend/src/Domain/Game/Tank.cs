@@ -1,4 +1,4 @@
-using Backend.Domain.Rooms.States;
+using Backend.Domain.Rooms.GameStates;
 using Backend.Domain.Game.AI;
 
 using static System.Math;
@@ -79,14 +79,7 @@ public class Tank : Entity
     {
         switch (other)
         {
-            case Bullet bullet:
-                if (bullet.OwnerCID != PlayerData.CID)
-                {
-                    _world.Destroy(this);
-                    _world.Destroy(other);
-                }
-                break;
-
+            case Bullet bullet when bullet.OwnerCID != PlayerData.CID:
             case Tank:
                 _world.Destroy(this);
                 _world.Destroy(other);

@@ -19,5 +19,5 @@ public class BroadcastUpsertLobbyHandler : AsyncRequestHandler<BroadcastUpsertLo
 
     protected override Task Handle(BroadcastUpsertLobbyRequest request, CancellationToken cancellationToken)
         => _broadcastHelper.BroadcastToMenu(
-            new UpsertLobbyServerMessage { Data = _roomManager.GetGameRoom(request.LID).ToDto() });
+            new UpsertLobbyServerMessage { Data = _roomManager.GetGameRoom(request.LID).LobbyInfo.ToDto() });
 }

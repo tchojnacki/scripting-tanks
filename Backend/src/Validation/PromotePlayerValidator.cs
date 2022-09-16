@@ -1,7 +1,7 @@
 using FluentValidation;
 using Backend.Services;
 using Backend.Domain;
-using Backend.Domain.Rooms.States;
+using Backend.Domain.Rooms.GameStates;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages.Client;
 
@@ -13,6 +13,6 @@ public class PromotePlayerValidator : AbstractValidator<MessageContext<PromotePl
     {
         Transform(from: x => x.Message.Data, to: CID.Deserialize)
             .MustBePlayer(p => !p.IsBot, connectionManager)
-            .MustBeInGameRoom((gr, _, x) => gr.State is WaitingGameState && x.Sender == gr.OwnerCID, roomManager);
+            .MustBeInGameRoom((gr, _, x) => gr is WaitingGameState && x.Sender == gr.OwnerCID, roomManager);
     }
 }

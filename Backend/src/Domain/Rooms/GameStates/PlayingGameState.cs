@@ -1,7 +1,5 @@
-using MediatR;
 using Backend.Domain.Identifiers;
 using Backend.Domain.Game;
-using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Utils.Mappings;
@@ -9,9 +7,9 @@ using Backend.Mediation.Requests;
 
 using static System.Math;
 
-namespace Backend.Domain.Rooms.States;
+namespace Backend.Domain.Rooms.GameStates;
 
-public class PlayingGameState : GameState
+public class PlayingGameState : GameRoom
 {
     private const double TickRate = 24;
     private const double PlayerDistance = 2048;
@@ -19,15 +17,16 @@ public class PlayingGameState : GameState
 
     private long _lastUpdate;
     private readonly Dictionary<EID, Entity> _entities;
-    private readonly Scoreboard _scoreboard;
     private readonly Queue<Entity> _spawnQueue = new();
     private readonly Queue<EID> _destroyQueue = new();
 
-    public PlayingGameState(IMediator mediator, GameRoom gameRoom) : base(mediator, gameRoom)
+    protected override string Location => "game-playing";
+
+    private PlayingGameState(WaitingGameState previous) : base(previous)
     {
         _lastUpdate = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        var playerCount = _gameRoom.AllPlayers.Count();
+        var playerCount = AllPlayers.Count();
         var step = 2 * PI / playerCount;
         Radius = Floor(
             playerCount == 1
@@ -35,7 +34,7 @@ public class PlayingGameState : GameState
                 : PlayerDistance / Sqrt(2 - 2 * Cos(2 * PI / playerCount))
         ) + IslandMargin;
 
-        _entities = _gameRoom.AllPlayers.Select((player, i) => (Entity)new Tank(
+        _entities = AllPlayers.Select((player, i) => (Entity)new Tank(
             world: this,
             playerData: player,
             pos: new Vector(
@@ -45,10 +44,16 @@ public class PlayingGameState : GameState
             pitch: step * i + PI
         )).ToDictionary(t => t.EID);
 
-        _scoreboard = new(_gameRoom.AllPlayers);
+        Scoreboard = new(AllPlayers);
 
         Task.Run(async () => await GameLoop());
     }
+
+    public static PlayingGameState AfterWaiting(WaitingGameState previous) => new(previous);
+
+    public IEnumerable<Entity> Entities => _entities.Values;
+
+    public Scoreboard Scoreboard { get; }
 
     public double Radius { get; }
 
@@ -77,7 +82,7 @@ public class PlayingGameState : GameState
         SetBarrelTargetClientMessage { Data: var barrelTarget } => SetBarrelTarget(cid, barrelTarget),
         SetInputAxesClientMessage { Data: var dto } => SetInputAxes(cid, dto.ToDomain()),
         ShootClientMessage => Shoot(cid),
-        _ => Task.CompletedTask
+        _ => base.HandleOnMessageAsync(cid, message)
     };
 
     public void Spawn(Entity entity) => _spawnQueue.Enqueue(entity);
@@ -88,12 +93,12 @@ public class PlayingGameState : GameState
 
         if (entity is Tank)
         {
-            foreach (var cid in _scoreboard.Players)
+            foreach (var cid in Scoreboard.Players)
             {
                 var eid = EID.FromCID(cid);
 
                 if (eid != entity.EID && _entities.ContainsKey(eid))
-                    _scoreboard.Increment(cid);
+                    Scoreboard.Increment(cid);
             }
         }
     }
@@ -138,24 +143,17 @@ public class PlayingGameState : GameState
             ResolveUpdates(deltaTime);
             ResolveCollisions();
 
-            await _mediator.Send(new BroadcastRoomStateRequest(_gameRoom.LID));
+            await _mediator.Send(new BroadcastRoomStateRequest(LID));
 
             await Task.Delay(TimeSpan.FromSeconds(1 / TickRate));
         }
 
-        await _gameRoom.ShowSummary(_scoreboard);
+        await _mediator.Send(new ShowSummaryRequest(LID));
     }
 
-    public override Task HandleOnLeaveAsync(CID cid)
+    public override async Task HandleOnLeaveAsync(CID cid)
     {
+        await base.HandleOnLeaveAsync(cid);
         _entities.Remove(EID.FromCID(cid));
-        return Task.CompletedTask;
     }
-
-    public override GamePlayingStateDto RoomState => new()
-    {
-        Radius = Radius,
-        Entities = _entities.Values.Select(e => e.ToDto()).ToList(),
-        Scoreboard = _scoreboard.ToDto(),
-    };
 }

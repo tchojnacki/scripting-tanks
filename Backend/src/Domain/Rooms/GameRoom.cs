@@ -1,56 +1,41 @@
 using MediatR;
 using Backend.Domain.Identifiers;
-using Backend.Domain.Rooms.States;
-using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Mediation.Requests;
 
 namespace Backend.Domain.Rooms;
 
-public class GameRoom : ConnectionRoom
+public abstract class GameRoom : ConnectionRoom
 {
-    private static readonly Random Rand = new();
-
-    public GameRoom(
+    protected GameRoom(
         IMediator mediator,
+        HashSet<CID> playerIds,
         CID owner,
         LID lid,
         string name)
-        : base(mediator)
+        : base(mediator, playerIds)
     {
         LID = lid;
         OwnerCID = owner;
         Name = name;
-        State = new WaitingGameState(mediator, this);
     }
+
+    protected GameRoom(GameRoom previous)
+        : this(previous._mediator, previous._playerIds, previous.OwnerCID, previous.LID, previous.Name) { }
 
     public LID LID { get; }
     public string Name { get; }
     public CID OwnerCID { get; private set; }
-    public GameState State { get; private set; }
+    protected abstract string Location { get; }
 
-    public string Location => State.RoomState.Location;
-
-    public override AbstractRoomStateDto RoomState => State.RoomState;
-
-    private async Task SwitchStateAsync<TFrom>(GameState newState)
-        where TFrom : GameState
+    public LobbyInfo LobbyInfo => new()
     {
-        if (State is TFrom)
-        {
-            State = newState;
-            await _mediator.Send(new BroadcastRoomStateRequest(LID));
-            await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
-        }
-    }
-
-    private Task StartGameAsync() => SwitchStateAsync<WaitingGameState>(new PlayingGameState(_mediator, this));
-
-    public Task ShowSummary(IReadOnlyScoreboard scoreboard)
-        => SwitchStateAsync<PlayingGameState>(new SummaryGameState(_mediator, this, scoreboard));
-
-    public Task PlayAgain() => SwitchStateAsync<SummaryGameState>(new WaitingGameState(_mediator, this));
+        LID = LID,
+        Name = Name,
+        PlayerCount = AllPlayers.Count(),
+        Location = Location,
+    };
 
     private async Task PromoteAsync(CID cid)
     {
@@ -60,37 +45,37 @@ public class GameRoom : ConnectionRoom
 
     public override async Task HandleOnJoinAsync(CID cid)
     {
-        await State.HandleOnJoinAsync(cid);
         await base.HandleOnJoinAsync(cid);
+        await _mediator.Send(new BroadcastNewPlayerRequest(LID, cid));
         await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
     }
 
     public override async Task HandleOnLeaveAsync(CID cid)
     {
         await base.HandleOnLeaveAsync(cid);
-        await State.HandleOnLeaveAsync(cid);
-        if (cid == OwnerCID)
+
+        var realPlayers = AllPlayers.Where(p => !p.IsBot).Select(p => p.CID).ToList();
+        if (realPlayers.Any())
         {
-            var ownerCandidates = RealPlayers.Select(p => p.CID).ToList();
-            if (ownerCandidates.Any())
+            if (cid == OwnerCID)
             {
-                OwnerCID = ownerCandidates.ElementAt(Rand.Next(ownerCandidates.Count));
+                var random = new Random();
+                OwnerCID = realPlayers.ElementAt(random.Next(realPlayers.Count));
                 await _mediator.Send(new BroadcastOwnerChangeRequest(LID, OwnerCID));
             }
-            else
-            {
-                await _mediator.Send(new CloseLobbyRequest(LID));
-            }
-        }
 
-        if (RealPlayers.Any())
+            await _mediator.Send(new BroadcastPlayerLeftRequest(LID, cid));
             await _mediator.Send(new BroadcastUpsertLobbyRequest(LID));
+        }
+        else
+        {
+            await _mediator.Send(new CloseLobbyRequest(LID));
+        }
     }
 
     public override Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
     {
-        StartGameClientMessage => StartGameAsync(),
         PromotePlayerClientMessage { Data: var target } => PromoteAsync(CID.Deserialize(target)),
-        _ => State.HandleOnMessageAsync(cid, message)
+        _ => base.HandleOnMessageAsync(cid, message)
     };
 }

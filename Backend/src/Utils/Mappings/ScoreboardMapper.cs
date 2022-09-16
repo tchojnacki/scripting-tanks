@@ -1,5 +1,5 @@
 using Backend.Contracts.Data;
-using Backend.Domain;
+using Backend.Domain.Game;
 
 namespace Backend.Utils.Mappings;
 
