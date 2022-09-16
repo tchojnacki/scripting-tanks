@@ -1,6 +1,6 @@
 namespace Backend.Contracts.Data;
 
-public record PlayerDto
+public sealed record PlayerDto
 {
     public string CID { get; init; } = default!;
     public string Name { get; init; } = default!;

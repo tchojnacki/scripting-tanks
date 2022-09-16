@@ -9,7 +9,7 @@ using Backend.Utils.Mappings;
 
 namespace Backend.Services;
 
-public class ConnectionManager : IConnectionManager
+internal sealed class ConnectionManager : IConnectionManager
 {
     private readonly Dictionary<CID, PlayerData> _activeConnections = new();
     private readonly HashSet<CID> _bots = new();

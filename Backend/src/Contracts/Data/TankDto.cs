@@ -1,6 +1,6 @@
 namespace Backend.Contracts.Data;
 
-public record TankDto : AbstractEntityDto
+public sealed record TankDto : AbstractEntityDto
 {
     public override string Kind { get; } = "tank";
     public string CID { get; init; } = default!;

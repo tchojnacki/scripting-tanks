@@ -3,7 +3,7 @@ using Backend.Domain.Game;
 
 namespace Backend.Utils.Mappings;
 
-public static class InputAxesMapper
+internal static class InputAxesMapper
 {
     public static InputAxes ToDomain(this InputAxesDto dto) => new()
     {

@@ -1,6 +1,6 @@
 namespace Backend.Contracts.Data;
 
-public record GamePlayingStateDto : AbstractRoomStateDto
+public sealed record GamePlayingStateDto : AbstractRoomStateDto
 {
     public override string Location { get; } = "game-playing";
     public double Radius { get; init; } = default!;

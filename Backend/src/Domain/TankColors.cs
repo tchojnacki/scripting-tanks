@@ -1,6 +1,6 @@
 namespace Backend.Domain;
 
-public record TankColors
+internal sealed record TankColors
 {
     public string TankColor { get; init; } = default!;
     public string TurretColor { get; init; } = default!;

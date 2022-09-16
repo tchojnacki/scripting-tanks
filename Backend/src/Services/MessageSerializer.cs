@@ -4,7 +4,7 @@ using Backend.Contracts.Messages;
 
 namespace Backend.Services;
 
-public class MessageSerializer : IMessageSerializer
+internal sealed class MessageSerializer : IMessageSerializer
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {

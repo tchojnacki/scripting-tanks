@@ -1,6 +1,6 @@
 namespace Backend.Domain.Identifiers;
 
-public record CID : Identifier<CID>
+internal sealed record CID : Identifier<CID>
 {
     private CID() { }
 

@@ -5,7 +5,7 @@ using static System.Math;
 
 namespace Backend.Domain.Game;
 
-public class Tank : Entity
+internal sealed class Tank : Entity
 {
     private const double CDrag = 100;
     private const double CRollResist = 5_000;

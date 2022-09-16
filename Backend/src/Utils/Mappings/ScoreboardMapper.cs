@@ -3,7 +3,7 @@ using Backend.Domain.Game;
 
 namespace Backend.Utils.Mappings;
 
-public static class ScoreboardMapper
+internal static class ScoreboardMapper
 {
     public static ScoreboardEntryDto ToDto(this Scoreboard.Entry entry) => new()
     {

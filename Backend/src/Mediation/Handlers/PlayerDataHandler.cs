@@ -5,7 +5,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Mediation.Handlers;
 
-public class PlayerDataHandler : RequestHandler<PlayerDataRequest, PlayerData>
+internal sealed class PlayerDataHandler : RequestHandler<PlayerDataRequest, PlayerData>
 {
     private readonly IConnectionManager _connectionManager;
 

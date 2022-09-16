@@ -5,7 +5,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Mediation.Handlers;
 
-public class BroadcastLobbyRemovedHandler : AsyncRequestHandler<BroadcastLobbyRemovedRequest>
+internal sealed class BroadcastLobbyRemovedHandler : AsyncRequestHandler<BroadcastLobbyRemovedRequest>
 {
     private readonly IBroadcastHelper _broadcastHelper;
 

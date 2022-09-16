@@ -6,7 +6,7 @@ using Backend.Utils.Mappings;
 
 namespace Backend.Mediation.Handlers;
 
-public class BroadcastUpsertLobbyHandler : AsyncRequestHandler<BroadcastUpsertLobbyRequest>
+internal sealed class BroadcastUpsertLobbyHandler : AsyncRequestHandler<BroadcastUpsertLobbyRequest>
 {
     private readonly IBroadcastHelper _broadcastHelper;
     private readonly IRoomManager _roomManager;

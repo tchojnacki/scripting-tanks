@@ -6,7 +6,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Domain.Rooms;
 
-public abstract class GameRoom : ConnectionRoom
+internal abstract class GameRoom : ConnectionRoom
 {
     protected GameRoom(
         IMediator mediator,

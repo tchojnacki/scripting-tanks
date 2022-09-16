@@ -2,13 +2,13 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Domain.Game;
 
-public interface IReadOnlyScoreboard
+internal interface IReadOnlyScoreboard
 {
     public IEnumerable<CID> Players { get; }
     public IEnumerable<Scoreboard.Entry> Entries { get; }
 }
 
-public class Scoreboard : IReadOnlyScoreboard
+internal sealed class Scoreboard : IReadOnlyScoreboard
 {
     private readonly Dictionary<CID, int> _scores;
     private readonly IReadOnlyDictionary<CID, PlayerData> _metadata;

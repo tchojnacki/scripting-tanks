@@ -5,7 +5,7 @@ using static System.Math;
 
 namespace Backend.Domain.Rooms.GameStates;
 
-public class SummaryGameState : GameRoom
+internal sealed class SummaryGameState : GameRoom
 {
     private const int SummaryDuration = 10;
     private const double PodiumRadius = 512;

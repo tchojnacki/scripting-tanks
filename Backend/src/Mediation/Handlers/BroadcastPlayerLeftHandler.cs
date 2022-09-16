@@ -5,7 +5,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Mediation.Handlers;
 
-public class BroadcastPlayerLeftHandler : AsyncRequestHandler<BroadcastPlayerLeftRequest>
+internal sealed class BroadcastPlayerLeftHandler : AsyncRequestHandler<BroadcastPlayerLeftRequest>
 {
     private readonly IBroadcastHelper _broadcastHelper;
 

@@ -6,7 +6,7 @@ using Backend.Utils.Mappings;
 
 namespace Backend.Mediation.Handlers;
 
-public class BroadcastNewPlayerHandler : AsyncRequestHandler<BroadcastNewPlayerRequest>
+internal sealed class BroadcastNewPlayerHandler : AsyncRequestHandler<BroadcastNewPlayerRequest>
 {
     private readonly IBroadcastHelper _broadcastHelper;
     private readonly IConnectionManager _connectionManager;

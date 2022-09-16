@@ -4,7 +4,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Mediation.Handlers;
 
-public class PlayAgainHandler : AsyncRequestHandler<PlayAgainRequest>
+internal sealed class PlayAgainHandler : AsyncRequestHandler<PlayAgainRequest>
 {
     private readonly IRoomManager _roomManager;
 

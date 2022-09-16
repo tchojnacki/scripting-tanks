@@ -3,7 +3,7 @@ using Backend.Utils.Common;
 
 namespace Backend.Services;
 
-public class CustomizationProvider : ICustomizationProvider
+internal sealed class CustomizationProvider : ICustomizationProvider
 {
     private readonly static Random Rand = new();
 

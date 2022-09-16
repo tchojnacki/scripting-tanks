@@ -1,6 +1,6 @@
 namespace Backend.Utils.Common;
 
-public static class ColorUtils
+internal static class ColorUtils
 {
     public static (double red, double green, double blue) HslToRgb(double hue, double saturation, double lightness)
     {

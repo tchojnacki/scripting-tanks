@@ -4,7 +4,7 @@ using Backend.Contracts.Data;
 
 namespace Backend.Utils.Converters;
 
-public class VectorDtoJsonConverter : JsonConverter<VectorDto>
+internal sealed class VectorDtoJsonConverter : JsonConverter<VectorDto>
 {
     public override VectorDto Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
     {

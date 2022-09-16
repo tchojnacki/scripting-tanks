@@ -3,7 +3,7 @@ using Backend.Domain.Rooms;
 
 namespace Backend.Utils.Mappings;
 
-public static class LobbyInfoMapper
+internal static class LobbyInfoMapper
 {
     public static LobbyDto ToDto(this LobbyInfo lobby) => new()
     {

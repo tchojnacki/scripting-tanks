@@ -4,4 +4,4 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Mediation.Requests;
 
-public record PlayerDataRequest(CID CID) : IRequest<PlayerData>;
+internal sealed record PlayerDataRequest(CID CID) : IRequest<PlayerData>;

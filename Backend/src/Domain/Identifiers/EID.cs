@@ -1,6 +1,6 @@
 namespace Backend.Domain.Identifiers;
 
-public record EID : Identifier<EID>
+internal sealed record EID : Identifier<EID>
 {
     private EID() { }
 

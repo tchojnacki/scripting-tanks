@@ -3,7 +3,7 @@ using Backend.Domain.Rooms.GameStates;
 
 namespace Backend.Domain.Game;
 
-public abstract class Entity
+internal abstract class Entity
 {
     private const double SeaHeight = -100;
 

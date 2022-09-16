@@ -3,7 +3,7 @@ using Backend.Domain.Game;
 
 namespace Backend.Utils.Mappings;
 
-public static class VectorMapper
+internal static class VectorMapper
 {
     public static VectorDto ToDto(this Vector vector) => new()
     {

@@ -5,7 +5,7 @@ using static System.Math;
 
 namespace Backend.Domain.Game.AI;
 
-public class SimpleAI : TankAI
+internal sealed class SimpleAI : TankAI
 {
     public SimpleAI(EID eid, PlayingGameState world) : base(eid, world) { }
 

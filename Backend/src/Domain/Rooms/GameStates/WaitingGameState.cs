@@ -3,7 +3,7 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Domain.Rooms.GameStates;
 
-public class WaitingGameState : GameRoom
+internal sealed class WaitingGameState : GameRoom
 {
     protected override string Location => "game-waiting";
 

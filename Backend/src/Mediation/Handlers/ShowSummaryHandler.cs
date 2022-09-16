@@ -4,7 +4,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Mediation.Handlers;
 
-public class ShowSummaryHandler : AsyncRequestHandler<ShowSummaryRequest>
+internal sealed class ShowSummaryHandler : AsyncRequestHandler<ShowSummaryRequest>
 {
     private readonly IRoomManager _roomManager;
 

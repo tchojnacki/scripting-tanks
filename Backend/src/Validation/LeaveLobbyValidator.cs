@@ -5,7 +5,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class LeaveLobbyValidator : AbstractValidator<MessageContext<LeaveLobbyClientMessage>>
+internal sealed class LeaveLobbyValidator : AbstractValidator<MessageContext<LeaveLobbyClientMessage>>
 {
     public LeaveLobbyValidator(IRoomManager roomManager)
     {

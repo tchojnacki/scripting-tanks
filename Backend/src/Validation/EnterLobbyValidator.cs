@@ -6,7 +6,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class EnterLobbyValidator : AbstractValidator<MessageContext<EnterLobbyClientMessage>>
+internal sealed class EnterLobbyValidator : AbstractValidator<MessageContext<EnterLobbyClientMessage>>
 {
     public EnterLobbyValidator(IRoomManager roomManager)
     {

@@ -3,7 +3,7 @@ using Backend.Services;
 
 namespace Backend.Domain.Rooms;
 
-public class MenuRoom : ConnectionRoom
+internal sealed class MenuRoom : ConnectionRoom
 {
     private readonly IRoomManager _roomManager;
     public MenuRoom(IMediator mediator, IRoomManager roomManager) : base(mediator, new())

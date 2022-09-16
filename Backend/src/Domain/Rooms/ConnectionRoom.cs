@@ -5,7 +5,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Domain.Rooms;
 
-public abstract class ConnectionRoom
+internal abstract class ConnectionRoom
 {
     protected readonly IMediator _mediator;
     protected readonly HashSet<CID> _playerIds;

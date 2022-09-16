@@ -3,7 +3,7 @@ using Backend.Domain.Rooms.GameStates;
 
 namespace Backend.Domain.Game;
 
-public class Bullet : Entity
+internal sealed class Bullet : Entity
 {
     private const double BulletSpeed = 1024;
     private const double RadiusGrowthTempo = 64;

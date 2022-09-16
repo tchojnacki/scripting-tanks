@@ -5,7 +5,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class RerollNameValidator : AbstractValidator<MessageContext<RerollNameClientMessage>>
+internal sealed class RerollNameValidator : AbstractValidator<MessageContext<RerollNameClientMessage>>
 {
     public RerollNameValidator(IRoomManager roomManager)
     {

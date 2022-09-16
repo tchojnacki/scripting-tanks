@@ -2,7 +2,7 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Domain.Rooms;
 
-public record LobbyInfo
+internal sealed record LobbyInfo
 {
     public LID LID { get; init; } = default!;
     public string Name { get; init; } = default!;

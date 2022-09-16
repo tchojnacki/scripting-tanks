@@ -5,7 +5,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class SetInputAxesValidator : AbstractValidator<MessageContext<SetInputAxesClientMessage>>
+internal sealed class SetInputAxesValidator : AbstractValidator<MessageContext<SetInputAxesClientMessage>>
 {
     public SetInputAxesValidator(IRoomManager roomManager)
     {
