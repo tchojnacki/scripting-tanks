@@ -8,7 +8,7 @@ using Backend.Mediation.Requests;
 
 using static System.Math;
 
-namespace Backend.Domain.Rooms.States;
+namespace Backend.Domain.Rooms.GameStates;
 
 public class PlayingGameState : GameRoom
 {

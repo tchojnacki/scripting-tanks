@@ -1,11 +1,12 @@
 using Backend.Domain.Identifiers;
+using Backend.Domain.Game;
 using Backend.Contracts.Data;
 using Backend.Utils.Mappings;
 using Backend.Mediation.Requests;
 
 using static System.Math;
 
-namespace Backend.Domain.Rooms.States;
+namespace Backend.Domain.Rooms.GameStates;
 
 public class SummaryGameState : GameRoom
 {

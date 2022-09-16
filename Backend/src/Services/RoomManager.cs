@@ -1,6 +1,6 @@
 using MediatR;
 using Backend.Domain.Rooms;
-using Backend.Domain.Rooms.States;
+using Backend.Domain.Rooms.GameStates;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;

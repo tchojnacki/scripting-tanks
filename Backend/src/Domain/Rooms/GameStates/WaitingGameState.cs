@@ -3,7 +3,7 @@ using Backend.Utils.Mappings;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Data;
 
-namespace Backend.Domain.Rooms.States;
+namespace Backend.Domain.Rooms.GameStates;
 
 public class WaitingGameState : GameRoom
 {

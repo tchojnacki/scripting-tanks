@@ -2,7 +2,7 @@ using FluentValidation;
 using Backend.Services;
 using Backend.Domain;
 using Backend.Domain.Rooms;
-using Backend.Domain.Rooms.States;
+using Backend.Domain.Rooms.GameStates;
 using Backend.Domain.Identifiers;
 
 namespace Backend.Validation;

@@ -1,7 +1,7 @@
 using FluentValidation;
 using Backend.Services;
 using Backend.Domain;
-using Backend.Domain.Rooms.States;
+using Backend.Domain.Rooms.GameStates;
 using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages.Client;
 

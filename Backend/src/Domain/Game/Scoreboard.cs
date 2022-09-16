@@ -1,6 +1,6 @@
 using Backend.Domain.Identifiers;
 
-namespace Backend.Domain;
+namespace Backend.Domain.Game;
 
 public interface IReadOnlyScoreboard
 {
