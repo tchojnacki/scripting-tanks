@@ -3,4 +3,4 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Mediation.Requests;
 
-public record BroadcastLobbyRemovedRequest(LID LID) : IRequest;
+internal sealed record BroadcastLobbyRemovedRequest(LID LID) : IRequest;

@@ -4,7 +4,7 @@ using Backend.Contracts.Data;
 
 namespace Backend.Utils.Converters;
 
-public class TankColorsDtoJsonConverter : JsonConverter<TankColorsDto>
+internal sealed class TankColorsDtoJsonConverter : JsonConverter<TankColorsDto>
 {
     public override TankColorsDto Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
     {

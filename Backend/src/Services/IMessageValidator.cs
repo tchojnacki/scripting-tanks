@@ -3,7 +3,7 @@ using Backend.Contracts.Messages;
 
 namespace Backend.Services;
 
-public interface IMessageValidator
+internal interface IMessageValidator
 {
     bool Validate(CID cid, IClientMessage message);
 }

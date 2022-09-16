@@ -3,7 +3,7 @@ using Backend.Contracts.Data;
 
 namespace Backend.Validation;
 
-public class InputAxesDtoValidator : AbstractValidator<InputAxesDto>
+internal sealed class InputAxesDtoValidator : AbstractValidator<InputAxesDto>
 {
     public InputAxesDtoValidator()
     {

@@ -6,7 +6,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class StartGameValidator : AbstractValidator<MessageContext<StartGameClientMessage>>
+internal sealed class StartGameValidator : AbstractValidator<MessageContext<StartGameClientMessage>>
 {
     public StartGameValidator(IRoomManager roomManager)
     {

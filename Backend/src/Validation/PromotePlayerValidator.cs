@@ -7,7 +7,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class PromotePlayerValidator : AbstractValidator<MessageContext<PromotePlayerClientMessage>>
+internal sealed class PromotePlayerValidator : AbstractValidator<MessageContext<PromotePlayerClientMessage>>
 {
     public PromotePlayerValidator(IConnectionManager connectionManager, IRoomManager roomManager)
     {

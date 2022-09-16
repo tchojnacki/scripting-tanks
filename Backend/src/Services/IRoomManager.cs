@@ -4,7 +4,7 @@ using Backend.Domain.Rooms;
 
 namespace Backend.Services;
 
-public interface IRoomManager
+internal interface IRoomManager
 {
     Task HandleOnConnectAsync(CID cid);
     Task HandleOnDisconnectAsync(CID cid);

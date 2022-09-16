@@ -5,7 +5,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class SetBarrelTargetValidator : AbstractValidator<MessageContext<SetBarrelTargetClientMessage>>
+internal sealed class SetBarrelTargetValidator : AbstractValidator<MessageContext<SetBarrelTargetClientMessage>>
 {
     public SetBarrelTargetValidator(IRoomManager roomManager)
     {

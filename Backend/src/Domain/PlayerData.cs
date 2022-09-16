@@ -3,7 +3,7 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Domain;
 
-public class PlayerData
+internal sealed class PlayerData
 {
     public CID CID { get; init; } = default!;
     public WebSocket? Socket { get; init; } = default!;

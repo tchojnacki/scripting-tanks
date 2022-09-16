@@ -1,6 +1,6 @@
 namespace Backend.Domain.Identifiers;
 
-public record LID : Identifier<LID>
+internal sealed record LID : Identifier<LID>
 {
     private LID() { }
 

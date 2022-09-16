@@ -4,7 +4,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Mediation.Handlers;
 
-public class CloseLobbyHandler : AsyncRequestHandler<CloseLobbyRequest>
+internal sealed class CloseLobbyHandler : AsyncRequestHandler<CloseLobbyRequest>
 {
     private readonly IRoomManager _roomManager;
 

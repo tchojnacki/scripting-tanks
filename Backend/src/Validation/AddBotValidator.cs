@@ -6,7 +6,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class AddBotValidator : AbstractValidator<MessageContext<AddBotClientMessage>>
+internal sealed class AddBotValidator : AbstractValidator<MessageContext<AddBotClientMessage>>
 {
     public AddBotValidator(IRoomManager roomManager)
     {

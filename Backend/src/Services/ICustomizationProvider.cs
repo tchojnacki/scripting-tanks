@@ -2,7 +2,7 @@ using Backend.Domain;
 
 namespace Backend.Services;
 
-public interface ICustomizationProvider
+internal interface ICustomizationProvider
 {
     string AssignDisplayName();
     TankColors AssignTankColors();

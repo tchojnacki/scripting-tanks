@@ -3,7 +3,7 @@ using Backend.Domain.Game;
 
 namespace Backend.Utils.Mappings;
 
-public static class EntityMapper
+internal static class EntityMapper
 {
     public static AbstractEntityDto ToDto(this Entity entity) => entity switch
     {

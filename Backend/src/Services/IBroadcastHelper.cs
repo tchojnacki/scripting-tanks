@@ -3,7 +3,7 @@ using Backend.Contracts.Messages;
 
 namespace Backend.Services;
 
-public interface IBroadcastHelper
+internal interface IBroadcastHelper
 {
     public Task BroadcastToRoom<T>(LID lid, IServerMessage<T> message);
     public Task BroadcastToMenu<T>(IServerMessage<T> message);

@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace Backend.Domain.Identifiers;
 
-public abstract record Identifier<T> where T : Identifier<T>
+internal abstract record Identifier<T> where T : Identifier<T>
 {
     private const int DigestLength = 32;
     private static readonly string Prefix = typeof(T).Name + "$";

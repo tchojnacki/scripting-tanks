@@ -3,7 +3,7 @@ using Backend.Domain;
 
 namespace Backend.Utils.Mappings;
 
-public static class PlayerDataMapper
+internal static class PlayerDataMapper
 {
     public static PlayerDto ToDto(this PlayerData data) => new()
     {

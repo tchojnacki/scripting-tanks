@@ -3,7 +3,7 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Middlewares;
 
-public class WsEndpointMiddleware
+internal sealed class WsEndpointMiddleware
 {
     private const string EndpointPath = "/ws";
 

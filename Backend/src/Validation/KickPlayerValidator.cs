@@ -7,7 +7,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class KickPlayerValidator : AbstractValidator<MessageContext<KickPlayerClientMessage>>
+internal sealed class KickPlayerValidator : AbstractValidator<MessageContext<KickPlayerClientMessage>>
 {
     public KickPlayerValidator(IRoomManager roomManager)
     {

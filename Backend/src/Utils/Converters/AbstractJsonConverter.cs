@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Backend.Utils.Converters;
 
-public class AbstractJsonConverter<T> : JsonConverter<T>
+internal sealed class AbstractJsonConverter<T> : JsonConverter<T>
 {
     public override T Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
         => throw new NotImplementedException($"{nameof(AbstractJsonConverter<T>)} doesn't support deserialization!");

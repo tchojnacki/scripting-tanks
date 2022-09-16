@@ -2,7 +2,7 @@ using static System.Math;
 
 namespace Backend.Domain.Game;
 
-public readonly record struct Vector
+internal readonly record struct Vector
 {
     public Vector(double x, double y, double z)
     {

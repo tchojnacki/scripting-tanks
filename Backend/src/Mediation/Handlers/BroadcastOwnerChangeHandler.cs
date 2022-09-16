@@ -5,7 +5,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Mediation.Handlers;
 
-public class BroadcastOwnerChangeHandler : AsyncRequestHandler<BroadcastOwnerChangeRequest>
+internal sealed class BroadcastOwnerChangeHandler : AsyncRequestHandler<BroadcastOwnerChangeRequest>
 {
     private readonly IBroadcastHelper _broadcastHelper;
 

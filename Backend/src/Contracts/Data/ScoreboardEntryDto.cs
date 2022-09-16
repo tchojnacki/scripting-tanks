@@ -1,6 +1,6 @@
 namespace Backend.Contracts.Data;
 
-public record ScoreboardEntryDto
+public sealed record ScoreboardEntryDto
 {
     public string CID { get; init; } = default!;
     public string Name { get; init; } = default!;

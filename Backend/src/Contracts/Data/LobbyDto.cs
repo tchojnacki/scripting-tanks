@@ -1,6 +1,6 @@
 namespace Backend.Contracts.Data;
 
-public record LobbyDto
+public sealed record LobbyDto
 {
     public string LID { get; init; } = default!;
     public string Name { get; init; } = default!;

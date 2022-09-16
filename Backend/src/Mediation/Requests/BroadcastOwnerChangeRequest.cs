@@ -3,4 +3,4 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Mediation.Requests;
 
-public record BroadcastOwnerChangeRequest(LID LID, CID NewOwnerCID) : IRequest;
+internal sealed record BroadcastOwnerChangeRequest(LID LID, CID NewOwnerCID) : IRequest;

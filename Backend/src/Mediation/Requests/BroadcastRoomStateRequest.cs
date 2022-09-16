@@ -3,4 +3,4 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Mediation.Requests;
 
-public record BroadcastRoomStateRequest(LID LID) : IRequest;
+internal sealed record BroadcastRoomStateRequest(LID LID) : IRequest;

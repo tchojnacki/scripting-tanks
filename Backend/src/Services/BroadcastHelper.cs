@@ -4,7 +4,7 @@ using Backend.Contracts.Messages;
 
 namespace Backend.Services;
 
-public class BroadcastHelper : IBroadcastHelper
+internal sealed class BroadcastHelper : IBroadcastHelper
 {
     private readonly IConnectionManager _connectionManager;
     private readonly IRoomManager _roomManager;

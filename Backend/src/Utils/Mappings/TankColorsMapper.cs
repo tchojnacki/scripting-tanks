@@ -3,7 +3,7 @@ using Backend.Domain;
 
 namespace Backend.Utils.Mappings;
 
-public static class TankColorsMapper
+internal static class TankColorsMapper
 {
     public static TankColorsDto ToDto(this TankColors colors) => new()
     {

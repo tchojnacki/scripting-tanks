@@ -9,7 +9,7 @@ using static System.Math;
 
 namespace Backend.Domain.Rooms.GameStates;
 
-public class PlayingGameState : GameRoom
+internal sealed class PlayingGameState : GameRoom
 {
     private const double TickRate = 24;
     private const double PlayerDistance = 2048;

@@ -7,7 +7,7 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Validation;
 
-public static class ValidationUtils
+internal static class ValidationUtils
 {
     public static IRuleBuilderOptions<T, CID> MustBePlayer<T>(
         this IRuleBuilder<T, CID> ruleBuilder,

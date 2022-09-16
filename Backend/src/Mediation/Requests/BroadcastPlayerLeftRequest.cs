@@ -3,4 +3,4 @@ using Backend.Domain.Identifiers;
 
 namespace Backend.Mediation.Requests;
 
-public record BroadcastPlayerLeftRequest(LID LID, CID CID) : IRequest;
+internal sealed record BroadcastPlayerLeftRequest(LID LID, CID CID) : IRequest;

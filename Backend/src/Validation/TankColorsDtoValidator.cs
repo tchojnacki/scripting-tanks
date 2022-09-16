@@ -4,7 +4,7 @@ using Backend.Contracts.Data;
 
 namespace Backend.Validation;
 
-public class TankColorsDtoValidator : AbstractValidator<TankColorsDto>
+internal sealed class TankColorsDtoValidator : AbstractValidator<TankColorsDto>
 {
     private static readonly Regex ColorRegex = new(
         @"^#[0-9a-f]{6}$",

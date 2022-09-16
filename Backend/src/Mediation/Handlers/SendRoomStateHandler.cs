@@ -7,7 +7,7 @@ using Backend.Utils.Mappings;
 
 namespace Backend.Mediation.Handlers;
 
-public class SendRoomStateHandler : AsyncRequestHandler<SendRoomStateRequest>
+internal sealed class SendRoomStateHandler : AsyncRequestHandler<SendRoomStateRequest>
 {
     private readonly IConnectionManager _connectionManager;
     private readonly IRoomManager _roomManager;

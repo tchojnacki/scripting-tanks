@@ -3,7 +3,7 @@ using Backend.Domain.Rooms.GameStates;
 
 namespace Backend.Domain.Game.AI;
 
-public abstract class TankAI
+internal abstract class TankAI
 {
     protected readonly EID _eid;
     protected readonly PlayingGameState _world;

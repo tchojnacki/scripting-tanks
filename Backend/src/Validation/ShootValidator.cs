@@ -5,7 +5,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class ShootValidator : AbstractValidator<MessageContext<ShootClientMessage>>
+internal sealed class ShootValidator : AbstractValidator<MessageContext<ShootClientMessage>>
 {
     public ShootValidator(IRoomManager roomManager)
     {

@@ -8,7 +8,7 @@ using Backend.Mediation.Requests;
 
 namespace Backend.Services;
 
-public class RoomManager : IRoomManager
+internal sealed class RoomManager : IRoomManager
 {
     private readonly Dictionary<LID, GameRoom> _gameRooms;
 

@@ -6,7 +6,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class CloseLobbyValidator : AbstractValidator<MessageContext<CloseLobbyClientMessage>>
+internal sealed class CloseLobbyValidator : AbstractValidator<MessageContext<CloseLobbyClientMessage>>
 {
     public CloseLobbyValidator(IRoomManager roomManager)
     {

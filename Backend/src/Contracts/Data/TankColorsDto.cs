@@ -4,7 +4,7 @@ using Backend.Utils.Converters;
 namespace Backend.Contracts.Data;
 
 [JsonConverter(typeof(TankColorsDtoJsonConverter))]
-public record TankColorsDto
+public sealed record TankColorsDto
 {
     public string TankColor { get; init; } = default!;
     public string TurretColor { get; init; } = default!;

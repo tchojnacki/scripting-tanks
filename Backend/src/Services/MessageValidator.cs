@@ -5,7 +5,7 @@ using Backend.Contracts.Messages;
 
 namespace Backend.Services;
 
-public class MessageValidator : IMessageValidator
+internal sealed class MessageValidator : IMessageValidator
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<MessageValidator> _logger;

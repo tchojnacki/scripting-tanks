@@ -4,7 +4,7 @@ using Backend.Domain.Rooms.GameStates;
 
 namespace Backend.Utils.Mappings;
 
-public static class ConnectionRoomMapper
+internal static class ConnectionRoomMapper
 {
     public static AbstractRoomStateDto ToDto(this ConnectionRoom room) => room switch
     {

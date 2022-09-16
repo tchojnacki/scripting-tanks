@@ -5,7 +5,7 @@ using Backend.Contracts.Messages.Client;
 
 namespace Backend.Validation;
 
-public class CustomizeColorsValidator : AbstractValidator<MessageContext<CustomizeColorsClientMessage>>
+internal sealed class CustomizeColorsValidator : AbstractValidator<MessageContext<CustomizeColorsClientMessage>>
 {
     public CustomizeColorsValidator(IRoomManager roomManager)
     {
