@@ -13,7 +13,7 @@ public interface IRoomManager
     bool ContainsGameRoom(LID lid);
     ConnectionRoom RoomContaining(CID cid);
     MenuRoom MenuRoom { get; }
-    IEnumerable<GameRoom> Lobbies { get; }
+    IEnumerable<LobbyInfo> Lobbies { get; }
     Task JoinGameRoomAsync(CID cid, LID lid);
     Task CloseLobbyAsync(LID lid);
     Task ShowSummaryAsync(LID lid);

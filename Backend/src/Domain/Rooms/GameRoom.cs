@@ -27,6 +27,15 @@ public abstract class GameRoom : ConnectionRoom
     public LID LID { get; }
     public string Name { get; }
     public CID OwnerCID { get; private set; }
+    protected abstract string Location { get; }
+
+    public LobbyInfo LobbyInfo => new()
+    {
+        LID = LID,
+        Name = Name,
+        PlayerCount = AllPlayers.Count(),
+        Location = Location,
+    };
 
     private async Task PromoteAsync(CID cid)
     {

@@ -1,12 +1,12 @@
 using MediatR;
-using Backend.Utils.Mappings;
 using Backend.Domain.Identifiers;
-using Backend.Contracts.Data;
 
 namespace Backend.Domain.Rooms.GameStates;
 
 public class WaitingGameState : GameRoom
 {
+    protected override string Location => "game-waiting";
+
     private WaitingGameState(IMediator mediator, CID owner, LID lid, string name)
         : base(mediator, new(), owner, lid, name) { }
 
@@ -16,11 +16,4 @@ public class WaitingGameState : GameRoom
         => new(mediator, owner, lid, name);
 
     public static WaitingGameState AfterSummary(SummaryGameState previous) => new(previous);
-
-    public override GameWaitingStateDto RoomState => new()
-    {
-        Name = Name,
-        Owner = OwnerCID.ToString(),
-        Players = AllPlayers.Select(p => p.ToDto()).ToList(),
-    };
 }

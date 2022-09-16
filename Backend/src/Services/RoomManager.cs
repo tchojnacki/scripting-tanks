@@ -22,7 +22,7 @@ public class RoomManager : IRoomManager
         _gameRooms = new();
     }
 
-    public IEnumerable<GameRoom> Lobbies => _gameRooms.Values;
+    public IEnumerable<LobbyInfo> Lobbies => _gameRooms.Values.Select(gr => gr.LobbyInfo);
 
     public GameRoom GetGameRoom(LID lid) => _gameRooms[lid];
 

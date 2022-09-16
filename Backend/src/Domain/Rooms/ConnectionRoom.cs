@@ -1,6 +1,5 @@
 using MediatR;
 using Backend.Domain.Identifiers;
-using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Mediation.Requests;
 
@@ -16,8 +15,6 @@ public abstract class ConnectionRoom
         _mediator = mediator;
         _playerIds = playerIds;
     }
-
-    public abstract AbstractRoomStateDto RoomState { get; }
 
     public IEnumerable<PlayerData> AllPlayers
         => _playerIds.Select(cid => _mediator.Send(new PlayerDataRequest(cid)).Result);

@@ -1,6 +1,5 @@
 using Backend.Domain.Identifiers;
 using Backend.Domain.Game;
-using Backend.Contracts.Data;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Utils.Mappings;
@@ -20,6 +19,8 @@ public class PlayingGameState : GameRoom
     private readonly Dictionary<EID, Entity> _entities;
     private readonly Queue<Entity> _spawnQueue = new();
     private readonly Queue<EID> _destroyQueue = new();
+
+    protected override string Location => "game-playing";
 
     private PlayingGameState(WaitingGameState previous) : base(previous)
     {
@@ -49,6 +50,8 @@ public class PlayingGameState : GameRoom
     }
 
     public static PlayingGameState AfterWaiting(WaitingGameState previous) => new(previous);
+
+    public IEnumerable<Entity> Entities => _entities.Values;
 
     public Scoreboard Scoreboard { get; }
 
@@ -153,11 +156,4 @@ public class PlayingGameState : GameRoom
         await base.HandleOnLeaveAsync(cid);
         _entities.Remove(EID.FromCID(cid));
     }
-
-    public override GamePlayingStateDto RoomState => new()
-    {
-        Radius = Radius,
-        Entities = _entities.Values.Select(e => e.ToDto()).ToList(),
-        Scoreboard = Scoreboard.ToDto(),
-    };
 }
