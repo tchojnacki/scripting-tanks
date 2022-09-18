@@ -1,5 +1,5 @@
 using Backend.Domain.Rooms.GameStates;
-using Backend.Domain.Game.AI;
+using Backend.Domain.Game.Controls;
 
 using static System.Math;
 
@@ -20,7 +20,7 @@ internal sealed class Tank : Entity
     private const double GravityOutwardPush = 2048;
     private static readonly Vector GravityAcceleration = new(0, -2048, 0);
 
-    private readonly TankAI? _ai;
+    private readonly ITankController? _controls;
     private long _lastShot;
 
     public Tank(
@@ -39,7 +39,7 @@ internal sealed class Tank : Entity
         BarrelTarget = pitch;
         BarrelPitch = pitch;
         _lastShot = 0;
-        _ai = playerData.IsBot ? new SimpleAI(EID, world) : null;
+        _controls = playerData.IsBot ? new BotControlledTank() : null;
     }
 
     public PlayerData PlayerData { get; }
@@ -50,13 +50,12 @@ internal sealed class Tank : Entity
 
     public override void Update(TimeSpan deltaTime)
     {
-        if (_ai is not null)
+        if (_controls is not null)
         {
-            var (axes, barrelTarget, shouldShoot) = _ai.ApplyInputs();
-            InputAxes = axes;
-            BarrelTarget = barrelTarget;
-            if (shouldShoot)
-                Shoot();
+            var controlsStatus = _controls.FetchControlsStatus(this, _world);
+            InputAxes = controlsStatus.InputAxes;
+            BarrelTarget = controlsStatus.BarrelTarget;
+            if (controlsStatus.ShouldShoot) Shoot();
         }
 
         var turnAngle = -InputAxes.Horizontal * Sign(InputAxes.Vertical) * TurnDegree;
