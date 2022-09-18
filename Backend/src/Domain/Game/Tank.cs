@@ -1,4 +1,3 @@
-using Backend.Domain.Rooms.GameStates;
 using Backend.Domain.Game.Controls;
 
 using static System.Math;
@@ -24,7 +23,7 @@ internal sealed class Tank : Entity
     private long _lastShot;
 
     public Tank(
-        PlayingGameState world,
+        IWorld world,
         PlayerData playerData,
         Vector pos,
         double pitch) : base(

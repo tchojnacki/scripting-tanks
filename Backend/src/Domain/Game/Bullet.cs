@@ -1,5 +1,4 @@
 using Backend.Domain.Identifiers;
-using Backend.Domain.Rooms.GameStates;
 
 namespace Backend.Domain.Game;
 
@@ -11,7 +10,7 @@ internal sealed class Bullet : Entity
     private static readonly Vector GravityPull = new(0, -200, 0);
 
     public Bullet(
-        PlayingGameState world,
+        IWorld world,
         CID ownerCid,
         double direction,
         Vector pos) : base(

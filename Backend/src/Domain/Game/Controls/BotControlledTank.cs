@@ -1,12 +1,10 @@
-using Backend.Domain.Rooms.GameStates;
-
 using static System.Math;
 
 namespace Backend.Domain.Game.Controls;
 
 internal sealed class BotControlledTank : ITankController
 {
-    public TankControlsStatus FetchControlsStatus(Tank self, PlayingGameState world)
+    public TankControlsStatus FetchControlsStatus(Tank self, IWorld world)
     {
         var target = world.Tanks.Where(t => t.EID != self.EID).MinBy(t => (self.Pos - t.Pos).Length);
         if (target is null) return TankControlsStatus.Idle(self);
