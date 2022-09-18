@@ -2,7 +2,7 @@ using static System.Math;
 
 namespace Backend.Domain.Game.Controls;
 
-internal sealed class BotControlledTank : ITankController
+internal sealed class BotTankController : ITankController
 {
     public TankControlsStatus FetchControlsStatus(Tank self, IWorld world)
     {

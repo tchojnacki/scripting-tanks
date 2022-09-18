@@ -1,4 +1,5 @@
 using Backend.Domain.Game;
+using Backend.Domain.Game.Controls;
 using Backend.Mediation.Requests;
 
 using static System.Math;
@@ -32,7 +33,8 @@ internal sealed class SummaryGameState : GameRoom
             default!,
             entry.PlayerData,
             new(PodiumRadius * Sin(angle), PodiumHeight * (3 - index), PodiumRadius * Cos(angle)),
-            PI + angle);
+            PI + angle,
+            new IdleTankController());
     });
 
     private async Task WaitToPlayAgain()
