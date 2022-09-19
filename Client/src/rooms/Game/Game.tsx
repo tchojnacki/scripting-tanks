@@ -77,7 +77,7 @@ export function Game() {
             position={[0, -cameraPos[1] - 64, 0]}
             rotation={[-Math.PI / 2, 0, 0]}
           >
-            <MeshWobbleMaterial factor={0.005} color="#517cdb" />
+            <meshLambertMaterial color="#517cdb" />
           </Plane>
         </PerspectiveCamera>
         <SceneLight />

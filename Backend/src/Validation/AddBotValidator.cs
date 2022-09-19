@@ -1,6 +1,7 @@
 using FluentValidation;
 using Backend.Services;
 using Backend.Domain;
+using Backend.Domain.Rooms;
 using Backend.Domain.Rooms.GameStates;
 using Backend.Contracts.Messages.Client;
 
@@ -10,6 +11,8 @@ internal sealed class AddBotValidator : AbstractValidator<MessageContext<AddBotC
 {
     public AddBotValidator(IRoomManager roomManager)
     {
-        RuleFor(x => x.Sender).MustBeRoomOwner(gr => gr is WaitingGameState, roomManager);
+        RuleFor(x => x.Sender).MustBeRoomOwner(
+            gr => gr is WaitingGameState && gr.AllPlayers.Count() < GameRoom.MaxPlayers,
+            roomManager);
     }
 }

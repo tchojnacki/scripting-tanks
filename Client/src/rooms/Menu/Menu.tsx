@@ -16,6 +16,7 @@ import { BrandGithub, CirclePlus, DoorEnter, Eye, MoonStars, Sun } from "tabler-
 import { useDocumentTitle } from "@mantine/hooks"
 import { sortBy } from "lodash"
 import { nameAbbr } from "../../utils/nameAbbr"
+import { Lobby } from "../Lobby"
 
 export function Menu() {
   useDocumentTitle("Menu | Tanks")
@@ -55,6 +56,7 @@ export function Menu() {
           <Title order={3}>Lobbies</Title>
           <Stack py="xl">
             {sortBy(roomState.lobbies, [
+              l => (l.players < 16 ? 0 : 1),
               l => (l.location === "game-waiting" ? 0 : 1),
               l => -l.players,
               "name",
@@ -70,6 +72,7 @@ export function Menu() {
                   </Group>
                   <Button
                     compact
+                    disabled={lobby.players >= 16}
                     color={lobby.location === "game-waiting" ? "blue" : "gray"}
                     leftIcon={
                       lobby.location === "game-waiting" ? (
