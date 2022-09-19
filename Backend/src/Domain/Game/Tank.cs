@@ -1,7 +1,7 @@
-using Backend.Domain.Rooms.GameStates;
-using Backend.Domain.Game.AI;
+using Backend.Domain.Game.Controls;
 
 using static System.Math;
+using static Backend.Utils.Common.MathUtils;
 
 namespace Backend.Domain.Game;
 
@@ -20,14 +20,17 @@ internal sealed class Tank : Entity
     private const double GravityOutwardPush = 2048;
     private static readonly Vector GravityAcceleration = new(0, -2048, 0);
 
-    private readonly TankAI? _ai;
+    private readonly ITankController _controller;
+    private double _barrelTarget;
+    private InputAxes _inputAxes;
     private long _lastShot;
 
     public Tank(
-        PlayingGameState world,
+        IWorld world,
         PlayerData playerData,
         Vector pos,
-        double pitch) : base(
+        double pitch,
+        ITankController controller) : base(
             world: world,
             eid: Identifiers.EID.FromCID(playerData.CID),
             pos: pos,
@@ -36,30 +39,21 @@ internal sealed class Tank : Entity
     {
         PlayerData = playerData;
         Pitch = pitch;
-        BarrelTarget = pitch;
         BarrelPitch = pitch;
+        _barrelTarget = pitch;
         _lastShot = 0;
-        _ai = playerData.IsBot ? new SimpleAI(EID, world) : null;
+        _controller = controller;
     }
 
     public PlayerData PlayerData { get; }
     public double Pitch { get; private set; }
     public double BarrelPitch { get; private set; }
-    public double BarrelTarget { get; set; }
-    public InputAxes InputAxes { get; set; }
 
     public override void Update(TimeSpan deltaTime)
     {
-        if (_ai is not null)
-        {
-            var (axes, barrelTarget, shouldShoot) = _ai.ApplyInputs();
-            InputAxes = axes;
-            BarrelTarget = barrelTarget;
-            if (shouldShoot)
-                Shoot();
-        }
+        HandleInput();
 
-        var turnAngle = -InputAxes.Horizontal * Sign(InputAxes.Vertical) * TurnDegree;
+        var turnAngle = -_inputAxes.Horizontal * Sign(_inputAxes.Vertical) * TurnDegree;
 
         if (Abs(turnAngle) > 0.01)
         {
@@ -68,11 +62,18 @@ internal sealed class Tank : Entity
             Pitch += omega * deltaTime.TotalSeconds;
         }
 
-        var barrelDiff = Atan2(Sin(BarrelTarget - BarrelPitch), Cos(BarrelTarget - BarrelPitch));
-
+        var barrelDiff = AngleDiff(BarrelPitch, _barrelTarget);
         BarrelPitch += CopySign(Min(BarrelTurnSpeed * deltaTime.TotalSeconds, Abs(barrelDiff)), barrelDiff);
 
         base.Update(deltaTime);
+    }
+
+    private void HandleInput()
+    {
+        var controlsStatus = _controller.FetchControlsStatus(new(this, _world));
+        _inputAxes = controlsStatus.InputAxes;
+        _barrelTarget = controlsStatus.BarrelTarget;
+        if (controlsStatus.ShouldShoot) Shoot();
     }
 
     public override void CollideWith(Entity other)
@@ -91,7 +92,7 @@ internal sealed class Tank : Entity
     {
         var u = new Vector(Sin(Pitch), 0, Cos(Pitch));
 
-        var engineForce = (Vector.Dot(_vel, u) > 0 ? 1 : ReverseMult) * EngineForce * InputAxes.Vertical;
+        var engineForce = (Vector.Dot(_vel, u) > 0 ? 1 : ReverseMult) * EngineForce * _inputAxes.Vertical;
 
         var fTraction = u * engineForce;
         var fDrag = -CDrag * _vel * _vel.Length;
@@ -115,7 +116,7 @@ internal sealed class Tank : Entity
         return fGravity * _mass;
     }
 
-    public void Shoot()
+    private void Shoot()
     {
         var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 

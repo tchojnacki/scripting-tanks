@@ -1,5 +1,4 @@
 using Backend.Domain.Identifiers;
-using Backend.Domain.Rooms.GameStates;
 
 namespace Backend.Domain.Game;
 
@@ -7,13 +6,13 @@ internal abstract class Entity
 {
     private const double SeaHeight = -100;
 
-    protected readonly PlayingGameState _world;
+    protected readonly IWorld _world;
     protected Vector _vel;
     private Vector _acc;
     protected readonly double _mass;
 
     protected Entity(
-        PlayingGameState world,
+        IWorld world,
         EID? eid = null,
         Vector pos = default,
         Vector vel = default,

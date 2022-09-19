@@ -1,5 +1,6 @@
 using Backend.Domain.Identifiers;
 using Backend.Domain.Game;
+using Backend.Domain.Game.Controls;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
 using Backend.Utils.Mappings;
@@ -9,7 +10,7 @@ using static System.Math;
 
 namespace Backend.Domain.Rooms.GameStates;
 
-internal sealed class PlayingGameState : GameRoom
+internal sealed class PlayingGameState : GameRoom, IWorld
 {
     private const double TickRate = 24;
     private const double PlayerDistance = 2048;
@@ -17,6 +18,7 @@ internal sealed class PlayingGameState : GameRoom
 
     private long _lastUpdate;
     private readonly Dictionary<EID, Entity> _entities;
+    private readonly IReadOnlyDictionary<CID, PlayerInputCache> _inputCacheMap;
     private readonly Queue<Entity> _spawnQueue = new();
     private readonly Queue<EID> _destroyQueue = new();
 
@@ -34,6 +36,12 @@ internal sealed class PlayingGameState : GameRoom
                 : PlayerDistance / Sqrt(2 - 2 * Cos(2 * PI / playerCount))
         ) + IslandMargin;
 
+        _inputCacheMap = AllPlayers.Select(player => new
+        {
+            Player = player,
+            Cache = new PlayerInputCache()
+        }).ToDictionary(o => o.Player.CID, p => p.Cache);
+
         _entities = AllPlayers.Select((player, i) => (Entity)new Tank(
             world: this,
             playerData: player,
@@ -41,12 +49,25 @@ internal sealed class PlayingGameState : GameRoom
                 Sin(step * i) * (Radius - IslandMargin),
                 0,
                 Cos(step * i) * (Radius - IslandMargin)),
-            pitch: step * i + PI
+            pitch: step * i + PI,
+            controller: player.IsBot
+                ? new BotTankController(player.CID.GetHashCode())
+                : new PlayerTankController(_inputCacheMap[player.CID])
         )).ToDictionary(t => t.EID);
 
         Scoreboard = new(AllPlayers);
 
-        Task.Run(async () => await GameLoop());
+        Task.Run(async () =>
+        {
+            try
+            {
+                await GameLoop();
+            }
+            catch (Exception e)
+            {
+                Console.Write(e);
+            }
+        });
     }
 
     public static PlayingGameState AfterWaiting(WaitingGameState previous) => new(previous);
@@ -61,19 +82,19 @@ internal sealed class PlayingGameState : GameRoom
 
     private Task SetInputAxes(CID cid, InputAxes inputAxes)
     {
-        ((Tank)_entities[EID.FromCID(cid)]).InputAxes = inputAxes;
+        _inputCacheMap[cid].InputAxes = inputAxes;
         return Task.CompletedTask;
     }
 
     private Task SetBarrelTarget(CID cid, double barrelTarget)
     {
-        ((Tank)_entities[EID.FromCID(cid)]).BarrelTarget = barrelTarget;
+        _inputCacheMap[cid].BarrelTarget = barrelTarget;
         return Task.CompletedTask;
     }
 
     private Task Shoot(CID cid)
     {
-        ((Tank)_entities[EID.FromCID(cid)]).Shoot();
+        _inputCacheMap[cid].EnqueueShoot();
         return Task.CompletedTask;
     }
 
