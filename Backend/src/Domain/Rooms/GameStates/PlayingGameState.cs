@@ -51,13 +51,23 @@ internal sealed class PlayingGameState : GameRoom, IWorld
                 Cos(step * i) * (Radius - IslandMargin)),
             pitch: step * i + PI,
             controller: player.IsBot
-                ? new BotTankController()
+                ? new BotTankController(player.CID.GetHashCode())
                 : new PlayerTankController(_inputCacheMap[player.CID])
         )).ToDictionary(t => t.EID);
 
         Scoreboard = new(AllPlayers);
 
-        Task.Run(async () => await GameLoop());
+        Task.Run(async () =>
+        {
+            try
+            {
+                await GameLoop();
+            }
+            catch (Exception e)
+            {
+                Console.Write(e);
+            }
+        });
     }
 
     public static PlayingGameState AfterWaiting(WaitingGameState previous) => new(previous);
