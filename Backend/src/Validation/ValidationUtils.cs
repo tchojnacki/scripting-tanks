@@ -39,8 +39,14 @@ internal static class ValidationUtils
 
     public static IRuleBuilderOptions<T, LID> MustBeAValidGameRoom<T>(
         this IRuleBuilder<T, LID> ruleBuilder,
+        Func<GameRoom, bool> predicate,
         IRoomManager roomManager)
-        => ruleBuilder.Must(lid => roomManager.ContainsGameRoom(lid));
+        => ruleBuilder.Must(lid => roomManager.ContainsGameRoom(lid) && predicate(roomManager.GetGameRoom(lid)));
+
+    public static IRuleBuilderOptions<T, LID> MustBeAValidGameRoom<T>(
+        this IRuleBuilder<T, LID> ruleBuilder,
+        IRoomManager roomManager)
+        => ruleBuilder.MustBeAValidGameRoom(_ => true, roomManager);
 
     public static IRuleBuilderOptions<T, CID> MustHaveAliveTank<T>(
         this IRuleBuilder<T, CID> ruleBuilder,

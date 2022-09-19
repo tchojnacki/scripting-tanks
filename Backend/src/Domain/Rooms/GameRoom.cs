@@ -8,6 +8,8 @@ namespace Backend.Domain.Rooms;
 
 internal abstract class GameRoom : ConnectionRoom
 {
+    public const int MaxPlayers = 16;
+
     protected GameRoom(
         IMediator mediator,
         HashSet<CID> playerIds,

@@ -130,6 +130,7 @@ export function Lobby() {
                 <Button
                   onClick={() => sendMessage("c-add-bot", null)}
                   variant="light"
+                  disabled={roomState.players.length >= 16}
                   leftIcon={<Robot size={16} />}
                 >
                   Add bot
