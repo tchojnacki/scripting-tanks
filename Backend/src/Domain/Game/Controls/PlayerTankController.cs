@@ -6,7 +6,7 @@ internal sealed class PlayerTankController : ITankController
 
     public PlayerTankController(PlayerInputCache playerInputCache) => _playerInputCache = playerInputCache;
 
-    public TankControlsStatus FetchControlsStatus(Tank self, IWorld world) => new()
+    public TankControlsStatus FetchControlsStatus(NavigationContext context) => new()
     {
         InputAxes = _playerInputCache.InputAxes,
         BarrelTarget = _playerInputCache.BarrelTarget,

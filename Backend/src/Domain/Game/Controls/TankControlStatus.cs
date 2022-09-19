@@ -12,4 +12,11 @@ internal sealed record TankControlsStatus
         BarrelTarget = tank.BarrelPitch,
         ShouldShoot = false
     };
+
+    public static TankControlsStatus Moving(Tank tank, InputAxes inputAxes) => new()
+    {
+        InputAxes = inputAxes,
+        BarrelTarget = tank.Pitch,
+        ShouldShoot = false
+    };
 }

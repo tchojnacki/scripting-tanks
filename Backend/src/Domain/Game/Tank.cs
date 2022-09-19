@@ -1,6 +1,7 @@
 using Backend.Domain.Game.Controls;
 
 using static System.Math;
+using static Backend.Utils.Common.MathUtils;
 
 namespace Backend.Domain.Game;
 
@@ -61,8 +62,7 @@ internal sealed class Tank : Entity
             Pitch += omega * deltaTime.TotalSeconds;
         }
 
-        var barrelDiff = Atan2(Sin(_barrelTarget - BarrelPitch), Cos(_barrelTarget - BarrelPitch));
-
+        var barrelDiff = AngleDiff(BarrelPitch, _barrelTarget);
         BarrelPitch += CopySign(Min(BarrelTurnSpeed * deltaTime.TotalSeconds, Abs(barrelDiff)), barrelDiff);
 
         base.Update(deltaTime);
@@ -70,7 +70,7 @@ internal sealed class Tank : Entity
 
     private void HandleInput()
     {
-        var controlsStatus = _controller.FetchControlsStatus(this, _world);
+        var controlsStatus = _controller.FetchControlsStatus(new(this, _world));
         _inputAxes = controlsStatus.InputAxes;
         _barrelTarget = controlsStatus.BarrelTarget;
         if (controlsStatus.ShouldShoot) Shoot();

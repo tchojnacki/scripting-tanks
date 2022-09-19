@@ -1,30 +1,25 @@
-using static System.Math;
+using Backend.Domain.Game.Controls.Goals;
 
 namespace Backend.Domain.Game.Controls;
 
 internal sealed class BotTankController : ITankController
 {
-    public TankControlsStatus FetchControlsStatus(Tank self, IWorld world)
+    private readonly IReadOnlyList<IGoal> _goalPriorityList = new List<IGoal>
     {
-        var target = world.Tanks.Where(t => t.EID != self.EID).MinBy(t => (self.Pos - t.Pos).Length);
-        if (target is null) return TankControlsStatus.Idle(self);
+        new BesiegeGoal(),
+        new StraightenCourseGoal(),
+        new ChaseGoal()
+    };
 
-        var offset = target.Pos - self.Pos;
-        var facing = Vector.UnitWithPitch(self.Pitch);
+    public TankControlsStatus FetchControlsStatus(NavigationContext context)
+    {
+        var target = context.World.Tanks
+            .Where(t => t.EID != context.Self.EID)
+            .MinBy(t => (context.Self.Pos - t.Pos).Length);
+        if (target is null) return TankControlsStatus.Idle(context.Self);
+        var targetOffset = target.Pos - context.Self.Pos;
 
-        var inputAxes = new InputAxes
-        {
-            Vertical = Clamp(Vector.Dot(offset, facing), -1, 1),
-            Horizontal = Clamp(Vector.Cross(offset, facing).Z, -1, 1)
-        };
-        var barrelTarget = Atan2(offset.X, offset.Z);
-        var shouldShoot = offset.Length < 512;
-
-        return new()
-        {
-            InputAxes = inputAxes,
-            BarrelTarget = barrelTarget,
-            ShouldShoot = shouldShoot
-        };
+        var goalContext = new GoalContext(context.Self, targetOffset, context.World);
+        return _goalPriorityList.First(g => g.CanActivate(goalContext)).CarryOut(goalContext);
     }
 }
