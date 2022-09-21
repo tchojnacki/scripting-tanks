@@ -26,7 +26,6 @@ export function StandardLayout({ title, headerRight, left, right }: StandardLayo
         main: {
           backgroundColor:
             theme.colorScheme === "dark" ? theme.colors.dark[8] : theme.colors.gray[1],
-          minHeight: "calc(100vh - 64px)",
         },
       })}
     >
