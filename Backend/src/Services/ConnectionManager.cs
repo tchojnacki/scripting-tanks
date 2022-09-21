@@ -143,6 +143,10 @@ internal sealed class ConnectionManager : IConnectionManager
                 }
             }
         }
+        catch (OperationCanceledException)
+        {
+            _logger.LogInformation("Disconnected socket due to the server closing down");
+        }
         catch (Exception exception)
         {
             _logger.LogWarning("Socket connection ended abruptly with error:\n{exception}", exception);

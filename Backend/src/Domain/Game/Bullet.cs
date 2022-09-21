@@ -4,19 +4,18 @@ namespace Backend.Domain.Game;
 
 internal sealed class Bullet : Entity
 {
-    private const double BulletSpeed = 1024;
-    private const double RadiusGrowthTempo = 64;
-    private const double MaxBulletRadius = 16;
-    private static readonly Vector GravityPull = new(0, -200, 0);
+    private const double BulletSpeed = 10; // m/s
+    private const double RadiusGrowthTempo = 0.5; // m/s
+    private const double MaxBulletRadius = 0.15; // m
 
     public Bullet(
         IWorld world,
         CID ownerCid,
         double direction,
-        Vector pos) : base(
+        Vector position) : base(
             world,
-            pos: pos,
-            vel: Vector.UnitWithPitch(direction) * BulletSpeed,
+            position: position,
+            velocity: Vector.UnitWithPitch(direction) * BulletSpeed,
             radius: 0)
     {
         OwnerCID = ownerCid;
@@ -24,8 +23,7 @@ internal sealed class Bullet : Entity
 
     public CID OwnerCID { get; }
 
-    protected override Vector CalculateForces()
-        => GravityPull * _mass;
+    protected override Vector CalculateForces() => IWorld.Gravity * _mass;
 
     public override void Update(TimeSpan deltaTime)
     {

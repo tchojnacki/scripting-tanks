@@ -18,6 +18,7 @@ import { useSocketContext } from "../utils/socketContext"
 import { Tank } from "./Tank"
 import { sample, isEqual } from "lodash"
 import { TankColorsDto } from "../utils/dtos"
+import { SceneLight } from "./SceneLight"
 
 const TANK_ROT_SPEED = 0.5
 const BARREL_ROT_SPEED = 0.6
@@ -86,12 +87,11 @@ export function PlayerInfo({ compact, unmutable }: PlayerInfoProps) {
             <>
               <AspectRatio ratio={1} sx={{ width: "100vh", maxWidth: 250 }}>
                 <div>
-                  <Canvas>
-                    <ambientLight intensity={0.2} />
-                    <pointLight position={[256, 256, 256]} intensity={0.3} />
+                  <Canvas shadows>
+                    <SceneLight showBackground={false} />
                     <PerspectiveCamera
                       makeDefault
-                      position={[0, 64, 192]}
+                      position={[0, 0.64, 1.92]}
                       rotation={[-Math.PI / 16, 0, 0]}
                     />
                     <DisplayTank colors={colors} />

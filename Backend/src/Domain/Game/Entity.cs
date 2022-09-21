@@ -4,43 +4,41 @@ namespace Backend.Domain.Game;
 
 internal abstract class Entity
 {
-    private const double SeaHeight = -100;
-
     protected readonly IWorld _world;
-    protected Vector _vel;
-    private Vector _acc;
-    protected readonly double _mass;
+    protected Vector _velocity; // m/s
+    private Vector _acceleration; // m/s^2
+    protected readonly double _mass; // kg
 
     protected Entity(
         IWorld world,
         EID? eid = null,
-        Vector pos = default,
-        Vector vel = default,
+        Vector position = default,
+        Vector velocity = default,
         double radius = 0,
         double mass = 1)
     {
         _world = world;
         EID = eid ?? EID.GenerateUnique();
-        Pos = pos;
-        _vel = vel;
+        Position = position;
+        _velocity = velocity;
         Radius = radius;
         _mass = mass;
     }
 
     public EID EID { get; }
-    public Vector Pos { get; private set; }
+    public Vector Position { get; private set; }
     public double Radius { get; protected set; }
 
-    private double HighestPoint => Pos.Y + Radius;
+    private double HighestPoint => Position.Y + Radius;
 
     public virtual void Update(TimeSpan deltaTime)
     {
         var forces = CalculateForces();
-        _acc = forces / _mass;
-        _vel += _acc * deltaTime.TotalSeconds;
-        Pos += _vel * deltaTime.TotalSeconds;
+        _acceleration = forces / _mass;
+        _velocity += _acceleration * deltaTime.TotalSeconds;
+        Position += _velocity * deltaTime.TotalSeconds;
 
-        if (HighestPoint < SeaHeight)
+        if (HighestPoint < IWorld.SeaHeight)
             _world.Destroy(this);
     }
 

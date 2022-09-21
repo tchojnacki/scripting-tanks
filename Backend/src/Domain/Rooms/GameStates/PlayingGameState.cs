@@ -12,9 +12,9 @@ namespace Backend.Domain.Rooms.GameStates;
 
 internal sealed class PlayingGameState : GameRoom, IWorld
 {
-    private const double TickRate = 24;
-    private const double PlayerDistance = 2048;
-    private const double IslandMargin = 128;
+    private const double TickRate = 24; // Hz
+    private const double PlayerDistance = 20; // m
+    private const double IslandMargin = 1; // m
 
     private long _lastUpdate;
     private readonly Dictionary<EID, Entity> _entities;
@@ -45,7 +45,7 @@ internal sealed class PlayingGameState : GameRoom, IWorld
         _entities = AllPlayers.Select((player, i) => (Entity)new Tank(
             world: this,
             playerData: player,
-            pos: new Vector(
+            position: new Vector(
                 Sin(step * i) * (Radius - IslandMargin),
                 0,
                 Cos(step * i) * (Radius - IslandMargin)),
@@ -57,17 +57,7 @@ internal sealed class PlayingGameState : GameRoom, IWorld
 
         Scoreboard = new(AllPlayers);
 
-        Task.Run(async () =>
-        {
-            try
-            {
-                await GameLoop();
-            }
-            catch (Exception e)
-            {
-                Console.Write(e);
-            }
-        });
+        Task.Run(async () => await GameLoop());
     }
 
     public static PlayingGameState AfterWaiting(WaitingGameState previous) => new(previous);
@@ -142,8 +132,8 @@ internal sealed class PlayingGameState : GameRoom, IWorld
             foreach (var (eid2, ent2) in _entities)
             {
                 if (eid2.ToString().CompareTo(eid1.ToString()) > 0 &&
-                    ent1.Pos.Y >= 0 && ent2.Pos.Y >= 0 &&
-                    (ent2.Pos - ent1.Pos).Length < ent1.Radius + ent2.Radius)
+                    ent1.Position.Y >= 0 && ent2.Position.Y >= 0 &&
+                    (ent2.Position - ent1.Position).Length < ent1.Radius + ent2.Radius)
                 {
                     ent1.CollideWith(ent2);
                     ent2.CollideWith(ent1);
