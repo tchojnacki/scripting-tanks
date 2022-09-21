@@ -2,7 +2,11 @@ import { useThree } from "@react-three/fiber"
 import { useRef } from "react"
 import { DirectionalLight } from "three"
 
-export function SceneLight() {
+interface SceneLightProps {
+  showBackground?: boolean
+}
+
+export function SceneLight({ showBackground = true }: SceneLightProps) {
   const lightRef = useRef<DirectionalLight>(null)
   useThree(({ camera }) => {
     const light = lightRef.current
@@ -15,7 +19,7 @@ export function SceneLight() {
 
   return (
     <>
-      <color attach="background" args={[0.7, 0.9, 1.0]} />
+      {showBackground && <color attach="background" args={[0.7, 0.9, 1.0]} />}
       <ambientLight intensity={0.1} />
       <directionalLight
         ref={lightRef}

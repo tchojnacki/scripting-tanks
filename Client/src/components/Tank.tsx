@@ -1,6 +1,5 @@
-import { Box, Cylinder, Text } from "@react-three/drei"
+import { Billboard, Box, Cylinder, Text } from "@react-three/drei"
 import { TankDataDto } from "../utils/dtos"
-import { useLookAt } from "../utils/useLookAt"
 
 function Catterpillar({ color, position }: { color: string; position: [number, number, number] }) {
   return (
@@ -59,8 +58,6 @@ interface TankProps {
 }
 
 export function Tank({ tank }: TankProps) {
-  const textRef = useLookAt()
-
   return (
     <group position={tank.pos} rotation={[0, tank.pitch, 0]}>
       <Box args={[0.64, 0.32, 0.96]} position={[0, 0.32, 0]} castShadow receiveShadow>
@@ -71,9 +68,11 @@ export function Tank({ tank }: TankProps) {
         <Catterpillar key={side} color={tank.colors[0]} position={[side * 0.4, 0.12, 0]} />
       ))}
       {tank.name && (
-        <Text color="#FF4136" scale={1.28} position={[0, 0.96, 0]} ref={textRef}>
-          {tank.name}
-        </Text>
+        <Billboard>
+          <Text color="#FF4136" scale={1.5} position={[0, 1, 0]}>
+            {tank.name}
+          </Text>
+        </Billboard>
       )}
     </group>
   )
