@@ -1,6 +1,7 @@
 import { useSocketContext } from "../../utils/socketContext"
 import { useIdentity } from "../../utils/indentityContext"
 import {
+  ActionIcon,
   Badge,
   Button,
   Group,
@@ -14,7 +15,7 @@ import {
   Tooltip,
 } from "@mantine/core"
 import { PlayerInfo, StandardLayout } from "../../components"
-import { Crown, DoorExit, PlayerPlay, Robot, TrashX, UserMinus } from "tabler-icons-react"
+import { Crown, DoorExit, Dots, PlayerPlay, Robot, TrashX, UserMinus } from "tabler-icons-react"
 import { useDocumentTitle } from "@mantine/hooks"
 import { sortBy } from "lodash"
 
@@ -69,24 +70,31 @@ export function Lobby() {
                       </ThemeIcon>
                     )}
                     {isOwner && player.cid !== roomState.owner && (
-                      <Menu trigger="hover" delay={100}>
-                        <Menu.Label>Player</Menu.Label>
-                        <Menu.Item
-                          onClick={() => sendMessage("c-kick-player", player.cid)}
-                          icon={<UserMinus size={16} />}
-                          color="red"
-                        >
-                          Kick
-                        </Menu.Item>
-                        {!player.bot && (
+                      <Menu trigger="hover" position="bottom-start" openDelay={100}>
+                        <Menu.Target>
+                          <ActionIcon>
+                            <Dots size={16} />
+                          </ActionIcon>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                          <Menu.Label>Player</Menu.Label>
                           <Menu.Item
-                            onClick={() => sendMessage("c-promote-player", player.cid)}
-                            icon={<Crown size={16} />}
-                            color="yellow"
+                            onClick={() => sendMessage("c-kick-player", player.cid)}
+                            icon={<UserMinus size={16} />}
+                            color="red"
                           >
-                            Make owner
+                            Kick
                           </Menu.Item>
-                        )}
+                          {!player.bot && (
+                            <Menu.Item
+                              onClick={() => sendMessage("c-promote-player", player.cid)}
+                              icon={<Crown size={16} />}
+                              color="yellow"
+                            >
+                              Make owner
+                            </Menu.Item>
+                          )}
+                        </Menu.Dropdown>
                       </Menu>
                     )}
                   </Group>
