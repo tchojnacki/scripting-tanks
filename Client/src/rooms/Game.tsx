@@ -1,11 +1,11 @@
 import { Cylinder, PerspectiveCamera, Plane, Sphere } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { useEffect, useState } from "react"
-import { BulletDataDto, TankDataDto } from "../../utils/dtos"
-import { useIdentity } from "../../utils/indentityContext"
-import { useInput } from "../../utils/useInput"
-import { useSocketContext } from "../../utils/socketContext"
-import { Tank, HUD, SceneLight, Scoreboard } from "../../components"
+import { BulletDataDto, TankDataDto } from "../utils/dtos"
+import { useIdentity } from "../utils/indentityContext"
+import { useInput } from "../utils/useInput"
+import { useSocketContext } from "../utils/socketContext"
+import { Tank, HUD, SceneLight, Scoreboard } from "../components"
 import { useDocumentTitle } from "@mantine/hooks"
 
 const CAMERA_OFFSET = 2.5

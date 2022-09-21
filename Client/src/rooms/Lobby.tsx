@@ -1,5 +1,5 @@
-import { useSocketContext } from "../../utils/socketContext"
-import { useIdentity } from "../../utils/indentityContext"
+import { useSocketContext } from "../utils/socketContext"
+import { useIdentity } from "../utils/indentityContext"
 import {
   ActionIcon,
   Badge,
@@ -14,7 +14,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core"
-import { PlayerInfo, StandardLayout } from "../../components"
+import { PlayerInfo, StandardLayout } from "../components"
 import { Crown, DoorExit, Dots, PlayerPlay, Robot, TrashX, UserMinus } from "tabler-icons-react"
 import { useDocumentTitle } from "@mantine/hooks"
 import { sortBy } from "lodash"

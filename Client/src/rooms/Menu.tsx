@@ -1,4 +1,4 @@
-import { useSocketContext } from "../../utils/socketContext"
+import { useSocketContext } from "../utils/socketContext"
 import {
   ActionIcon,
   Button,
@@ -11,12 +11,12 @@ import {
   Badge,
   Avatar,
 } from "@mantine/core"
-import { PlayerInfo, StandardLayout } from "../../components"
+import { PlayerInfo, StandardLayout } from "../components"
 import { BrandGithub, CirclePlus, DoorEnter, Eye, MoonStars, Sun } from "tabler-icons-react"
 import { useDocumentTitle } from "@mantine/hooks"
 import { sortBy } from "lodash"
-import { nameAbbr } from "../../utils/nameAbbr"
-import { Lobby } from "../Lobby"
+import { nameAbbr } from "../utils/nameAbbr"
+import { Lobby } from "./Lobby"
 
 export function Menu() {
   useDocumentTitle("Menu | Tanks")

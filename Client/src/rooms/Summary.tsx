@@ -1,10 +1,10 @@
 import { Cylinder, PerspectiveCamera } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Fragment } from "react"
-import { useSocketContext } from "../../utils/socketContext"
-import { Tank, HUD, SceneLight, Scoreboard } from "../../components"
+import { useSocketContext } from "../utils/socketContext"
+import { Tank, HUD, SceneLight, Scoreboard } from "../components"
 import { useDocumentTitle } from "@mantine/hooks"
-import { useIdentity } from "../../utils/indentityContext"
+import { useIdentity } from "../utils/indentityContext"
 
 export function Summary() {
   useDocumentTitle("Post-game | Tanks")
