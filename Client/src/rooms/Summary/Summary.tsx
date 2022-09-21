@@ -20,11 +20,9 @@ export function Summary() {
       <Canvas shadows>
         <SceneLight />
         <PerspectiveCamera
-          position={[1.28, 1.96, -1.28]}
+          position={[1.5, 2, -1.5]}
           rotation={[-Math.PI / 6, Math.PI / 12, Math.PI / 24]}
           fov={75}
-          near={0.01}
-          far={1024}
           makeDefault
         />
         {roomState.tanks.map(tank => (
@@ -32,7 +30,7 @@ export function Summary() {
             <Tank tank={tank} />
             <Cylinder
               position={[tank.pos[0], tank.pos[1] / 2, tank.pos[2]]}
-              args={[1.28, 1.28, tank.pos[1], 32]}
+              args={[1, 1, tank.pos[1], 32]}
               castShadow
               receiveShadow
             >
@@ -40,7 +38,7 @@ export function Summary() {
             </Cylinder>
           </Fragment>
         ))}
-        <Cylinder args={[5.12, 5.12, 0.64, 32]} position={[0, -0.32, -2.56]} receiveShadow>
+        <Cylinder args={[5, 5, 0.5, 32]} position={[0, -0.25, -2.5]} receiveShadow>
           <meshLambertMaterial color="#85BA83" />
         </Cylinder>
       </Canvas>

@@ -13,8 +13,8 @@ namespace Backend.Domain.Rooms.GameStates;
 internal sealed class PlayingGameState : GameRoom, IWorld
 {
     private const double TickRate = 24;
-    private const double PlayerDistance = 20.48;
-    private const double IslandMargin = 1.28;
+    private const double PlayerDistance = 20;
+    private const double IslandMargin = 1;
 
     private long _lastUpdate;
     private readonly Dictionary<EID, Entity> _entities;

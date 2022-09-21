@@ -23,7 +23,7 @@ internal sealed class BotTankController : ITankController
         {
             PreferredTarget = random.Next(2),
             Accuracy = random.NextDouble() * PI / 6,
-            Range = 2.56 + random.NextDouble() * 5.12,
+            Range = 2.5 + random.NextDouble() * 6,
             StraightenThreshold = PI * 3 / 8 + random.NextDouble() * PI / 4,
             StraightenAxes = new()
             {

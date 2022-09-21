@@ -13,12 +13,11 @@ internal sealed class Tank : Entity
     private const double ReverseMult = 0.25;
     private const double TurnDegree = PI / 12;
     private const double BarrelTurnSpeed = PI / 2;
-    private const double BarrelHeight = 0.60;
+    private const double BarrelHeight = 0.6;
     private const double ShootCooldown = 2;
-    private const double TankRadius = 0.64;
+    private const double TankRadius = 0.6;
     private const double TankMass = 10_000;
-    private const double GravityOutwardPush = 20.48;
-    private static readonly Vector GravityAcceleration = new(0, -20.48, 0);
+    private const double GravityOutwardPush = 10;
 
     private readonly ITankController _controller;
     private double _barrelTarget;
@@ -108,7 +107,7 @@ internal sealed class Tank : Entity
 
         if (Pos.Length > _world.Radius)
         {
-            fGravity += GravityAcceleration;
+            fGravity += IWorld.Gravity;
             if (Pos.Length < _world.Radius + Radius)
                 fGravity += GravityOutwardPush * Pos.Normalized;
         }

@@ -1,4 +1,4 @@
-import { Cylinder, MeshWobbleMaterial, PerspectiveCamera, Plane, Sphere } from "@react-three/drei"
+import { Cylinder, PerspectiveCamera, Plane, Sphere } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { useEffect, useState } from "react"
 import { BulletDataDto, TankDataDto } from "../../utils/dtos"
@@ -8,7 +8,7 @@ import { useSocketContext } from "../../utils/socketContext"
 import { Tank, HUD, SceneLight, Scoreboard } from "../../components"
 import { useDocumentTitle } from "@mantine/hooks"
 
-const CAMERA_OFFSET = 2.56
+const CAMERA_OFFSET = 2.5
 
 type N3 = [number, number, number]
 
@@ -39,7 +39,7 @@ export function Game() {
   const aimPitch = player.pitch + pitch
   const cameraPos = [
     player.pos[0] - Math.sin(aimPitch) * CAMERA_OFFSET,
-    Math.max(player.pos[1] + CAMERA_OFFSET / 2, 0.08),
+    Math.max(player.pos[1] + CAMERA_OFFSET / 2, 0.05),
     player.pos[2] - Math.cos(aimPitch) * CAMERA_OFFSET,
   ] as N3
   const cameraRot = [0, aimPitch + Math.PI, 0] as N3
@@ -69,13 +69,12 @@ export function Game() {
           position={cameraPos}
           rotation={cameraRot}
           fov={75}
-          near={0.01}
           far={cameraFar}
           makeDefault
         >
           <Plane
             args={[cameraFar * 4, cameraFar * 4]}
-            position={[0, -cameraPos[1] - 0.64, 0]}
+            position={[0, -cameraPos[1] - 0.5, 0]}
             rotation={[-Math.PI / 2, 0, 0]}
           >
             <meshLambertMaterial color="#517cdb" />
@@ -83,8 +82,8 @@ export function Game() {
         </PerspectiveCamera>
 
         <Cylinder
-          args={[roomState.radius, roomState.radius, 0.64, 64]}
-          position={[0, -0.32, 0]}
+          args={[roomState.radius, roomState.radius, 0.5, 64]}
+          position={[0, -0.25, 0]}
           receiveShadow
         >
           <meshLambertMaterial color="#C2B280" />

@@ -4,10 +4,9 @@ namespace Backend.Domain.Game;
 
 internal sealed class Bullet : Entity
 {
-    private const double BulletSpeed = 10.24;
-    private const double RadiusGrowthTempo = 0.64;
-    private const double MaxBulletRadius = 0.16;
-    private static readonly Vector GravityPull = new(0, -2, 0);
+    private const double BulletSpeed = 10;
+    private const double RadiusGrowthTempo = 0.5;
+    private const double MaxBulletRadius = 0.15;
 
     public Bullet(
         IWorld world,
@@ -24,8 +23,7 @@ internal sealed class Bullet : Entity
 
     public CID OwnerCID { get; }
 
-    protected override Vector CalculateForces()
-        => GravityPull * _mass;
+    protected override Vector CalculateForces() => IWorld.Gravity * _mass;
 
     public override void Update(TimeSpan deltaTime)
     {

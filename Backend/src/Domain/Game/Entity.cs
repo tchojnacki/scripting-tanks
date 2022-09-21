@@ -4,8 +4,6 @@ namespace Backend.Domain.Game;
 
 internal abstract class Entity
 {
-    private const double SeaHeight = -1.00;
-
     protected readonly IWorld _world;
     protected Vector _vel;
     private Vector _acc;
@@ -40,7 +38,7 @@ internal abstract class Entity
         _vel += _acc * deltaTime.TotalSeconds;
         Pos += _vel * deltaTime.TotalSeconds;
 
-        if (HighestPoint < SeaHeight)
+        if (HighestPoint < IWorld.SeaHeight)
             _world.Destroy(this);
     }
 
