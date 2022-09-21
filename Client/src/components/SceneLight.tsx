@@ -1,3 +1,4 @@
+import { GradientTexture } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
 import { useRef } from "react"
 import { DirectionalLight } from "three"
@@ -19,7 +20,13 @@ export function SceneLight({ showBackground = true }: SceneLightProps) {
 
   return (
     <>
-      {showBackground && <color attach="background" args={[0.7, 0.9, 1.0]} />}
+      {showBackground && (
+        <GradientTexture
+          attach="background"
+          stops={[0, 1]}
+          colors={["deepskyblue", "aquamarine"]}
+        />
+      )}
       <ambientLight intensity={0.1} />
       <directionalLight
         ref={lightRef}

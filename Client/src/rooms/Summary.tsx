@@ -20,7 +20,7 @@ export function Summary() {
       <Canvas shadows>
         <SceneLight />
         <PerspectiveCamera
-          position={[1.5, 2, -1.5]}
+          position={[1.5, 1.75, -1.5]}
           rotation={[-Math.PI / 6, Math.PI / 12, Math.PI / 24]}
           fov={75}
           makeDefault
@@ -39,7 +39,7 @@ export function Summary() {
           </Fragment>
         ))}
         <Cylinder args={[5, 5, 0.5, 32]} position={[0, -0.25, -2.5]} receiveShadow>
-          <meshLambertMaterial color="#85BA83" />
+          <meshLambertMaterial color="#589956" />
         </Cylinder>
       </Canvas>
     </>
