@@ -17,7 +17,7 @@ export function Scoreboard({ scoreboard, focus }: ScoreboardProps) {
           </tr>
         </thead>
         <tbody>
-          {scoreboard.map(({ cid, name, score }) => (
+          {scoreboard.slice(0, 5).map(({ cid, name, score }) => (
             <tr
               key={cid}
               style={{
