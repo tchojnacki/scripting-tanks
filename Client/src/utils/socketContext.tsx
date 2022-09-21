@@ -1,3 +1,4 @@
+import { showNotification } from "@mantine/notifications"
 import produce from "immer"
 import {
   createContext,
@@ -10,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react"
+import { WifiOff } from "tabler-icons-react"
 import { WEBSOCKET_ROOT } from "../config"
 import { FullRoomStateDto } from "./dtos"
 import {
@@ -58,6 +60,23 @@ export function SocketContextProvider({ children }: { children: ReactNode }) {
           setRoomState(produce(draft => handler(data as never, draft)))
         )
       }
+    }
+
+    ws.onclose = () => {
+      showNotification({
+        disallowClose: true,
+        autoClose: false,
+        title: "Connection error",
+        message: (
+          <>
+            You lost connection to the server!
+            <br />
+            Refresh the page to try again.
+          </>
+        ),
+        color: "red",
+        icon: <WifiOff />,
+      })
     }
   }, [])
 

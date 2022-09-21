@@ -5,6 +5,7 @@
   "dependencies": {
     "@mantine/core": "^5.4.0",
     "@mantine/hooks": "^5.4.0",
+    "@mantine/notifications": "^5.4.0",
     "@react-three/drei": "^9.31.2",
     "@react-three/fiber": "^8.7.4",
     "immer": "^9.0.15",
