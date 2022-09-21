@@ -18,21 +18,21 @@ export function Summary() {
         <div style={{ fontSize: 32, paddingBlock: 32 }}>{roomState.remaining}s</div>
       </HUD>
       <Canvas shadows>
+        <SceneLight />
         <PerspectiveCamera
-          position={[128, 196, -128]}
+          position={[1.28, 1.96, -1.28]}
           rotation={[-Math.PI / 6, Math.PI / 12, Math.PI / 24]}
           fov={75}
-          near={1}
+          near={0.01}
           far={1024}
           makeDefault
         />
-        <SceneLight />
         {roomState.tanks.map(tank => (
           <Fragment key={tank.eid}>
             <Tank tank={tank} />
             <Cylinder
               position={[tank.pos[0], tank.pos[1] / 2, tank.pos[2]]}
-              args={[128, 128, tank.pos[1], 32]}
+              args={[1.28, 1.28, tank.pos[1], 32]}
               castShadow
               receiveShadow
             >
@@ -40,7 +40,7 @@ export function Summary() {
             </Cylinder>
           </Fragment>
         ))}
-        <Cylinder args={[512, 512, 64, 32]} position={[0, -32, -256]} receiveShadow>
+        <Cylinder args={[5.12, 5.12, 0.64, 32]} position={[0, -0.32, -2.56]} receiveShadow>
           <meshLambertMaterial color="#85BA83" />
         </Cylinder>
       </Canvas>

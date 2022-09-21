@@ -4,10 +4,10 @@ namespace Backend.Domain.Game;
 
 internal sealed class Bullet : Entity
 {
-    private const double BulletSpeed = 1024;
-    private const double RadiusGrowthTempo = 64;
-    private const double MaxBulletRadius = 16;
-    private static readonly Vector GravityPull = new(0, -200, 0);
+    private const double BulletSpeed = 10.24;
+    private const double RadiusGrowthTempo = 0.64;
+    private const double MaxBulletRadius = 0.16;
+    private static readonly Vector GravityPull = new(0, -2, 0);
 
     public Bullet(
         IWorld world,

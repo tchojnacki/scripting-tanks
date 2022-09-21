@@ -7,18 +7,18 @@ namespace Backend.Domain.Game;
 
 internal sealed class Tank : Entity
 {
-    private const double CDrag = 100;
+    private const double CDrag = 10_000;
     private const double CRollResist = 5_000;
-    private const double EngineForce = 3_000_000;
+    private const double EngineForce = 30_000;
     private const double ReverseMult = 0.25;
     private const double TurnDegree = PI / 12;
     private const double BarrelTurnSpeed = PI / 2;
-    private const double BarrelHeight = 60;
+    private const double BarrelHeight = 0.60;
     private const double ShootCooldown = 2;
-    private const double TankRadius = 64;
+    private const double TankRadius = 0.64;
     private const double TankMass = 10_000;
-    private const double GravityOutwardPush = 2048;
-    private static readonly Vector GravityAcceleration = new(0, -2048, 0);
+    private const double GravityOutwardPush = 20.48;
+    private static readonly Vector GravityAcceleration = new(0, -20.48, 0);
 
     private readonly ITankController _controller;
     private double _barrelTarget;

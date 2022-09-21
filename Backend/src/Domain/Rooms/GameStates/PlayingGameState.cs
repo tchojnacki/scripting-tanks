@@ -13,8 +13,8 @@ namespace Backend.Domain.Rooms.GameStates;
 internal sealed class PlayingGameState : GameRoom, IWorld
 {
     private const double TickRate = 24;
-    private const double PlayerDistance = 2048;
-    private const double IslandMargin = 128;
+    private const double PlayerDistance = 20.48;
+    private const double IslandMargin = 1.28;
 
     private long _lastUpdate;
     private readonly Dictionary<EID, Entity> _entities;
@@ -57,17 +57,7 @@ internal sealed class PlayingGameState : GameRoom, IWorld
 
         Scoreboard = new(AllPlayers);
 
-        Task.Run(async () =>
-        {
-            try
-            {
-                await GameLoop();
-            }
-            catch (Exception e)
-            {
-                Console.Write(e);
-            }
-        });
+        Task.Run(async () => await GameLoop());
     }
 
     public static PlayingGameState AfterWaiting(WaitingGameState previous) => new(previous);

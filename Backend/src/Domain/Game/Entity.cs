@@ -4,7 +4,7 @@ namespace Backend.Domain.Game;
 
 internal abstract class Entity
 {
-    private const double SeaHeight = -100;
+    private const double SeaHeight = -1.00;
 
     protected readonly IWorld _world;
     protected Vector _vel;
