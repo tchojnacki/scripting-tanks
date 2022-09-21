@@ -37,12 +37,12 @@ internal sealed class BotTankController : ITankController
     {
         var otherTanks = context.World.Tanks.Where(t => t.EID != context.Self.EID).ToList();
         if (otherTanks.Count == 0) return TankControlsStatus.Idle(context.Self);
-        var prioritizedTargets = otherTanks.Where(t => (context.Self.Pos - t.Pos).Length <= _traits.Range).ToList();
+        var prioritizedTargets = otherTanks.Where(t => (context.Self.Position - t.Position).Length <= _traits.Range).ToList();
         var target = prioritizedTargets.Any()
             ? prioritizedTargets[_traits.PreferredTarget % prioritizedTargets.Count]
             : otherTanks[_traits.PreferredTarget % otherTanks.Count];
 
-        var goalContext = new GoalContext(context.Self, _traits, target.Pos - context.Self.Pos);
+        var goalContext = new GoalContext(context.Self, _traits, target.Position - context.Self.Position);
         return GoalPriorityList.First(g => g.CanActivate(goalContext)).CarryOut(goalContext);
     }
 }

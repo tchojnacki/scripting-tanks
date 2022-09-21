@@ -7,32 +7,32 @@ namespace Backend.Domain.Game;
 
 internal sealed class Tank : Entity
 {
-    private const double CDrag = 10_000;
-    private const double CRollResist = 5_000;
-    private const double EngineForce = 30_000;
-    private const double ReverseMult = 0.25;
-    private const double TurnDegree = PI / 12;
-    private const double BarrelTurnSpeed = PI / 2;
-    private const double BarrelHeight = 0.6;
-    private const double ShootCooldown = 2;
-    private const double TankRadius = 0.6;
-    private const double TankMass = 10_000;
-    private const double GravityOutwardPush = 10;
+    private const double CDrag = 10_000; // kg/m
+    private const double CRollResistance = 5_000; // kg/s
+    private const double EngineForce = 30_000; // kg*m/s^2
+    private const double ReverseMultiplier = 0.25; // unitless
+    private const double TurnDegree = PI / 12; // rad
+    private const double BarrelTurnSpeed = PI / 2; // rad/s
+    private const double BarrelHeight = 0.6; // m
+    private const double TankRadius = 0.6; // m
+    private const double TankMass = 10_000; // kg
+    private const double GravityOutwardPush = 10; // m/s^2
+    private static readonly TimeSpan ShootCooldown = TimeSpan.FromSeconds(2);
 
     private readonly ITankController _controller;
-    private double _barrelTarget;
+    private double _barrelTarget; // rad
     private InputAxes _inputAxes;
-    private long _lastShot;
+    private long _lastShot; // ms
 
     public Tank(
         IWorld world,
         PlayerData playerData,
-        Vector pos,
+        Vector position,
         double pitch,
         ITankController controller) : base(
             world: world,
             eid: Identifiers.EID.FromCID(playerData.CID),
-            pos: pos,
+            position: position,
             radius: TankRadius,
             mass: TankMass)
     {
@@ -45,8 +45,8 @@ internal sealed class Tank : Entity
     }
 
     public PlayerData PlayerData { get; }
-    public double Pitch { get; private set; }
-    public double BarrelPitch { get; private set; }
+    public double Pitch { get; private set; } // rad
+    public double BarrelPitch { get; private set; } // rad
 
     public override void Update(TimeSpan deltaTime)
     {
@@ -57,7 +57,7 @@ internal sealed class Tank : Entity
         if (Abs(turnAngle) > 0.01)
         {
             var turnRadius = 2 * Radius / Sin(turnAngle);
-            var omega = _vel.Length / turnRadius;
+            var omega = _velocity.Length / turnRadius;
             Pitch += omega * deltaTime.TotalSeconds;
         }
 
@@ -91,11 +91,11 @@ internal sealed class Tank : Entity
     {
         var u = new Vector(Sin(Pitch), 0, Cos(Pitch));
 
-        var engineForce = (Vector.Dot(_vel, u) > 0 ? 1 : ReverseMult) * EngineForce * _inputAxes.Vertical;
+        var engineForce = (Vector.Dot(_velocity, u) > 0 ? 1 : ReverseMultiplier) * EngineForce * _inputAxes.Vertical;
 
         var fTraction = u * engineForce;
-        var fDrag = -CDrag * _vel * _vel.Length;
-        var fRollResist = -CRollResist * _vel;
+        var fDrag = -CDrag * _velocity * _velocity.Length;
+        var fRollResist = -CRollResistance * _velocity;
         var fGravity = CalculateGravityForce();
 
         return fTraction + fDrag + fRollResist + fGravity;
@@ -105,11 +105,11 @@ internal sealed class Tank : Entity
     {
         var fGravity = default(Vector);
 
-        if (Pos.Length > _world.Radius)
+        if (Position.Length > _world.Radius)
         {
             fGravity += IWorld.Gravity;
-            if (Pos.Length < _world.Radius + Radius)
-                fGravity += GravityOutwardPush * Pos.Normalized;
+            if (Position.Length < _world.Radius + Radius)
+                fGravity += GravityOutwardPush * Position.Normalized;
         }
 
         return fGravity * _mass;
@@ -119,7 +119,7 @@ internal sealed class Tank : Entity
     {
         var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        if ((now - _lastShot) / 1000 >= ShootCooldown)
+        if (TimeSpan.FromMilliseconds(now - _lastShot) >= ShootCooldown)
         {
             _lastShot = now;
 
@@ -127,7 +127,7 @@ internal sealed class Tank : Entity
                 world: _world,
                 ownerCid: PlayerData.CID,
                 direction: BarrelPitch,
-                pos: Pos + new Vector(0, BarrelHeight, 0)
+                position: Position + new Vector(0, BarrelHeight, 0)
             ));
         }
     }

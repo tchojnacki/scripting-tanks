@@ -15,7 +15,7 @@ internal static class EntityMapper
     public static TankDto ToDto(this Tank tank) => new()
     {
         EID = tank.EID.ToString(),
-        Pos = tank.Pos.ToDto(),
+        Pos = tank.Position.ToDto(),
         CID = tank.PlayerData.CID.ToString(),
         Name = tank.PlayerData.Name,
         Colors = tank.PlayerData.Colors.ToDto(),
@@ -26,7 +26,7 @@ internal static class EntityMapper
     public static BulletDto ToDto(this Bullet bullet) => new()
     {
         EID = bullet.EID.ToString(),
-        Pos = bullet.Pos.ToDto(),
+        Pos = bullet.Position.ToDto(),
         Owner = bullet.OwnerCID.ToString(),
         Radius = bullet.Radius,
     };

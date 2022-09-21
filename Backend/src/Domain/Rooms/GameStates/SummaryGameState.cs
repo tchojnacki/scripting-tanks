@@ -8,9 +8,9 @@ namespace Backend.Domain.Rooms.GameStates;
 
 internal sealed class SummaryGameState : GameRoom
 {
-    private const int SummaryDuration = 5;
-    private const double PodiumRadius = 5;
-    private const double PodiumHeight = 0.25;
+    private const int SummaryDuration = 5; // s
+    private const double PodiumRadius = 5; // m
+    private const double PodiumHeight = 0.25; // m
 
     protected override string Location => "game-summary";
 

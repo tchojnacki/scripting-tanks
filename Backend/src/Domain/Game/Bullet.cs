@@ -4,18 +4,18 @@ namespace Backend.Domain.Game;
 
 internal sealed class Bullet : Entity
 {
-    private const double BulletSpeed = 10;
-    private const double RadiusGrowthTempo = 0.5;
-    private const double MaxBulletRadius = 0.15;
+    private const double BulletSpeed = 10; // m/s
+    private const double RadiusGrowthTempo = 0.5; // m/s
+    private const double MaxBulletRadius = 0.15; // m
 
     public Bullet(
         IWorld world,
         CID ownerCid,
         double direction,
-        Vector pos) : base(
+        Vector position) : base(
             world,
-            pos: pos,
-            vel: Vector.UnitWithPitch(direction) * BulletSpeed,
+            position: position,
+            velocity: Vector.UnitWithPitch(direction) * BulletSpeed,
             radius: 0)
     {
         OwnerCID = ownerCid;
