@@ -1,5 +1,8 @@
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.FileProviders;
 using Backend.Middlewares;
+
+[assembly: InternalsVisibleTo("Backend.Tests")]
 
 var builder = WebApplication.CreateBuilder(args);
 
