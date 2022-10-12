@@ -15,7 +15,9 @@ public class ColorUtilsTest
         double red, double green, double blue)
     {
         var expected = (red, green, blue);
+        
         var result = ColorUtils.HslToRgb(hue, saturation, lightness);
+        
         result.Should().Be(expected);
     }
 
@@ -29,6 +31,7 @@ public class ColorUtilsTest
     public void HslToRgb_ShouldThrow_WhenGivenInvalidHslValues(double hue, double saturation, double lightness)
     {
         Action act = () => ColorUtils.HslToRgb(hue, saturation, lightness);
+        
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
@@ -40,6 +43,7 @@ public class ColorUtilsTest
     public void RgbToString_ShouldStringify_WhenGivenCorrectRgb(double red, double green, double blue, string expected)
     {
         var result = ColorUtils.RgbToString(red, green, blue);
+        
         result.Should().Be(expected);
     }
 
@@ -53,6 +57,7 @@ public class ColorUtilsTest
     public void RgbToString_ShouldThrow_WhenGivenInvalidRgbValues(double red, double green, double blue)
     {
         Action act = () => ColorUtils.RgbToString(red, green, blue);
+        
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 }

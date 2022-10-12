@@ -15,6 +15,7 @@ public class MathUtilsTest
     public void AngleDiff_ShouldReturnSignedDiff_WhenGivenTwoAngles(double from, double to, double expected)
     {
         var result = MathUtils.AngleDiff(from, to);
+        
         result.Should().BeApproximately(expected, 0.01);
     }
 
@@ -27,6 +28,7 @@ public class MathUtilsTest
     public void AbsAngleDiff_ShouldReturnUnsignedDiff_WhenGivenTwoAngles(double alpha, double beta, double expected)
     {
         var result = MathUtils.AbsAngleDiff(alpha, beta);
+        
         result.Should().BeApproximately(expected, 0.01);
     }
 }
