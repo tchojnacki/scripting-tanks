@@ -26,6 +26,7 @@ public class CustomizationProviderTest
         foreach (var _ in Enumerable.Range(0, 100))
         {
             var colors = _sut.AssignTankColors();
+            
             colors.TankColor.Should().MatchRegex(ColorRegex);
             colors.TurretColor.Should().MatchRegex(ColorRegex);
         }
@@ -40,6 +41,7 @@ public class CustomizationProviderTest
     {
         var color1 = _sut.AssignTankColors(seed);
         var color2 = _sut.AssignTankColors(seed);
+        
         color1.Should().Be(color2);
     }
 }

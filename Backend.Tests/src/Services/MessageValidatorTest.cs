@@ -8,6 +8,7 @@ using Backend.Domain.Rooms.GameStates;
 using Backend.Services;
 using Backend.Validation;
 using MediatR;
+using NSubstitute.ReceivedExtensions;
 
 namespace Backend.Tests.Services;
 
@@ -55,5 +56,13 @@ public class MessageValidatorTest
         var result = _sut.Validate(cid, message);
 
         result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Validate_ShouldLogWarning_WhenNoValidatorExists()
+    {
+        _sut.Validate(CID.GenerateUnique(), new ShootClientMessage());
+        
+        _logger.ReceivedWithAnyArgs().LogWarning(default);
     }
 }
