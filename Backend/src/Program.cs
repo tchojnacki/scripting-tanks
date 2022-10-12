@@ -3,6 +3,7 @@ using Microsoft.Extensions.FileProviders;
 using Backend.Middlewares;
 
 [assembly: InternalsVisibleTo("Backend.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -2,9 +2,9 @@ using Backend.Utils.Common;
 
 using static System.Math;
 
-namespace Backend.Tests;
+namespace Backend.Tests.Utils;
 
-public class MathUtilsTests
+public class MathUtilsTest
 {
     [Theory]
     [InlineData(1.5, 1.5, 0)]

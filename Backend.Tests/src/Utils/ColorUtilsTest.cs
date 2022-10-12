@@ -1,6 +1,6 @@
 using Backend.Utils.Common;
 
-namespace Backend.Tests;
+namespace Backend.Tests.Utils;
 
 public class ColorUtilsTest
 {
