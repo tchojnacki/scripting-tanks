@@ -27,11 +27,11 @@ internal sealed class MessageValidator : IMessageValidator
             var validator = (dynamic?)_serviceProvider.GetService(validatorType);
             if (validator is null)
             {
-                _logger.LogWarning("No validation set up for {type}", messageType.Name);
+                _logger.LogWarning("No validation set up for {Type}", messageType.Name);
                 return true;
             }
 
-            var messageContext = (dynamic?)Activator.CreateInstance(messageContextType, new object[] { cid, message });
+            var messageContext = (dynamic?)Activator.CreateInstance(messageContextType, cid, message);
 
             return validator.Validate(messageContext).IsValid;
         }
