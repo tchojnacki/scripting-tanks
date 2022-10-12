@@ -9,11 +9,8 @@ public class CustomizationProviderTest
     
     private readonly CustomizationProvider _sut;
 
-    public CustomizationProviderTest()
-    {
-        _sut = new();
-    }
-
+    public CustomizationProviderTest() => _sut = new();
+    
     [Fact]
     public void AssignDisplayName_ShouldAssignATwoPartAnimalName_WhenCalled()
     {

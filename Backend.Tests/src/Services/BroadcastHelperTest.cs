@@ -12,8 +12,7 @@ public class BroadcastHelperTest
     private readonly IConnectionManager _connectionManager = Substitute.For<IConnectionManager>();
     private readonly IRoomManager _roomManager = Substitute.For<IRoomManager>();
 
-    public BroadcastHelperTest()
-        => _sut = new(_connectionManager, _roomManager);
+    public BroadcastHelperTest() => _sut = new(_connectionManager, _roomManager);
 
     [Fact]
     public async Task BroadcastToRoom_ShouldNotSendMessages_WhenLobbyIsEmpty()
