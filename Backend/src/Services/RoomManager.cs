@@ -1,10 +1,10 @@
-using MediatR;
-using Backend.Domain.Rooms;
-using Backend.Domain.Rooms.GameStates;
-using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages;
 using Backend.Contracts.Messages.Client;
+using Backend.Domain.Identifiers;
+using Backend.Domain.Rooms;
+using Backend.Domain.Rooms.GameStates;
 using Backend.Mediation.Requests;
+using MediatR;
 
 namespace Backend.Services;
 
@@ -18,7 +18,7 @@ internal sealed class RoomManager : IRoomManager
     {
         _mediator = mediator;
 
-        MenuRoom = new MenuRoom(mediator, this);
+        MenuRoom = new(mediator, this);
         _gameRooms = new();
     }
 
@@ -60,6 +60,12 @@ internal sealed class RoomManager : IRoomManager
 
     public Task JoinGameRoomAsync(CID cid, LID lid) => SwitchRoomAsync(cid, _gameRooms[lid]);
 
+    public Task ShowSummaryAsync(LID lid)
+        => ChangeGameStateAsync<PlayingGameState, SummaryGameState>(lid, SummaryGameState.AfterPlaying);
+
+    public Task PlayAgainAsync(LID lid)
+        => ChangeGameStateAsync<SummaryGameState, WaitingGameState>(lid, WaitingGameState.AfterSummary);
+
     private async Task KickPlayerAsync(CID cid)
         => await SwitchRoomAsync(cid, (await _mediator.Send(new PlayerDataRequest(cid))).IsBot ? null : MenuRoom);
 
@@ -94,10 +100,4 @@ internal sealed class RoomManager : IRoomManager
 
     private Task StartGameAsync(LID lid)
         => ChangeGameStateAsync<WaitingGameState, PlayingGameState>(lid, PlayingGameState.AfterWaiting);
-
-    public Task ShowSummaryAsync(LID lid)
-        => ChangeGameStateAsync<PlayingGameState, SummaryGameState>(lid, SummaryGameState.AfterPlaying);
-
-    public Task PlayAgainAsync(LID lid)
-        => ChangeGameStateAsync<SummaryGameState, WaitingGameState>(lid, WaitingGameState.AfterSummary);
 }

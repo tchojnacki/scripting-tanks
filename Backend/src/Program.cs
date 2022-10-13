@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.FileProviders;
+using Backend;
 using Backend.Middlewares;
 
 [assembly: InternalsVisibleTo("Backend.Tests")]
@@ -13,7 +14,7 @@ builder.Host.ConfigureLogging(logging =>
     logging.AddConsole();
 });
 
-builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "3000"}");
+builder.WebHost.UseUrls($"https://*:{Environment.GetEnvironmentVariable("PORT") ?? "3000"}");
 
 builder.Services.RegisterAll();
 

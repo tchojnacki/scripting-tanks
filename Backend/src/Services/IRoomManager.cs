@@ -6,14 +6,14 @@ namespace Backend.Services;
 
 internal interface IRoomManager
 {
+    MenuRoom MenuRoom { get; }
+    IEnumerable<LobbyInfo> Lobbies { get; }
     Task HandleOnConnectAsync(CID cid);
     Task HandleOnDisconnectAsync(CID cid);
     Task HandleOnMessageAsync(CID cid, IClientMessage message);
     GameRoom GetGameRoom(LID lid);
     bool ContainsGameRoom(LID lid);
     ConnectionRoom RoomContaining(CID cid);
-    MenuRoom MenuRoom { get; }
-    IEnumerable<LobbyInfo> Lobbies { get; }
     Task JoinGameRoomAsync(CID cid, LID lid);
     Task CloseLobbyAsync(LID lid);
     Task ShowSummaryAsync(LID lid);
