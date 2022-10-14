@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.FileProviders;
 using Backend;
 using Backend.Middlewares;
+using Microsoft.Extensions.FileProviders;
 
 [assembly: InternalsVisibleTo("Backend.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -14,7 +14,7 @@ builder.Host.ConfigureLogging(logging =>
     logging.AddConsole();
 });
 
-builder.WebHost.UseUrls($"https://*:{Environment.GetEnvironmentVariable("PORT") ?? "3000"}");
+builder.WebHost.UseUrls($"http://*:{Environment.GetEnvironmentVariable("PORT") ?? "3000"}");
 
 builder.Services.RegisterAll();
 
