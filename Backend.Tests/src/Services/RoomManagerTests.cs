@@ -104,7 +104,7 @@ public class RoomManagerTest
     }
 
     [Fact]
-    public void MenuRoom_ShouldReturnValidMenuRoom_WhenUsed()
+    public void MenuRoom_ShouldReturnValidMenuRoom()
     {
         var menu = _sut.MenuRoom;
 
@@ -112,7 +112,7 @@ public class RoomManagerTest
     }
 
     [Fact]
-    public async Task CloseLobbyAsync_RemovesLobbyFromList_WhenCalled()
+    public async Task CloseLobbyAsync_RemovesLobbyFromList()
     {
         var cid = await SetupPlayerAsync();
         var lid = await SetupLobbyAsync(cid);
@@ -123,7 +123,7 @@ public class RoomManagerTest
     }
 
     [Fact]
-    public async Task HandleOnDisconnectAsync_ShouldRemovePlayerFromMenu_WhenCalled()
+    public async Task HandleOnDisconnectAsync_ShouldRemovePlayerFromMenu()
     {
         var cid = await SetupPlayerAsync();
         Action act = () => _sut.RoomContaining(cid);
@@ -134,7 +134,7 @@ public class RoomManagerTest
     }
 
     [Fact]
-    public async Task HandleOnMessageAsync_ShouldDelegateMessage_WhenCalled()
+    public async Task HandleOnMessageAsync_ShouldDelegateMessage()
     {
         var cid = await SetupPlayerAsync();
 
@@ -144,7 +144,7 @@ public class RoomManagerTest
     }
 
     [Fact]
-    public async Task JoinGameRoomAsync_ShouldChangePlayerLobby_WhenUsed()
+    public async Task JoinGameRoomAsync_ShouldChangePlayerLobby()
     {
         var ownerCid = await SetupPlayerAsync();
         var joinerCid = await SetupPlayerAsync();
@@ -194,7 +194,7 @@ public class RoomManagerTest
     }
 
     [Fact]
-    public async Task KickPlayerAsync_ShouldKickPlayer_WhenUsed()
+    public async Task KickPlayerAsync_ShouldKickPlayer()
     {
         var ownerCid = await SetupPlayerAsync();
         var playerCid = await SetupPlayerAsync();

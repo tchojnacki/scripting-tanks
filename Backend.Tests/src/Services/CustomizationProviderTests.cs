@@ -12,7 +12,7 @@ public class CustomizationProviderTest
     public CustomizationProviderTest() => _sut = new();
     
     [Fact]
-    public void AssignDisplayName_ShouldAssignATwoPartAnimalName_WhenCalled()
+    public void AssignDisplayName_ShouldAssignATwoPartAnimalName()
     {
         var name = _sut.AssignDisplayName();
 
@@ -21,7 +21,7 @@ public class CustomizationProviderTest
     }
 
     [Fact]
-    public void AssignTankColors_ShouldAssignCorrectHexColors_WhenCalled()
+    public void AssignTankColors_ShouldAssignCorrectHexColors()
     {
         foreach (var _ in Enumerable.Range(0, 100))
         {
