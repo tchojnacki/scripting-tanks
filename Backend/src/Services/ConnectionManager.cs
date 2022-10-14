@@ -39,11 +39,11 @@ internal sealed class ConnectionManager : IConnectionManager
         if (!_activeConnections.ContainsKey(cid)) return;
         _logger.LogDebug("Outbound message for {Cid}:\n{Message}", cid.ToString(), message);
         var buffer = _messageSerializer.Serialize(message);
-        await _activeConnections[cid].Socket!.SendAsync(
+        await (_activeConnections[cid].Socket?.SendAsync(
             new(buffer),
             WebSocketMessageType.Text,
             true,
-            CancellationToken.None);
+            CancellationToken.None) ?? Task.CompletedTask);
     }
 
     public PlayerData DataFor(CID cid)
@@ -73,19 +73,20 @@ internal sealed class ConnectionManager : IConnectionManager
                 var result = await socket.ReceiveAsync(new(buffer), cancellationToken);
                 if (result.CloseStatus.HasValue) break;
 
-                if (_messageSerializer.TryDeserialize(buffer, out var message) &&
-                    _messageValidator.Validate(cid, message))
-                    try
-                    {
-                        _logger.LogDebug("Inbound message from {Cid}:\n{Message}", cid.ToString(), message);
-                        await HandleOnMessageAsync(cid, message);
-                    }
-                    catch (Exception exception)
-                    {
-                        _logger.LogWarning(
-                            "Error when processing message:\n{Exception}\n{Message}",
-                            exception, message);
-                    }
+                if (!_messageSerializer.TryDeserialize(buffer, out var message) ||
+                    !_messageValidator.Validate(cid, message)) continue;
+
+                try
+                {
+                    _logger.LogDebug("Inbound message from {Cid}:\n{Message}", cid.ToString(), message);
+                    await HandleOnMessageAsync(cid, message);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogWarning(
+                        "Error when processing message:\n{Exception}\n{Message}",
+                        exception, message);
+                }
             }
         }
         catch (OperationCanceledException)
@@ -105,7 +106,7 @@ internal sealed class ConnectionManager : IConnectionManager
         }
     }
 
-    private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
+    public async Task HandleOnConnectAsync(CID cid, WebSocket socket)
     {
         _logger.LogInformation("Connected: {Cid}", cid.ToString());
         var connection = new PlayerData
