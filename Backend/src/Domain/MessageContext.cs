@@ -1,6 +1,6 @@
-using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages;
+using Backend.Domain.Identifiers;
 
 namespace Backend.Domain;
 
-internal sealed record MessageContext<TMessage>(CID Sender, TMessage Message) where TMessage : IClientMessage;
+internal sealed record MessageContext<TMessage>(Cid Sender, TMessage Message) where TMessage : IClientMessage;

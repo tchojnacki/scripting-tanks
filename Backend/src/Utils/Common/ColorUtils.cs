@@ -13,22 +13,22 @@ internal static class ColorUtils
         if (lightness is not (>= 0 and <= 1))
             throw new ArgumentOutOfRangeException(nameof(lightness));
 
-        var C = (1 - Math.Abs(2 * lightness - 1)) * saturation;
+        var c = (1 - Math.Abs(2 * lightness - 1)) * saturation;
         var huePrim = hue / 60;
-        var X = C * (1 - Math.Abs(huePrim % 2 - 1));
+        var x = c * (1 - Math.Abs(huePrim % 2 - 1));
 
         var (rOne, gOne, bOne) = huePrim switch
         {
-            >= 0 and < 1 => (C, X, 0.0),
-            >= 1 and < 2 => (X, C, 0.0),
-            >= 2 and < 3 => (0.0, C, X),
-            >= 3 and < 4 => (0.0, X, C),
-            >= 4 and < 5 => (X, 0.0, C),
-            >= 5 and < 6 => (C, 0.0, X),
+            >= 0 and < 1 => (c, x, 0.0),
+            >= 1 and < 2 => (x, c, 0.0),
+            >= 2 and < 3 => (0.0, c, x),
+            >= 3 and < 4 => (0.0, x, c),
+            >= 4 and < 5 => (x, 0.0, c),
+            >= 5 and < 6 => (c, 0.0, x),
             _ => throw new InvalidOperationException()
         };
 
-        var m = lightness - C / 2;
+        var m = lightness - c / 2;
         return (rOne + m, gOne + m, bOne + m);
     }
 

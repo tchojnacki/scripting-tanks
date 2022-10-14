@@ -30,7 +30,7 @@ internal sealed class MessageSerializer : IMessageSerializer
         {
             var content = Encoding.UTF8.GetString(buffer).TrimEnd('\0');
             var tag = JsonDocument.Parse(content).RootElement.GetProperty("tag").GetString()!;
-            var type = _tagMap[tag]!;
+            var type = _tagMap[tag];
 
             message = (IClientMessage)JsonSerializer.Deserialize(content, type, SerializerOptions)!;
             return true;

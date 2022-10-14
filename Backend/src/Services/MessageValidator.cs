@@ -1,14 +1,14 @@
-using FluentValidation;
+using Backend.Contracts.Messages;
 using Backend.Domain;
 using Backend.Domain.Identifiers;
-using Backend.Contracts.Messages;
+using FluentValidation;
 
 namespace Backend.Services;
 
 internal sealed class MessageValidator : IMessageValidator
 {
-    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<MessageValidator> _logger;
+    private readonly IServiceProvider _serviceProvider;
 
     public MessageValidator(IServiceProvider serviceProvider, ILogger<MessageValidator> logger)
     {
@@ -16,7 +16,7 @@ internal sealed class MessageValidator : IMessageValidator
         _logger = logger;
     }
 
-    public bool Validate(CID cid, IClientMessage message)
+    public bool Validate(Cid cid, IClientMessage message)
     {
         try
         {
@@ -27,11 +27,11 @@ internal sealed class MessageValidator : IMessageValidator
             var validator = (dynamic?)_serviceProvider.GetService(validatorType);
             if (validator is null)
             {
-                _logger.LogWarning("No validation set up for {type}", messageType.Name);
+                _logger.LogWarning("No validation set up for {Type}", messageType.Name);
                 return true;
             }
 
-            var messageContext = (dynamic?)Activator.CreateInstance(messageContextType, new object[] { cid, message });
+            var messageContext = (dynamic?)Activator.CreateInstance(messageContextType, cid, message);
 
             return validator.Validate(messageContext).IsValid;
         }

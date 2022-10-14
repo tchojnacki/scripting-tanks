@@ -1,6 +1,6 @@
-using MediatR;
-using Backend.Services;
 using Backend.Mediation.Requests;
+using Backend.Services;
+using MediatR;
 
 namespace Backend.Mediation.Handlers;
 
@@ -11,5 +11,5 @@ internal sealed class CloseLobbyHandler : AsyncRequestHandler<CloseLobbyRequest>
     public CloseLobbyHandler(IRoomManager roomManager) => _roomManager = roomManager;
 
     protected override Task Handle(CloseLobbyRequest request, CancellationToken cancellationToken)
-        => _roomManager.CloseLobbyAsync(request.LID);
+        => _roomManager.CloseLobbyAsync(request.Lid);
 }

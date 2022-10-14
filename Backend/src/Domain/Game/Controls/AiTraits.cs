@@ -1,6 +1,6 @@
 namespace Backend.Domain.Game.Controls;
 
-internal sealed record AITraits
+internal sealed record AiTraits
 {
     public int PreferredTarget { get; init; }
     public double Accuracy { get; init; } // rad

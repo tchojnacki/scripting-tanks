@@ -1,24 +1,24 @@
 using System.Net.WebSockets;
-using Backend.Domain;
-using Backend.Domain.Rooms;
-using Backend.Domain.Identifiers;
 using Backend.Contracts.Messages;
-using Backend.Contracts.Messages.Server;
 using Backend.Contracts.Messages.Client;
+using Backend.Contracts.Messages.Server;
+using Backend.Domain;
+using Backend.Domain.Identifiers;
+using Backend.Domain.Rooms;
 using Backend.Utils.Mappings;
 
 namespace Backend.Services;
 
 internal sealed class ConnectionManager : IConnectionManager
 {
-    private readonly Dictionary<CID, PlayerData> _activeConnections = new();
-    private readonly HashSet<CID> _bots = new();
-
-    private readonly IRoomManager _roomManager;
+    private readonly Dictionary<Cid, PlayerData> _activeConnections = new();
+    private readonly HashSet<Cid> _bots = new();
     private readonly ICustomizationProvider _customizationProvider;
+    private readonly ILogger<ConnectionManager> _logger;
     private readonly IMessageSerializer _messageSerializer;
     private readonly IMessageValidator _messageValidator;
-    private readonly ILogger<ConnectionManager> _logger;
+
+    private readonly IRoomManager _roomManager;
 
     public ConnectionManager(
         IRoomManager roomManager,
@@ -34,12 +34,84 @@ internal sealed class ConnectionManager : IConnectionManager
         _logger = logger;
     }
 
-    private async Task HandleOnConnectAsync(CID cid, WebSocket socket)
+    public async Task SendToSingleAsync<T>(Cid cid, IServerMessage<T> message)
     {
-        _logger.LogInformation("Connected: {cid}", cid);
+        if (!_activeConnections.ContainsKey(cid)) return;
+        _logger.LogDebug("Outbound message for {Cid}:\n{Message}", cid.ToString(), message);
+        var buffer = _messageSerializer.Serialize(message);
+        await (_activeConnections[cid].Socket?.SendAsync(
+            new(buffer),
+            WebSocketMessageType.Text,
+            true,
+            CancellationToken.None) ?? Task.CompletedTask);
+    }
+
+    public PlayerData DataFor(Cid cid)
+    {
+        if (_bots.Contains(cid))
+            return new()
+            {
+                Cid = cid,
+                Socket = null,
+                Name = "BOT",
+                Colors = _customizationProvider.AssignTankColors(cid.ToString().GetHashCode())
+            };
+
+        return _activeConnections[cid];
+    }
+
+    public async Task AcceptConnectionAsync(Cid cid, WebSocket socket, CancellationToken cancellationToken)
+    {
+        await HandleOnConnectAsync(cid, socket);
+
+        var buffer = new byte[4096];
+        try
+        {
+            while (true)
+            {
+                Array.Clear(buffer);
+                var result = await socket.ReceiveAsync(new(buffer), cancellationToken);
+                if (result.CloseStatus.HasValue) break;
+
+                if (!_messageSerializer.TryDeserialize(buffer, out var message) ||
+                    !_messageValidator.Validate(cid, message)) continue;
+
+                try
+                {
+                    _logger.LogDebug("Inbound message from {Cid}:\n{Message}", cid.ToString(), message);
+                    await HandleOnMessageAsync(cid, message);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogWarning(
+                        "Error when processing message:\n{Exception}\n{Message}",
+                        exception, message);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogInformation("Disconnected socket due to the server closing down");
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning("Socket connection ended abruptly with error:\n{Exception}", exception);
+        }
+        finally
+        {
+            if (socket.State is not (WebSocketState.Closed or WebSocketState.Aborted))
+                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, cancellationToken);
+
+            await HandleOnDisconnectAsync(cid);
+        }
+    }
+
+    public async Task HandleOnConnectAsync(Cid cid, WebSocket socket)
+    {
+        _logger.LogInformation("Connected: {Cid}", cid.ToString());
         var connection = new PlayerData
         {
-            CID = cid,
+            Cid = cid,
             Socket = socket,
             Name = _customizationProvider.AssignDisplayName(),
             Colors = _customizationProvider.AssignTankColors()
@@ -50,113 +122,40 @@ internal sealed class ConnectionManager : IConnectionManager
         await _roomManager.HandleOnConnectAsync(cid);
     }
 
-    private async Task HandleOnDisconnectAsync(CID cid)
+    private async Task HandleOnDisconnectAsync(Cid cid)
     {
-        _logger.LogInformation("Disconnected: {cid}", cid);
+        _logger.LogInformation("Disconnected: {Cid}", cid.ToString());
         _activeConnections.Remove(cid);
         await _roomManager.HandleOnDisconnectAsync(cid);
     }
 
-    private async Task RerollClientName(CID cid)
+    private async Task RerollClientName(Cid cid)
     {
         var con = _activeConnections[cid];
         con.Name = _customizationProvider.AssignDisplayName();
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
     }
 
-    private async Task CustomizeColors(CID cid, TankColors colors)
+    private async Task CustomizeColors(Cid cid, TankColors colors)
     {
         var con = _activeConnections[cid];
         con.Colors = colors;
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
     }
 
-    private Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
+    private Task HandleOnMessageAsync(Cid cid, IClientMessage message) => message switch
     {
         RerollNameClientMessage => RerollClientName(cid),
         CustomizeColorsClientMessage { Data: var dto } => CustomizeColors(cid, dto.ToDomain()),
-        AddBotClientMessage => AddBotAsync(((GameRoom)_roomManager.RoomContaining(cid)).LID),
+        AddBotClientMessage => AddBotAsync(((GameRoom)_roomManager.RoomContaining(cid)).Lid),
         _ => _roomManager.HandleOnMessageAsync(cid, message)
     };
 
-    private async Task AddBotAsync(LID lid)
+    private async Task AddBotAsync(Lid lid)
     {
-        var cid = CID.GenerateUnique();
+        var cid = Cid.GenerateUnique();
         _bots.Add(cid);
         await _roomManager.HandleOnConnectAsync(cid);
         await _roomManager.JoinGameRoomAsync(cid, lid);
-    }
-
-    public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
-    {
-        if (!_activeConnections.ContainsKey(cid)) return;
-        _logger.LogDebug("Outbound message for {cid}:\n{message}", cid, message);
-        var buffer = _messageSerializer.Serialize(message);
-        await _activeConnections[cid].Socket!.SendAsync(
-            new ArraySegment<byte>(buffer),
-            WebSocketMessageType.Text,
-            true,
-            CancellationToken.None);
-    }
-
-    public PlayerData DataFor(CID cid)
-    {
-        if (_bots.Contains(cid))
-        {
-            return new()
-            {
-                CID = cid,
-                Socket = null,
-                Name = "BOT",
-                Colors = _customizationProvider.AssignTankColors(cid.ToString().GetHashCode())
-            };
-        }
-
-        return _activeConnections[cid];
-    }
-
-    public async Task AcceptConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken)
-    {
-        await HandleOnConnectAsync(cid, socket);
-
-        var buffer = new byte[4096];
-        try
-        {
-            while (true)
-            {
-                Array.Clear(buffer);
-                var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
-                if (result.CloseStatus.HasValue) break;
-
-                if (_messageSerializer.TryDeserialize(buffer, out var message) &&
-                    _messageValidator.Validate(cid, message))
-                {
-                    try
-                    {
-                        _logger.LogDebug("Inbound message from {cid}:\n{message}", cid, message);
-                        await HandleOnMessageAsync(cid, message);
-                    }
-                    catch (Exception exception)
-                    {
-                        _logger.LogWarning("Error when processing message:\n{message}\n{exception}", message, exception);
-                    }
-                }
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            _logger.LogInformation("Disconnected socket due to the server closing down");
-        }
-        catch (Exception exception)
-        {
-            _logger.LogWarning("Socket connection ended abruptly with error:\n{exception}", exception);
-        }
-        finally
-        {
-            if (socket.State is not (WebSocketState.Closed or WebSocketState.Aborted))
-                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, cancellationToken);
-
-            await HandleOnDisconnectAsync(cid);
-        }
     }
 }

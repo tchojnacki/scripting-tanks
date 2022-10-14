@@ -24,7 +24,7 @@ internal static class ConnectionRoomMapper
     {
         Radius = state.Radius,
         Entities = state.Entities.Select(e => e.ToDto()).ToList(),
-        Scoreboard = state.Scoreboard.ToDto(),
+        Scoreboard = state.Scoreboard.ToDto()
     };
 
     public static GameSummaryStateDto ToDto(this SummaryGameState state) => new()
@@ -37,7 +37,7 @@ internal static class ConnectionRoomMapper
     public static GameWaitingStateDto ToDto(this WaitingGameState state) => new()
     {
         Name = state.Name,
-        Owner = state.OwnerCID.ToString(),
-        Players = state.AllPlayers.Select(p => p.ToDto()).ToList(),
+        Owner = state.OwnerCid.ToString(),
+        Players = state.AllPlayers.Select(p => p.ToDto()).ToList()
     };
 }

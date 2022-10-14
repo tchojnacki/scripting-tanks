@@ -1,6 +1,6 @@
-using MediatR;
 using Backend.Domain.Identifiers;
+using MediatR;
 
 namespace Backend.Mediation.Requests;
 
-internal sealed record BroadcastRoomStateRequest(LID LID) : IRequest;
+internal sealed record BroadcastRoomStateRequest(Lid Lid) : IRequest;

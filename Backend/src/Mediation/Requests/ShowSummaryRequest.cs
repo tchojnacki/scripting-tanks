@@ -1,6 +1,6 @@
-using MediatR;
 using Backend.Domain.Identifiers;
+using MediatR;
 
 namespace Backend.Mediation.Requests;
 
-internal sealed record ShowSummaryRequest(LID LID) : IRequest;
+internal sealed record ShowSummaryRequest(Lid Lid) : IRequest;

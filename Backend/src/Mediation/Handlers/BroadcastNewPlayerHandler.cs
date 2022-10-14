@@ -1,8 +1,8 @@
-using MediatR;
-using Backend.Services;
 using Backend.Contracts.Messages.Server;
 using Backend.Mediation.Requests;
+using Backend.Services;
 using Backend.Utils.Mappings;
+using MediatR;
 
 namespace Backend.Mediation.Handlers;
 
@@ -19,6 +19,6 @@ internal sealed class BroadcastNewPlayerHandler : AsyncRequestHandler<BroadcastN
 
     protected override Task Handle(BroadcastNewPlayerRequest request, CancellationToken cancellationToken)
         => _broadcastHelper.BroadcastToRoom(
-            request.LID,
-            new NewPlayerServerMessage { Data = _connectionManager.DataFor(request.CID).ToDto() });
+            request.Lid,
+            new NewPlayerServerMessage { Data = _connectionManager.DataFor(request.Cid).ToDto() });
 }

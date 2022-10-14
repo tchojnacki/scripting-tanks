@@ -1,15 +1,15 @@
-using Backend.Services;
 using Backend.Domain.Identifiers;
+using Backend.Services;
 
 namespace Backend.Middlewares;
 
 internal sealed class WsEndpointMiddleware
 {
     private const string EndpointPath = "/ws";
+    private readonly IConnectionManager _connectionManager;
+    private readonly IHostApplicationLifetime _lifetime;
 
     private readonly RequestDelegate _next;
-    private readonly IHostApplicationLifetime _lifetime;
-    private readonly IConnectionManager _connectionManager;
 
     public WsEndpointMiddleware(
         RequestDelegate next,
@@ -29,7 +29,7 @@ internal sealed class WsEndpointMiddleware
             {
                 using var socket = await context.WebSockets.AcceptWebSocketAsync();
                 await _connectionManager.AcceptConnectionAsync(
-                    CID.FromConnection(context.Connection),
+                    Cid.FromConnection(context.Connection),
                     socket,
                     _lifetime.ApplicationStopping);
             }

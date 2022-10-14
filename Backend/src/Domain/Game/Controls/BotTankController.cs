@@ -1,5 +1,4 @@
 using Backend.Domain.Game.Controls.Goals;
-
 using static System.Math;
 
 namespace Backend.Domain.Game.Controls;
@@ -13,7 +12,7 @@ internal sealed class BotTankController : ITankController
         new ChaseGoal()
     };
 
-    private readonly AITraits _traits;
+    private readonly AiTraits _traits;
 
     public BotTankController(int aiSeed)
     {
@@ -28,16 +27,17 @@ internal sealed class BotTankController : ITankController
             StraightenAxes = new()
             {
                 Vertical = random.Next(2) == 1 ? 1 : -1,
-                Horizontal = random.Next(2) == 1 ? 1 : -1,
+                Horizontal = random.Next(2) == 1 ? 1 : -1
             }
         };
     }
 
     public TankControlsStatus FetchControlsStatus(NavigationContext context)
     {
-        var otherTanks = context.World.Tanks.Where(t => t.EID != context.Self.EID).ToList();
+        var otherTanks = context.World.Tanks.Where(t => t.Eid != context.Self.Eid).ToList();
         if (otherTanks.Count == 0) return TankControlsStatus.Idle(context.Self);
-        var prioritizedTargets = otherTanks.Where(t => (context.Self.Position - t.Position).Length <= _traits.Range).ToList();
+        var prioritizedTargets = otherTanks.Where(t => (context.Self.Position - t.Position).Length <= _traits.Range)
+            .ToList();
         var target = prioritizedTargets.Any()
             ? prioritizedTargets[_traits.PreferredTarget % prioritizedTargets.Count]
             : otherTanks[_traits.PreferredTarget % otherTanks.Count];

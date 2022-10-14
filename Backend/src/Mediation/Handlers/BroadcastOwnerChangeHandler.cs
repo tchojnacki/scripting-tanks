@@ -1,7 +1,7 @@
-using MediatR;
-using Backend.Services;
 using Backend.Contracts.Messages.Server;
 using Backend.Mediation.Requests;
+using Backend.Services;
+using MediatR;
 
 namespace Backend.Mediation.Handlers;
 
@@ -13,6 +13,6 @@ internal sealed class BroadcastOwnerChangeHandler : AsyncRequestHandler<Broadcas
 
     protected override Task Handle(BroadcastOwnerChangeRequest request, CancellationToken cancellationToken)
         => _broadcastHelper.BroadcastToRoom(
-            request.LID,
-            new OwnerChangeServerMessage { Data = request.NewOwnerCID.ToString() });
+            request.Lid,
+            new OwnerChangeServerMessage { Data = request.NewOwnerCid.ToString() });
 }

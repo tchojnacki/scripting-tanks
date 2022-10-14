@@ -2,7 +2,7 @@ namespace Backend.Domain.Game.Controls;
 
 internal sealed class PlayerInputCache
 {
-    private bool _shouldShoot = false;
+    private bool _shouldShoot;
 
     public InputAxes InputAxes { get; set; }
     public double BarrelTarget { get; set; }

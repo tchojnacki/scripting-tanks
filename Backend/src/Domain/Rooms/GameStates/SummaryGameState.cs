@@ -1,7 +1,6 @@
 using Backend.Domain.Game;
 using Backend.Domain.Game.Controls;
 using Backend.Mediation.Requests;
-
 using static System.Math;
 
 namespace Backend.Domain.Rooms.GameStates;
@@ -12,15 +11,13 @@ internal sealed class SummaryGameState : GameRoom
     private const double PodiumRadius = 5; // m
     private const double PodiumHeight = 0.25; // m
 
-    protected override string Location => "game-summary";
-
     private SummaryGameState(PlayingGameState previous) : base(previous)
     {
         Scoreboard = previous.Scoreboard;
         Task.Run(async () => await WaitToPlayAgain());
     }
 
-    public static SummaryGameState AfterPlaying(PlayingGameState previous) => new(previous);
+    protected override string Location => "game-summary";
 
     public IReadOnlyScoreboard Scoreboard { get; }
 
@@ -37,14 +34,17 @@ internal sealed class SummaryGameState : GameRoom
             new IdleTankController());
     });
 
+    public static SummaryGameState AfterPlaying(PlayingGameState previous) => new(previous);
+
     private async Task WaitToPlayAgain()
     {
         while (Remaining > 0)
         {
             await Task.Delay(TimeSpan.FromSeconds(1));
             Remaining--;
-            await _mediator.Send(new BroadcastRoomStateRequest(LID));
+            await Mediator.Send(new BroadcastRoomStateRequest(Lid));
         }
-        await _mediator.Send(new PlayAgainRequest(LID));
+
+        await Mediator.Send(new PlayAgainRequest(Lid));
     }
 }

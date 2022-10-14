@@ -9,25 +9,25 @@ internal static class EntityMapper
     {
         Tank tank => tank.ToDto(),
         Bullet bullet => bullet.ToDto(),
-        _ => throw new NotImplementedException(),
+        _ => throw new NotImplementedException()
     };
 
     public static TankDto ToDto(this Tank tank) => new()
     {
-        EID = tank.EID.ToString(),
+        Eid = tank.Eid.ToString(),
         Pos = tank.Position.ToDto(),
-        CID = tank.PlayerData.CID.ToString(),
+        Cid = tank.PlayerData.Cid.ToString(),
         Name = tank.PlayerData.Name,
         Colors = tank.PlayerData.Colors.ToDto(),
         Pitch = tank.Pitch,
-        Barrel = tank.BarrelPitch,
+        Barrel = tank.BarrelPitch
     };
 
-    public static BulletDto ToDto(this Bullet bullet) => new()
+    private static BulletDto ToDto(this Bullet bullet) => new()
     {
-        EID = bullet.EID.ToString(),
+        Eid = bullet.Eid.ToString(),
         Pos = bullet.Position.ToDto(),
-        Owner = bullet.OwnerCID.ToString(),
-        Radius = bullet.Radius,
+        Owner = bullet.OwnerCid.ToString(),
+        Radius = bullet.Radius
     };
 }

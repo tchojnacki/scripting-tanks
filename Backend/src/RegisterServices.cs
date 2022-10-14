@@ -6,6 +6,8 @@ using Backend.Domain;
 using Backend.Contracts.Messages.Client;
 using Backend.Validation;
 
+namespace Backend;
+
 internal static class RegisterServices
 {
     public static void RegisterAll(this IServiceCollection services)

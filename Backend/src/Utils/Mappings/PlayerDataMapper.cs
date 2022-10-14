@@ -7,7 +7,7 @@ internal static class PlayerDataMapper
 {
     public static PlayerDto ToDto(this PlayerData data) => new()
     {
-        CID = data.CID.ToString(),
+        Cid = data.Cid.ToString(),
         Name = data.Name,
         Colors = data.Colors.ToDto(),
         Bot = data.IsBot

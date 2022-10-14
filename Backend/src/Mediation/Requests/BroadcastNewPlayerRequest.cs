@@ -1,6 +1,6 @@
-using MediatR;
 using Backend.Domain.Identifiers;
+using MediatR;
 
 namespace Backend.Mediation.Requests;
 
-internal sealed record BroadcastNewPlayerRequest(LID LID, CID CID) : IRequest;
+internal sealed record BroadcastNewPlayerRequest(Lid Lid, Cid Cid) : IRequest;
