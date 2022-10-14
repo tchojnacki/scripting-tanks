@@ -103,14 +103,11 @@ internal sealed class Tank : Entity
 
     private Vector CalculateGravityForce()
     {
-        var fGravity = default(Vector);
+        if (Position.Length <= World.Radius) return default;
 
-        if (Position.Length > World.Radius)
-        {
-            fGravity += IWorld.Gravity;
-            if (Position.Length < World.Radius + Radius)
-                fGravity += GravityOutwardPush * Position.Normalized;
-        }
+        var fGravity = IWorld.Gravity;
+        if (Position.Length <= World.Radius + Radius)
+            fGravity += GravityOutwardPush * Position.Normalized;
 
         return fGravity * Mass;
     }
@@ -119,16 +116,14 @@ internal sealed class Tank : Entity
     {
         var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        if (TimeSpan.FromMilliseconds(now - _lastShot) >= ShootCooldown)
-        {
-            _lastShot = now;
+        if (TimeSpan.FromMilliseconds(now - _lastShot) < ShootCooldown) return;
+        _lastShot = now;
 
-            World.Spawn(new Bullet(
-                World,
-                PlayerData.Cid,
-                BarrelPitch,
-                Position + new Vector(0, BarrelHeight, 0)
-            ));
-        }
+        World.Spawn(new Bullet(
+            World,
+            PlayerData.Cid,
+            BarrelPitch,
+            Position + new Vector(0, BarrelHeight, 0)
+        ));
     }
 }
