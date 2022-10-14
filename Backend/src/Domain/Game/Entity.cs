@@ -4,28 +4,28 @@ namespace Backend.Domain.Game;
 
 internal abstract class Entity
 {
-    protected readonly IWorld _world;
-    protected Vector _velocity; // m/s
+    protected readonly double Mass; // kg
+    protected readonly IWorld World;
     private Vector _acceleration; // m/s^2
-    protected readonly double _mass; // kg
+    protected Vector Velocity; // m/s
 
     protected Entity(
         IWorld world,
-        EID? eid = null,
+        Eid? eid = null,
         Vector position = default,
         Vector velocity = default,
         double radius = 0,
         double mass = 1)
     {
-        _world = world;
-        EID = eid ?? EID.GenerateUnique();
+        World = world;
+        Eid = eid ?? Eid.GenerateUnique();
         Position = position;
-        _velocity = velocity;
+        Velocity = velocity;
         Radius = radius;
-        _mass = mass;
+        Mass = mass;
     }
 
-    public EID EID { get; }
+    public Eid Eid { get; }
     public Vector Position { get; private set; }
     public double Radius { get; protected set; }
 
@@ -34,15 +34,17 @@ internal abstract class Entity
     public virtual void Update(TimeSpan deltaTime)
     {
         var forces = CalculateForces();
-        _acceleration = forces / _mass;
-        _velocity += _acceleration * deltaTime.TotalSeconds;
-        Position += _velocity * deltaTime.TotalSeconds;
+        _acceleration = forces / Mass;
+        Velocity += _acceleration * deltaTime.TotalSeconds;
+        Position += Velocity * deltaTime.TotalSeconds;
 
         if (HighestPoint < IWorld.SeaHeight)
-            _world.Destroy(this);
+            World.Destroy(this);
     }
 
-    public virtual void CollideWith(Entity other) { }
+    public virtual void CollideWith(Entity other)
+    {
+    }
 
     protected virtual Vector CalculateForces() => default;
 }

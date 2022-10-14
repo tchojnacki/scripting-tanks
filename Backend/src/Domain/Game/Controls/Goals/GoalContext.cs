@@ -1,3 +1,3 @@
-namespace Backend.Domain.Game.Controls;
+namespace Backend.Domain.Game.Controls.Goals;
 
-internal sealed record GoalContext(Tank Self, AITraits Traits, Vector TargetOffset);
+internal sealed record GoalContext(Tank Self, AiTraits Traits, Vector TargetOffset);

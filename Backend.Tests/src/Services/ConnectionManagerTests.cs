@@ -18,9 +18,9 @@ public class ConnectionManagerTest
     public ConnectionManagerTest() =>
         _sut = new(_roomManager, _customizationProvider, _messageSerializer, _messageValidator, _logger);
 
-    private async Task<CID> SetupPlayerAsync()
+    private async Task<Cid> SetupPlayerAsync()
     {
-        var cid = CID.GenerateUnique();
+        var cid = Cid.GenerateUnique();
         _customizationProvider.AssignDisplayName().Returns("Test name");
         _customizationProvider.AssignTankColors().Returns(new TankColors
         {
@@ -35,7 +35,7 @@ public class ConnectionManagerTest
     public async Task SendToSingleAsync_ShouldSerializeMessage_WhenPlayerExists()
     {
         var cid = await SetupPlayerAsync();
-        var message = new LobbyRemovedServerMessage { Data = LID.GenerateUnique().ToString() };
+        var message = new LobbyRemovedServerMessage { Data = Lid.GenerateUnique().ToString() };
 
         await _sut.SendToSingleAsync(cid, message);
 

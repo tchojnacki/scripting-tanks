@@ -10,20 +10,18 @@ internal sealed class Bullet : Entity
 
     public Bullet(
         IWorld world,
-        CID ownerCid,
+        Cid ownerCid,
         double direction,
         Vector position) : base(
-            world,
-            position: position,
-            velocity: Vector.UnitWithPitch(direction) * BulletSpeed,
-            radius: 0)
-    {
-        OwnerCID = ownerCid;
-    }
+        world,
+        position: position,
+        velocity: Vector.UnitWithPitch(direction) * BulletSpeed,
+        radius: 0) =>
+        OwnerCid = ownerCid;
 
-    public CID OwnerCID { get; }
+    public Cid OwnerCid { get; }
 
-    protected override Vector CalculateForces() => IWorld.Gravity * _mass;
+    protected override Vector CalculateForces() => IWorld.Gravity * Mass;
 
     public override void Update(TimeSpan deltaTime)
     {

@@ -16,18 +16,18 @@ public class RoomManagerTest
 
     public RoomManagerTest() => _sut = new(_mediator);
 
-    private async Task<CID> SetupPlayerAsync()
+    private async Task<Cid> SetupPlayerAsync()
     {
-        var cid = CID.GenerateUnique();
-        _mediator.Send(new PlayerDataRequest(cid)).Returns(new PlayerData { CID = cid });
+        var cid = Cid.GenerateUnique();
+        _mediator.Send(new PlayerDataRequest(cid)).Returns(new PlayerData { Cid = cid });
         await _sut.HandleOnConnectAsync(cid);
         return cid;
     }
 
-    private async Task<LID> SetupLobbyAsync(CID ownerCid)
+    private async Task<Lid> SetupLobbyAsync(Cid ownerCid)
     {
         await _sut.HandleOnMessageAsync(ownerCid, new CreateLobbyClientMessage());
-        return ((GameRoom)_sut.RoomContaining(ownerCid)).LID;
+        return ((GameRoom)_sut.RoomContaining(ownerCid)).Lid;
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class RoomManagerTest
 
         var room = _sut.GetGameRoom(lid);
 
-        room.LID.Should().Be(lid);
+        room.Lid.Should().Be(lid);
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class RoomManagerTest
     [Fact]
     public void ContainsGameRoom_ShouldReturnFalse_WhenNoRoomWasFound()
     {
-        var lid = LID.GenerateUnique();
+        var lid = Lid.GenerateUnique();
 
         var result = _sut.ContainsGameRoom(lid);
 
@@ -154,7 +154,7 @@ public class RoomManagerTest
 
         _sut.RoomContaining(joinerCid)
             .Should().BeAssignableTo<GameRoom>()
-            .Which.LID.Should().Be(lid);
+            .Which.Lid.Should().Be(lid);
     }
 
     [Fact]

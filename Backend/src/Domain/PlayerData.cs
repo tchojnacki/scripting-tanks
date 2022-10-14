@@ -5,7 +5,7 @@ namespace Backend.Domain;
 
 internal sealed class PlayerData
 {
-    public CID CID { get; init; } = default!;
+    public Cid Cid { get; init; } = default!;
     public WebSocket? Socket { get; init; } = default!;
     public string Name { get; set; } = default!;
     public TankColors Colors { get; set; } = default!;

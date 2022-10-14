@@ -1,8 +1,8 @@
-using MediatR;
-using Backend.Services;
 using Backend.Contracts.Messages.Server;
 using Backend.Mediation.Requests;
+using Backend.Services;
 using Backend.Utils.Mappings;
+using MediatR;
 
 namespace Backend.Mediation.Handlers;
 
@@ -19,6 +19,6 @@ internal sealed class BroadcastRoomStateHandler : AsyncRequestHandler<BroadcastR
 
     protected override Task Handle(BroadcastRoomStateRequest request, CancellationToken cancellationToken)
         => _broadcastHelper.BroadcastToRoom(
-            request.LID,
-            new RoomStateServerMessage { Data = _roomManager.GetGameRoom(request.LID).ToDto() });
+            request.Lid,
+            new RoomStateServerMessage { Data = _roomManager.GetGameRoom(request.Lid).ToDto() });
 }

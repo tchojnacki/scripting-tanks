@@ -8,14 +8,14 @@ internal interface IRoomManager
 {
     MenuRoom MenuRoom { get; }
     IEnumerable<LobbyInfo> Lobbies { get; }
-    Task HandleOnConnectAsync(CID cid);
-    Task HandleOnDisconnectAsync(CID cid);
-    Task HandleOnMessageAsync(CID cid, IClientMessage message);
-    GameRoom GetGameRoom(LID lid);
-    bool ContainsGameRoom(LID lid);
-    ConnectionRoom RoomContaining(CID cid);
-    Task JoinGameRoomAsync(CID cid, LID lid);
-    Task CloseLobbyAsync(LID lid);
-    Task ShowSummaryAsync(LID lid);
-    Task PlayAgainAsync(LID lid);
+    Task HandleOnConnectAsync(Cid cid);
+    Task HandleOnDisconnectAsync(Cid cid);
+    Task HandleOnMessageAsync(Cid cid, IClientMessage message);
+    GameRoom GetGameRoom(Lid lid);
+    bool ContainsGameRoom(Lid lid);
+    ConnectionRoom RoomContaining(Cid cid);
+    Task JoinGameRoomAsync(Cid cid, Lid lid);
+    Task CloseLobbyAsync(Lid lid);
+    Task ShowSummaryAsync(Lid lid);
+    Task PlayAgainAsync(Lid lid);
 }

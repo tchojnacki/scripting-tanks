@@ -1,14 +1,14 @@
-using FluentValidation;
+using Backend.Contracts.Messages;
 using Backend.Domain;
 using Backend.Domain.Identifiers;
-using Backend.Contracts.Messages;
+using FluentValidation;
 
 namespace Backend.Services;
 
 internal sealed class MessageValidator : IMessageValidator
 {
-    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<MessageValidator> _logger;
+    private readonly IServiceProvider _serviceProvider;
 
     public MessageValidator(IServiceProvider serviceProvider, ILogger<MessageValidator> logger)
     {
@@ -16,7 +16,7 @@ internal sealed class MessageValidator : IMessageValidator
         _logger = logger;
     }
 
-    public bool Validate(CID cid, IClientMessage message)
+    public bool Validate(Cid cid, IClientMessage message)
     {
         try
         {

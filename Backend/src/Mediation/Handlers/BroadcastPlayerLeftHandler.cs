@@ -1,7 +1,7 @@
-using MediatR;
-using Backend.Services;
 using Backend.Contracts.Messages.Server;
 using Backend.Mediation.Requests;
+using Backend.Services;
+using MediatR;
 
 namespace Backend.Mediation.Handlers;
 
@@ -13,6 +13,6 @@ internal sealed class BroadcastPlayerLeftHandler : AsyncRequestHandler<Broadcast
 
     protected override Task Handle(BroadcastPlayerLeftRequest request, CancellationToken cancellationToken)
         => _broadcastHelper.BroadcastToRoom(
-            request.LID,
-            new PlayerLeftServerMessage { Data = request.CID.ToString() });
+            request.Lid,
+            new PlayerLeftServerMessage { Data = request.Cid.ToString() });
 }

@@ -1,9 +1,9 @@
-using MediatR;
-using Backend.Services;
-using Backend.Domain.Rooms;
 using Backend.Contracts.Messages.Server;
+using Backend.Domain.Rooms;
 using Backend.Mediation.Requests;
+using Backend.Services;
 using Backend.Utils.Mappings;
+using MediatR;
 
 namespace Backend.Mediation.Handlers;
 
@@ -20,9 +20,9 @@ internal sealed class SendRoomStateHandler : AsyncRequestHandler<SendRoomStateRe
 
     protected override async Task Handle(SendRoomStateRequest request, CancellationToken cancellationToken)
     {
-        ConnectionRoom room = request.LID is not null ? _roomManager.GetGameRoom(request.LID) : _roomManager.MenuRoom;
+        ConnectionRoom room = request.Lid is not null ? _roomManager.GetGameRoom(request.Lid) : _roomManager.MenuRoom;
         await _connectionManager.SendToSingleAsync(
-            request.CID,
+            request.Cid,
             new RoomStateServerMessage { Data = room.ToDto() });
     }
 }

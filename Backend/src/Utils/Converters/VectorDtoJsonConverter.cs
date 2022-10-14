@@ -11,13 +11,13 @@ internal sealed class VectorDtoJsonConverter : JsonConverter<VectorDto>
         if (reader.TokenType != JsonTokenType.StartArray) throw new JsonException();
 
         reader.Read();
-        var x = reader.GetDouble()!;
+        var x = reader.GetDouble();
 
         reader.Read();
-        var y = reader.GetDouble()!;
+        var y = reader.GetDouble();
 
         reader.Read();
-        var z = reader.GetDouble()!;
+        var z = reader.GetDouble();
 
         reader.Read();
         if (reader.TokenType != JsonTokenType.EndArray) throw new JsonException();

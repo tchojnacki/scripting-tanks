@@ -1,6 +1,6 @@
-using MediatR;
 using Backend.Domain.Identifiers;
+using MediatR;
 
 namespace Backend.Mediation.Requests;
 
-internal sealed record SendRoomStateRequest(CID CID, LID? LID) : IRequest;
+internal sealed record SendRoomStateRequest(Cid Cid, Lid? Lid) : IRequest;

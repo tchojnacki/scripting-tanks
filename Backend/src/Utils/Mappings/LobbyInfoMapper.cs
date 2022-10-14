@@ -7,9 +7,9 @@ internal static class LobbyInfoMapper
 {
     public static LobbyDto ToDto(this LobbyInfo lobby) => new()
     {
-        LID = lobby.LID.ToString(),
+        Lid = lobby.Lid.ToString(),
         Name = lobby.Name,
         Players = lobby.PlayerCount,
-        Location = lobby.Location,
+        Location = lobby.Location
     };
 }

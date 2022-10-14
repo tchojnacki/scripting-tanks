@@ -9,19 +9,19 @@ namespace Backend.Tests.Domain;
 public class GameRoomTests
 {
     private readonly IMediator _mediator = Substitute.For<IMediator>();
-    private readonly CID _ownerCid = CID.GenerateUnique();
+    private readonly Cid _ownerCid = Cid.GenerateUnique();
     private readonly GameRoom _sut;
 
     public GameRoomTests() =>
-        _sut = WaitingGameState.CreateNew(_mediator, _ownerCid, LID.GenerateUnique(), "Room name");
+        _sut = WaitingGameState.CreateNew(_mediator, _ownerCid, Lid.GenerateUnique(), "Room name");
 
     [Fact]
     public async Task PromoteAsync_ShouldChangeLobbyOwner()
     {
-        var newOwner = CID.GenerateUnique();
+        var newOwner = Cid.GenerateUnique();
 
         await _sut.HandleOnMessageAsync(_ownerCid, new PromotePlayerClientMessage { Data = newOwner.ToString() });
 
-        _sut.OwnerCID.Should().Be(newOwner);
+        _sut.OwnerCid.Should().Be(newOwner);
     }
 }

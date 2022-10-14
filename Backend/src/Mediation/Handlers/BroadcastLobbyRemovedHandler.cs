@@ -1,7 +1,7 @@
-using MediatR;
-using Backend.Services;
 using Backend.Contracts.Messages.Server;
 using Backend.Mediation.Requests;
+using Backend.Services;
+using MediatR;
 
 namespace Backend.Mediation.Handlers;
 
@@ -12,5 +12,5 @@ internal sealed class BroadcastLobbyRemovedHandler : AsyncRequestHandler<Broadca
     public BroadcastLobbyRemovedHandler(IBroadcastHelper broadcastHelper) => _broadcastHelper = broadcastHelper;
 
     protected override Task Handle(BroadcastLobbyRemovedRequest request, CancellationToken cancellationToken)
-        => _broadcastHelper.BroadcastToMenu(new LobbyRemovedServerMessage { Data = request.LID.ToString() });
+        => _broadcastHelper.BroadcastToMenu(new LobbyRemovedServerMessage { Data = request.Lid.ToString() });
 }

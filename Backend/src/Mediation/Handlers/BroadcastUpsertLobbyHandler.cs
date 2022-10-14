@@ -1,8 +1,8 @@
-using MediatR;
-using Backend.Services;
 using Backend.Contracts.Messages.Server;
 using Backend.Mediation.Requests;
+using Backend.Services;
 using Backend.Utils.Mappings;
+using MediatR;
 
 namespace Backend.Mediation.Handlers;
 
@@ -19,5 +19,5 @@ internal sealed class BroadcastUpsertLobbyHandler : AsyncRequestHandler<Broadcas
 
     protected override Task Handle(BroadcastUpsertLobbyRequest request, CancellationToken cancellationToken)
         => _broadcastHelper.BroadcastToMenu(
-            new UpsertLobbyServerMessage { Data = _roomManager.GetGameRoom(request.LID).LobbyInfo.ToDto() });
+            new UpsertLobbyServerMessage { Data = _roomManager.GetGameRoom(request.Lid).LobbyInfo.ToDto() });
 }

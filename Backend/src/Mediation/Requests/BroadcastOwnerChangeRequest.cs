@@ -1,6 +1,6 @@
-using MediatR;
 using Backend.Domain.Identifiers;
+using MediatR;
 
 namespace Backend.Mediation.Requests;
 
-internal sealed record BroadcastOwnerChangeRequest(LID LID, CID NewOwnerCID) : IRequest;
+internal sealed record BroadcastOwnerChangeRequest(Lid Lid, Cid NewOwnerCid) : IRequest;

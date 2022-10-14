@@ -11,8 +11,8 @@ namespace Backend.Services;
 
 internal sealed class ConnectionManager : IConnectionManager
 {
-    private readonly Dictionary<CID, PlayerData> _activeConnections = new();
-    private readonly HashSet<CID> _bots = new();
+    private readonly Dictionary<Cid, PlayerData> _activeConnections = new();
+    private readonly HashSet<Cid> _bots = new();
     private readonly ICustomizationProvider _customizationProvider;
     private readonly ILogger<ConnectionManager> _logger;
     private readonly IMessageSerializer _messageSerializer;
@@ -34,7 +34,7 @@ internal sealed class ConnectionManager : IConnectionManager
         _logger = logger;
     }
 
-    public async Task SendToSingleAsync<T>(CID cid, IServerMessage<T> message)
+    public async Task SendToSingleAsync<T>(Cid cid, IServerMessage<T> message)
     {
         if (!_activeConnections.ContainsKey(cid)) return;
         _logger.LogDebug("Outbound message for {Cid}:\n{Message}", cid.ToString(), message);
@@ -46,12 +46,12 @@ internal sealed class ConnectionManager : IConnectionManager
             CancellationToken.None) ?? Task.CompletedTask);
     }
 
-    public PlayerData DataFor(CID cid)
+    public PlayerData DataFor(Cid cid)
     {
         if (_bots.Contains(cid))
             return new()
             {
-                CID = cid,
+                Cid = cid,
                 Socket = null,
                 Name = "BOT",
                 Colors = _customizationProvider.AssignTankColors(cid.ToString().GetHashCode())
@@ -60,7 +60,7 @@ internal sealed class ConnectionManager : IConnectionManager
         return _activeConnections[cid];
     }
 
-    public async Task AcceptConnectionAsync(CID cid, WebSocket socket, CancellationToken cancellationToken)
+    public async Task AcceptConnectionAsync(Cid cid, WebSocket socket, CancellationToken cancellationToken)
     {
         await HandleOnConnectAsync(cid, socket);
 
@@ -106,12 +106,12 @@ internal sealed class ConnectionManager : IConnectionManager
         }
     }
 
-    public async Task HandleOnConnectAsync(CID cid, WebSocket socket)
+    public async Task HandleOnConnectAsync(Cid cid, WebSocket socket)
     {
         _logger.LogInformation("Connected: {Cid}", cid.ToString());
         var connection = new PlayerData
         {
-            CID = cid,
+            Cid = cid,
             Socket = socket,
             Name = _customizationProvider.AssignDisplayName(),
             Colors = _customizationProvider.AssignTankColors()
@@ -122,38 +122,38 @@ internal sealed class ConnectionManager : IConnectionManager
         await _roomManager.HandleOnConnectAsync(cid);
     }
 
-    private async Task HandleOnDisconnectAsync(CID cid)
+    private async Task HandleOnDisconnectAsync(Cid cid)
     {
         _logger.LogInformation("Disconnected: {Cid}", cid.ToString());
         _activeConnections.Remove(cid);
         await _roomManager.HandleOnDisconnectAsync(cid);
     }
 
-    private async Task RerollClientName(CID cid)
+    private async Task RerollClientName(Cid cid)
     {
         var con = _activeConnections[cid];
         con.Name = _customizationProvider.AssignDisplayName();
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
     }
 
-    private async Task CustomizeColors(CID cid, TankColors colors)
+    private async Task CustomizeColors(Cid cid, TankColors colors)
     {
         var con = _activeConnections[cid];
         con.Colors = colors;
         await SendToSingleAsync(cid, new AssignIdentityServerMessage { Data = con.ToDto() });
     }
 
-    private Task HandleOnMessageAsync(CID cid, IClientMessage message) => message switch
+    private Task HandleOnMessageAsync(Cid cid, IClientMessage message) => message switch
     {
         RerollNameClientMessage => RerollClientName(cid),
         CustomizeColorsClientMessage { Data: var dto } => CustomizeColors(cid, dto.ToDomain()),
-        AddBotClientMessage => AddBotAsync(((GameRoom)_roomManager.RoomContaining(cid)).LID),
+        AddBotClientMessage => AddBotAsync(((GameRoom)_roomManager.RoomContaining(cid)).Lid),
         _ => _roomManager.HandleOnMessageAsync(cid, message)
     };
 
-    private async Task AddBotAsync(LID lid)
+    private async Task AddBotAsync(Lid lid)
     {
-        var cid = CID.GenerateUnique();
+        var cid = Cid.GenerateUnique();
         _bots.Add(cid);
         await _roomManager.HandleOnConnectAsync(cid);
         await _roomManager.JoinGameRoomAsync(cid, lid);

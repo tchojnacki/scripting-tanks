@@ -1,9 +1,9 @@
-using FluentValidation;
-using Backend.Services;
+using Backend.Contracts.Messages.Client;
 using Backend.Domain;
 using Backend.Domain.Identifiers;
 using Backend.Domain.Rooms.GameStates;
-using Backend.Contracts.Messages.Client;
+using Backend.Services;
+using FluentValidation;
 
 namespace Backend.Validation;
 
@@ -11,7 +11,7 @@ internal sealed class KickPlayerValidator : AbstractValidator<MessageContext<Kic
 {
     public KickPlayerValidator(IRoomManager roomManager)
     {
-        Transform(from: x => x.Message.Data, to: CID.Deserialize)
-            .MustBeInGameRoom((gr, _, x) => gr is WaitingGameState && x.Sender == gr.OwnerCID, roomManager);
+        Transform(x => x.Message.Data, Cid.Deserialize)
+            .MustBeInGameRoom((gr, _, x) => gr is WaitingGameState && x.Sender == gr.OwnerCid, roomManager);
     }
 }
