@@ -21,11 +21,14 @@ If you want to see the previous Python version, check the repository at the time
 
 ## Technology 🔧
 ### Backend ⚙️
-- [C# 10](https://learn.microsoft.com/en-us/dotnet/csharp/)
-- [.NET 6.0](https://dotnet.microsoft.com/en-us/)
+- [C# 10](https://learn.microsoft.com/en-us/dotnet/csharp)
+- [.NET 6.0](https://dotnet.microsoft.com/en-us)
 - [ASP.NET](https://dotnet.microsoft.com/en-us/apps/aspnet)
 - [MediatR](https://github.com/jbogard/MediatR)
-- [FluentValidation](https://docs.fluentvalidation.net/en/latest/)
+- [xUnit](https://xunit.net)
+- [FluentValidation](https://docs.fluentvalidation.net/en/latest)
+- [FluentAssertions](https://fluentassertions.com)
+- [NSubstitute](https://nsubstitute.github.io)
 
 ### Frontend 🖥️
 - [TypeScript 4.6](https://www.typescriptlang.org/)
